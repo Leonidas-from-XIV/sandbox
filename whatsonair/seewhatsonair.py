@@ -198,7 +198,12 @@ class TempNewUI(object):
     def update_track(self, parser, iterator):
         """Universal caption updater"""
         try:
-            print self.model.set_value(iterator, 2, 'abc')
+            station = parser()
+            station.feed(station.pagecontent)
+            tr = station.currenttrack().split(' - ', 1)
+            #print tr
+            self.model.set_value(iterator, 2, tr[0])
+            self.model.set_value(iterator, 3, tr[1])
         except whatsonair.IncompatibleParser:
             self.track.set_label('Update failed')
         except IOError:
