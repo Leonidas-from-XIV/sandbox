@@ -7,9 +7,10 @@ This frontend is written by Leonidas, the initiator of the
 WhatsOnAir project.
 
 It reflects the most current parsers available, although it is
-pretty minimalistic at the moment
+pretty minimalistic at the moment.
 
-Will use gtk.ListStore ant gtk.SpinButton (for time intervals)"""
+The newer in-development GUI uses a more interesting interface
+with gtk.ListStore and gtk.SpinButton (for time intervals)"""
 
 import gtk
 import whatsonair
@@ -99,15 +100,15 @@ class TempNewUI(object):
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         
-        model = gtk.ListStore(bool, str, str, str)
-        treeview = gtk.TreeView(model) 
-        treeview.columns_autosize()
-        sw.add(treeview)
+        self.model = gtk.ListStore(bool, str, str, str)
+        self.treeview = gtk.TreeView(self.model) 
+        self.treeview.columns_autosize()
+        sw.add(self.treeview)
         
         for i in range(4):
             if i == 0:
                 renderer = gtk.CellRendererToggle()
-                renderer.connect('toggled', self.quest_toggled, model)
+                renderer.connect('toggled', self.quest_toggled, self.model)
                 column = gtk.TreeViewColumn("Question", renderer, active=i)
             elif i == 1:
                 renderer = gtk.CellRendererText()
@@ -117,16 +118,16 @@ class TempNewUI(object):
                 column = gtk.TreeViewColumn("Artist", renderer, text=i)
             elif i == 3:
                 renderer = gtk.CellRendererText()
-                column = gtk.TreeViewColumn("Track", renderer, text=i)
-            treeview.append_column(column)
+                column = gtk.TreeViewColumn("Title", renderer, text=i)
+            self.treeview.append_column(column)
         
         for st in whatsonair.allparsers:
-            iterator = model.append()
-            model.set_value(iterator, 1, st.__station__)
+            iterator = self.model.append()
+            self.model.set_value(iterator, 1, st.__station__)
         
         
         self.track = gtk.Label('Click on Update')
-        self.update = gtk.Button('Update')
+        self.update = gtk.Button('Manual Update')
         self.q = gtk.Button('Quit')
         
         adj = gtk.Adjustment(value=10, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0) 
@@ -154,9 +155,12 @@ class TempNewUI(object):
     
     def quest_toggled(self, cell, path, model):
         """The handler for clicking on the checkmark"""
-        # get toggled iter
+        # get toggled iterator
         iterator = model.get_iter((int(path),))
+        
         quest = model.get_value(iterator, 0)
+        station = model.get_value(iterator, 1)
+        print station
         #print "Currently ", quest, " changed to ",
     
         # do something with the value
@@ -174,25 +178,27 @@ class TempNewUI(object):
     def update_click(self, widget):
         """Updates the track,
         first fetches informations of rhe selected station"""
-        active = self.stations.get_active()
-        model = self.stations.get_model()
-        selectedstation = model[active][0]
+        # get the selection
+        selection = self.treeview.get_selection()
+        model, selected = selection.get_selected_rows()
+        
+        # now the iterator mapping to that selection
+        iterator = model.get_iter((selected[0][0],))
+        # and the station name
+        selectedstation = model.get_value(iterator, 1)
         
         for station in whatsonair.allparsers:
             if station.__station__ == selectedstation:
                 #self.update_track(station)
                 self.update.set_sensitive(False)
-                self.stations.set_sensitive(False)
                 self.track.set_text('Updating...')
                 # use GTK pseudo threads
-                gtk.idle_add(self.update_track, station)
+                gtk.idle_add(self.update_track, station, iterator)
     
-    def update_track(self, parser):
+    def update_track(self, parser, iterator):
         """Universal caption updater"""
         try:
-            station = parser()
-            station.feed(station.pagecontent)
-            self.track.set_label(station.currenttrack())
+            print self.model.set_value(iterator, 2, 'abc')
         except whatsonair.IncompatibleParser:
             self.track.set_label('Update failed')
         except IOError:
@@ -201,7 +207,6 @@ class TempNewUI(object):
             self.track.set_label(station.currenttrack())
             
         self.update.set_sensitive(True)
-        self.stations.set_sensitive(True)
 
 def main():
     """The main method - just opens the window"""
