@@ -362,15 +362,13 @@ def main():
     
     if options.all:
         for parser in allparsers:
-            #print parser
-            
             try:
                 printcurrent(parser, options.descriptive)
             except:
                 # failed
                 pass
     else:
-        # look for the other values
+        # which stations to question?
         if options.fm4:
             printcurrent(FM4Parser, options.descriptive)
         if options.antenne:
