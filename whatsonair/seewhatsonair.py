@@ -105,6 +105,7 @@ class UserInterface(object):
         self.sid = gobject.timeout_add(interval, self.cyclic_update)
     
     def cyclic_update(self):
+        print 'Timeout #%s' % str(self.sid)
         #print dir(self.model)
         #print dir(self.treeview)
         
@@ -116,7 +117,6 @@ class UserInterface(object):
                 rows.append(nextiter)
             else:
                 break
-        #print rows
         
         for iterator in rows:
             #print iterator
@@ -125,13 +125,11 @@ class UserInterface(object):
             if question:
                 for stat in whatsonair.allparsers:
                     if stat.__station__ == station:
-                        self.update_track(stat, iterator)
+                        gtk.idle_add(self.update_track, stat, iterator)
             
         
-        #print self.model.get_data()
-        print 'Timeout #%s' % str(self.sid)
-        #return True
-        return False
+        return True
+        #return False
     
     def update_click(self, widget):
         """Updates the track,
@@ -165,6 +163,8 @@ class UserInterface(object):
             self.update.set_label('Update failed')
         except IOError:
             self.update.set_label('Network error')
+        except IndexError:
+            pass
             
         self.update.set_sensitive(True)
         # do not start periodically
