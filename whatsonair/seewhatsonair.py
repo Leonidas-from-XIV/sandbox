@@ -89,13 +89,38 @@ class StationWindow(object):
     
 class TempNewUI(object):
     def __init__(self):
+        import gobject
         self.window = gtk.Window()
         self.window.set_title("What's on Air?")
         self.window.connect("delete_event", self.delete_event) 
         
         self.box = gtk.Table()
         
-        self.stations = gtk.combo_box_new_text()
+        self.stations = gtk.ListStore(bool, str, str, str)
+        iter = self.stations.append()
+        print iter
+
+        #self.stations.set(iter, 0, True, 1, "Bla", 2, "Bal", 3, "blub")
+        #print dir(self.stations)
+        sw = gtk.ScrolledWindow() 
+        treeview = gtk.TreeView(self.stations) 
+        #print treeview
+        sw.add(treeview)
+        renderer = gtk.CellRendererToggle()
+        
+        column = gtk.TreeViewColumn('Question?', renderer, active=0)
+        treeview.append_column(column) 
+        
+        column = gtk.TreeViewColumn('Station', renderer)
+        treeview.append_column(column) 
+        column = gtk.TreeViewColumn('Artist', renderer)
+        treeview.append_column(column) 
+        column = gtk.TreeViewColumn('Title', renderer)
+        treeview.append_column(column)
+        
+        self.stations.set(iter, 0, 'Foo')
+        self.stations.append([False, 'red', "green", "blue"])
+        
         self.track = gtk.Label('Click on Update')
         self.update = gtk.Button('Update')
         self.q = gtk.Button('Quit')
@@ -103,7 +128,7 @@ class TempNewUI(object):
         self.q.connect("clicked", lambda widget: gtk.main_quit())
         self.update.connect("clicked", self.update_click)
         
-        self.box.attach(self.stations, 0, 1, 0, 1)
+        self.box.attach(sw, 0, 1, 0, 1)
         self.box.attach(self.track, 0, 1, 1, 2)
         self.box.attach(self.update, 1, 2, 0, 1)
         self.box.attach(self.q, 1, 2, 1, 2)
@@ -152,7 +177,7 @@ class TempNewUI(object):
 
 def main():
     """The main method - just opens the window"""
-    sw = StationWindow()
+    sw = TempNewUI()
     gtk.main()
 
 if __name__ == '__main__':
