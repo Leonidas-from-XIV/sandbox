@@ -3,7 +3,7 @@
 """See Whats On Air
 A GUI for the library written using GTK+
 This frontend is written by the initiator of the project
-it reflects the most current Parsers available."""
+it reflects the most current parsers available."""
 import gtk
 import whatsonair
 
@@ -56,7 +56,9 @@ class StationWindow(object):
         
         for station in whatsonair.allparsers:
             if station.__station__ == selectedstation:
-                self.update_track(station)
+                #self.update_track(station)
+                # use GTK pseudo threads
+                gtk.idle_add(self.update_track, station)
     
     def update_track(self, parser):
         """Universal caption updater"""
