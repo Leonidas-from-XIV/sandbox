@@ -449,13 +449,13 @@ def axe_alaska():
         # do we habe to move right?
         if move_right:
             # yes... did we really moved?
-            moved = hs.move_right(2)
+            moved = hs.move_right(0)
             if not moved:
                 # no, we are at the border
                 move_right = not move_right
                 # so change the direction
         else:
-            moved = hs.move_left(2)
+            moved = hs.move_left(0)
             if not moved:
                 move_right = not move_right
                 continue
@@ -664,8 +664,13 @@ class HexaSprite(pygame.sprite.Sprite):
             return False
     
     def rotate(self, degree):
+        """Rotates the object
+        beware of overflow (this has to be checked)"""
         rotation = degree + self.lastdegree
+        center = self.rect.center
         self.surface = pygame.transform.rotate(self.origsurface, rotation)
+        self.rect = self.surface.get_rect()
+        self.rect.center = center
         self.lastdegree = rotation
         
 if __name__ == '__main__':
