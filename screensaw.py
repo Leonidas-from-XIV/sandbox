@@ -79,8 +79,9 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    axe_alaska()
+    #axe_alaska()
     #sinwave(True, True)
+    visual_prime()
     
 def display():
     """Displays the stuff"""
@@ -404,7 +405,7 @@ def axe_alaska():
     dirchange.add(False, dirchange.remaining)
 
     #white = (255, 255, 255)
-    #blue = (46, 144, 189)    
+    #blue = (46, 144, 189)
     yellow = (251, 224, 29)
     
     # create the sprite
@@ -556,7 +557,32 @@ def sinwave(colorchange=False, thick=False):
             
 def visual_prime():
     import primebench
+    white = (255, 255, 255)
+    black = (0, 0, 0)
+    screenwidth = 20
+    screenheight = 10
     
+    for y in xrange(screenheight):
+        for x in xrange(screenwidth):
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+                
+            #print y, x
+            coord = [x, y]
+            pygame.draw.line(background, white, coord, coord, 1)
+            screen.blit(background, (0, 0))
+            pygame.display.update()
+            
+    while True:
+        # limit to 60 fps
+        clock.tick(fps)
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                return
 
 class HexaSprite(pygame.sprite.Sprite):
     def __init__(self, radius, color, alpha=255):
