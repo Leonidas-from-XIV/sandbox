@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 
 
 screenwidth = 680
@@ -189,7 +189,8 @@ def main():
     if options.all or options.laser:
         if options.intro:
             info("Laser", "Work in progress")
-        laser()
+        #laser(noblank=True, speed=2)
+        multilaser()
         #reblank(options.frameskip)
     
 def display():
@@ -388,11 +389,10 @@ def magnets():
                 return
         display()
     
-def laser():
-    """Laser demo (unfinished) - taken from XScreenSaver"""
-    def nextpos():
+def laser(speed=5, noblank=False):
+    """Laser demo - taken from XScreenSaver"""
+    def nextpos(speed):
         target = [0, 0]
-        speed = 5
         direction = 'right'
         while True:
             if direction == 'right':
@@ -426,7 +426,38 @@ def laser():
     laserposition = (200, 300)
     laserlight = (255, 0, 0)
     
-    pos = nextpos()
+    pos = nextpos(speed)
+    
+    while True:
+        # limit fps
+        clock.tick(fps)
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                return
+        
+        if not noblank:
+            screen.fill((0, 0, 0))
+        
+        target = pos.next()
+                
+        pygame.draw.line(screen, laserlight, laserposition, target, 1)
+        pygame.display.update()
+
+def multilaser():
+    """Laser demo - taken from XScreenSaver"""
+    
+    laserposition = (200, 300)
+    laserlight = (255, 0, 0)
+    rays = 25
+    endcoords = []
+    
+    pos = laser_nextpos(speed=5)
+    for i in range(rays):
+        c = pos.next()
+        endcoords.append([c[0], c[1]])
+    #raise NotImplementedError
     
     while True:
         # limit fps
@@ -439,10 +470,47 @@ def laser():
         
         screen.fill((0, 0, 0))
         
-        target = pos.next()
-                
-        pygame.draw.line(screen, laserlight, laserposition, target, 1)
+        for end in endcoords:
+            pygame.draw.line(screen, laserlight, laserposition, end, 1)
+        #pygame.draw.line(screen, laserlight, laserposition, target, 1)
+        
+        nexttarget = pos.next()
+        endcoords.pop(0)
+        endcoords.append([nexttarget[0], nexttarget[1]])
+        
         pygame.display.update()
+
+def laser_nextpos(speed=1):
+    target = [0, 0]
+    direction = 'right'
+    while True:
+        if direction == 'right':
+            if target[0] < screenwidth:
+                target[0] += speed
+                yield target
+            else:
+                direction = 'down'
+                
+        if direction == 'down':
+            if target[1] < screenheight:
+                target[1] += speed
+                yield target
+            else:
+                direction = 'left'
+                    
+        if direction == 'left':
+            if target[0] > 0:
+                target[0] -= speed
+                yield target
+            else:
+                direction = 'up'
+                
+        if direction == 'up':
+            if target[1] > 0:
+                target[1] -= speed
+                yield target
+            else:
+                direction = 'right'
     
     
 def ant():
