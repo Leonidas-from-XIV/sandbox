@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
-"""A program for listing the songs currently on air"""
+"""A program for listing the songs currently on air
+This program is under GPL"""
 
-import urllib, HTMLParser, htmlentitydefs, optparse, re, sys
+import urllib, HTMLParser, htmlentitydefs, re, sys
 
 stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'Antenne' : 'http://webradio.antenne.de/antenne/webradio/new_channels/ant_infos.php',
@@ -23,6 +24,8 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
 __version__ = '0.8.4'
 
 def splitver(version):
+    """Splits the string representation of the version into a tuple form,
+    so it's easier to parse"""
     return tuple(version.split('.'))
 
 __versiontuple__ = splitver(__version__)
@@ -46,7 +49,15 @@ class StationBase(object, HTMLParser.HTMLParser):
     """The base class for each radio station parser
     provides already some rough tools like the HTMLParser.
     The defined methods should be overloaded to provide a
-    consistent interface for all derived station parsers"""
+    consistent interface for all derived station parsers
+    
+    The constructor loads the page content into self.pagecontent,
+    and also cares about timeout handling. So in child classes
+    you need to call StationBase.__init__ for doing the most work.
+    
+    All child classes also have a feed() method, where the page content
+    is parsed and all values initialized. After that, curenttrack() can
+    be called to get the currently playing track."""
     __station__ = 'StationBase'
     __version__ = '1.0.0'
     __versiontuple__ = splitver(__version__)
@@ -56,7 +67,7 @@ class StationBase(object, HTMLParser.HTMLParser):
     
     def __init__(self, url, offline=False):
         """Initialize some values.
-        This method should be always called, to initalize th HTMLParser."""
+        This method should be always called, to initalize the HTMLParser."""
         HTMLParser.HTMLParser.__init__(self)
         self.crawlerurl = url
         if not offline:
@@ -89,9 +100,8 @@ class StationBase(object, HTMLParser.HTMLParser):
 
 class FM4Parser(StationBase):
     """The Parser for the austrian sidestream radio station
-    FM4, which is part of ORF
-    Look at it's homepage
-    http://fm4.orf.at"""
+    FM4, which is part of ORF.
+    Look at it's homepage http://fm4.orf.at"""
     __station__ = 'FM4'
     __version__ = '0.9.0'
     __versiontuple__ = splitver(__version__)
@@ -151,6 +161,8 @@ class FM4Parser(StationBase):
         return current
 
 class EnergyParser(StationBase):
+    """The first Energy parser.
+    Handles Energy Munich former known as Energy 93.3"""
     __station__ = 'Energy'
     __version__ = '0.6.0'
     __versiontuple__ = splitver(__version__)
@@ -183,6 +195,7 @@ class EnergyParser(StationBase):
         return self.artist + ' - ' + self.title
 
 class AntenneParser(StationBase):
+    """Parser for Antenne Bayern"""
     __station__ = 'Antenne'
     __version__ = '0.6.0'
     __versiontuple__ = splitver(__version__)
@@ -341,9 +354,9 @@ class GongParser(StationBase):
     
 class PSRParser(StationBase):
     """This station provides multiple songs
-    this parser has to be changed a bit
+    this parser has to be changed a bit.
     
-    code taken from Iopodx"""
+    Code taken from Iopodx"""
     __station__ = 'PSR'
     __version__ = '0.3.0'
     __versiontuple__ = splitver(__version__)
@@ -376,7 +389,7 @@ class PSRParser(StationBase):
             return "No title info currently"
         
 class NRJParser(StationBase):
-    """Coded by Iopodx, just testing"""
+    """Coded by Iopodx"""
     __station__ = 'NRJ'
     __version__ = '0.3.0'
     __versiontuple__ = splitver(__version__)
@@ -391,13 +404,12 @@ class NRJParser(StationBase):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result=text.split('JETZT BEI ENERGY: \r\n\t')
-            result=result[1].split('\n <a href=')
-            track=result[0].split(' \xb7 ')
+            result = text.split('JETZT BEI ENERGY: \r\n\t')
+            result = result[1].split('\n <a href=')
+            track = result[0].split(' \xb7 ')
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
-                
         except:
             raise IncompatibleParser(self.__station__)
     
@@ -423,13 +435,12 @@ class RTLParser(StationBase):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result=text.split('<td class="Stil1"><b>')
-            result=result[1].split('</td>')
-            track=result[0].split('</b><br>')
+            result = text.split('<td class="Stil1"><b>')
+            result = result[1].split('</td>')
+            track = result[0].split('</b><br>')
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
-                
         except:
             raise IncompatibleParser(self.__station__)
     
@@ -440,7 +451,7 @@ class RTLParser(StationBase):
             return "No title info currently"
 
 class YOUFMParser(StationBase):
-    """Quickly coded by johi"""
+    """Quickly coded by Johi"""
     __station__ = 'YOUFM'
     __version__ = '0.1.1'
     __versiontuple__ = splitver(__version__)
@@ -474,10 +485,12 @@ class YOUFMParser(StationBase):
             return 'No title info currently'
 
 class HR3Parser(YOUFMParser):
-    """Quickly coded by johi"""
+    """Quickly coded by Johi.
+    This parser is fun, as it uses internally the YOUFMParser."""
     __station__ = 'HR3'
     __version__ = '0.0.1'
     __versiontuple__ = splitver(__version__)
+    
     def __init__(self, url=stationurls['HR3'], offline=False):
         YOUFMParser.__init__(self, url, offline)
 
@@ -497,13 +510,12 @@ class NJoyParser(StationBase):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result=text.split('" title="N-JOY Playlist">')
-            result=result[1].split('\n</a></span>')
-            track=result[0].split(' - ')
+            result = text.split('" title="N-JOY Playlist">')
+            result = result[1].split('\n</a></span>')
+            track = result[0].split(' - ')
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
-                
         except:
             raise IncompatibleParser(self.__station__)
     
@@ -544,9 +556,9 @@ class EinsLiveParser(StationBase):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result=text.split('</TD><TD valign="top" class="cont">')
-            result=result[1].split('</TD></TR><TR><TD valign="top"')
-            track=result[0].split('</TD><TD valign="top" class="contbold">')
+            result = text.split('</TD><TD valign="top" class="cont">')
+            result = result[1].split('</TD></TR><TR><TD valign="top"')
+            track = result[0].split('</TD><TD valign="top" class="contbold">')
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
@@ -577,14 +589,13 @@ class SunshineLiveParser(StationBase):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result1=text.split('</TD><TD NOWRAP>')
-            result=text.split('</TD><TD NOWRAP>')
-            result=result[2].split('</TD><TD><A HREF="')
-            track=[result[0], result1[1]]
+            result1 = text.split('</TD><TD NOWRAP>')
+            result = text.split('</TD><TD NOWRAP>')
+            result = result[2].split('</TD><TD><A HREF="')
+            track = [result[0], result1[1]]
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
-
         except:
             raise IncompatibleParser(self.__station__)
     
@@ -611,13 +622,12 @@ class EnergyBerlinParser(StationBase):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result=text.split('color="white" size="1"><center>')
-            result=result[1].split('</center></font></body></html>')
-            track=result[0].split('<br>')
+            result = text.split('color="white" size="1"><center>')
+            result = result[1].split('</center></font></body></html>')
+            track = result[0].split('<br>')
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
-
         except:
             raise IncompatibleParser(self.__station__)
     
@@ -632,6 +642,10 @@ allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser,
     NJoyParser, EinsLiveParser, SunshineLiveParser, EnergyBerlinParser]
     
 def main():
+    """The commandline frontend"""
+    # import optik here so it is not needed when using as a library
+    import optparse
+    
     parser = optparse.OptionParser()
     parser.add_option("-v", "--version", dest="version", default=False,
         action="store_true", help="print program & parsers' versions and exit")
@@ -723,6 +737,10 @@ def main():
             printcurrent(EnergyBerlinParser, options.descriptive) 
         
 def printcurrent(parser, descriptive):
+    """Prints the current title playing on a station
+    parser is a BaseParser derived class and descriptive
+    tells whether it should be chatty. If chatty we also display
+    the stations' name"""
     current = parser()
     current.feed(current.pagecontent)
     
