@@ -39,39 +39,33 @@ class StationWindow(object):
     
     def populate(self):
         """Fills that dropdown list"""
+        # go though all available parsers
         for station in whatsonair.allparsers:
-            #print station.__station__
+            # add the station name to the dropdown list
             self.stations.append_text(station.__station__)
-        #self.stations.append_text('FM4')
-        #self.stations.append_text('Antenne Bayern')
-        #self.stations.append_text('Bayern 3')
-        #self.stations.append_text('Gong')
-        #self.stations.append_text('Energy')
         self.stations.set_active(0)
     
     def update_click(self, widget):
+        """Updates the track,
+        first fetches informations of rhe selected station"""
         active = self.stations.get_active()
         model = self.stations.get_model()
-        station = model[active][0]
-        if station == 'FM4':
-            self.update_track(whatsonair.FM4Parser)
-        elif station == 'Antenne Bayern':
-            self.update_track(whatsonair.AntenneParser)
-        elif station == 'Bayern 3':
-            self.update_track(whatsonair.Bayern3Parser)
-        elif station == 'Gong':
-            self.update_track(whatsonair.GongParser)
-        elif station == 'Energy':
-            self.update_track(whatsonair.EnergyParser)
+        selectedstation = model[active][0]
+        
+        for station in whatsonair.allparsers:
+            if station.__station__ == selectedstation:
+                self.update_track(station)
     
     def update_track(self, parser):
-        """Universal Caption updater"""
+        """Universal caption updater"""
         station = parser()
         station.feed(station.pagecontent)
         self.track.set_label(station.currenttrack())
 
 def main():
+    """The main method - just opens the window"""
     sw = StationWindow()
     gtk.main()
 
-main()
+if __name__ == '__main__':
+    main()
