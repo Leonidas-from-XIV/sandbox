@@ -16,7 +16,7 @@ import os, sys, random, time, math
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.10'
+__version__ = '0.0.11'
 
 
 screenwidth = 680
@@ -79,9 +79,9 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    #axe_alaska()
+    axe_alaska()
     #sinwave(True, True)
-    visual_prime()
+    #visual_prime()
     
 def display():
     """Displays the stuff"""
@@ -157,9 +157,6 @@ def info(caption, description, slow=2):
     
     # replace
     #time.sleep(2)
-    
-    
-    
 
 def popsquares(slow=20):
     """POPSquares demo - like this one of XScreenSaver
@@ -454,34 +451,6 @@ def axe_alaska():
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
-def create_hexagon(radius):
-    d = math.sqrt(radius ** 2 - (radius/2.0) ** 2)
-    deviation = int(round(d))
-    
-    center_x = radius
-    center_y = deviation
-    
-    middleleft = (center_x - radius, center_y)
-    middleright = (center_x + radius, center_y)
-    
-    upperleft = (int(round(center_x - radius/2.0)), center_y - deviation)
-    upperright = (int(round(center_x + radius/2.0)), center_y - deviation)
-    lowerleft = (int(round(center_x - radius/2.0)), center_y + deviation)
-    lowerright = (int(round(center_x + radius/2.0)), center_y + deviation)
-    
-    return (upperleft, upperright, middleright, lowerright, lowerleft, middleleft)
-
-def hexagon_size(hexagon):
-    left = hexagon[5][0]
-    right = hexagon[2][0]
-    width = right - left
-    
-    top = hexagon[0][1]
-    buttom = hexagon[3][1]
-    height = buttom - top
-    
-    return (width, height)
-
 def sinwave(colorchange=False, thick=False):
     """Draws a sine wave"""
     # set some starting values
@@ -556,11 +525,15 @@ def sinwave(colorchange=False, thick=False):
             linepos += 1
             
 def visual_prime():
+    """This displays primes. Numbers being primes are black,
+    numbers not being primes white (change this?)"""
     import primebench
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    screenwidth = 20
-    screenheight = 10
+    noprime = (255, 255, 255)
+    prime = (0, 0, 0)
+    #prime, noprime = noprime, prime
+    #screenwidth = 30
+    #screenheight = 60
+    curnum = 1
     
     for y in xrange(screenheight):
         for x in xrange(screenwidth):
@@ -568,12 +541,20 @@ def visual_prime():
             for event in pygame.event.get():
                 if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                     return
+            
+            isprime = primebench.isPrime(curnum)
+            #print isprime
                 
             #print y, x
             coord = [x, y]
-            pygame.draw.line(background, white, coord, coord, 1)
+            if isprime:
+                pygame.draw.line(background, prime, coord, coord, 1)
+            else:
+                pygame.draw.line(background, noprime, coord, coord, 1)
             screen.blit(background, (0, 0))
             pygame.display.update()
+            
+            curnum += 1
             
     while True:
         # limit to 60 fps
@@ -585,19 +566,55 @@ def visual_prime():
                 return
 
 class HexaSprite(pygame.sprite.Sprite):
+    """A sprite representing a hexagon"""
     def __init__(self, radius, color, alpha=255):
         pygame.sprite.Sprite.__init__(self)
         
-        coords = create_hexagon(radius)
-        self.surface = pygame.Surface(hexagon_size(coords))
+        self.coords = self.create_coords(radius)
+        self.surface = pygame.Surface(self.size())
         self.rect = self.surface.get_rect()
         
-        pygame.draw.polygon(self.surface, color, coords, 0)
+        pygame.draw.polygon(self.surface, color, self.coords, 0)
         self.surface.convert_alpha()
         self.surface.set_alpha(alpha)
         self.surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
     
+    def create_coords(self, radius):
+        """Create the coordinates of a hexagon.
+        I consider this as one of my better efforts.
+        If you give it a radius, it will return coordinates, 
+        x of the center being the center. Difficult to describe."""
+        d = math.sqrt(radius ** 2 - (radius/2.0) ** 2)
+        deviation = int(round(d))
+    
+        center_x = radius
+        center_y = deviation
+    
+        middleleft = (center_x - radius, center_y)
+        middleright = (center_x + radius, center_y)
+    
+        upperleft = (int(round(center_x - radius/2.0)), center_y - deviation)
+        upperright = (int(round(center_x + radius/2.0)), center_y - deviation)
+        lowerleft = (int(round(center_x - radius/2.0)), center_y + deviation)
+        lowerright = (int(round(center_x + radius/2.0)), center_y + deviation)
+    
+        return (upperleft, upperright, middleright, lowerright, lowerleft, middleleft)
+    
+    def size(self):
+        """Get the size of the hexagon"""
+        left = self.coords[5][0]
+        right = self.coords[2][0]
+        width = right - left
+    
+        top = self.coords[0][1]
+        buttom = self.coords[3][1]
+        height = buttom - top
+    
+        return (width, height)
+    
     def move_up(self, pixels=1):
+        """Moving up...
+        returns true if succeeded"""
         if self.rect.top > 0:
             self.rect.top -= pixels
             return True
