@@ -28,6 +28,8 @@ deathtrap = False
 # verbose output?
 verbose = False
 
+torad = lambda deg: (deg * math.pi) / 180.0
+
 def prepare():
     """Internal: Prepare the system for running demos"""
     # Initialise pygame
@@ -49,7 +51,7 @@ def prepare():
     #background = background.convert_alpha()
     # fill it black
     background.fill((0, 0, 0))
-    background.set_alpha(100)
+    #background.set_alpha(100)
     # create a clock to control the FPS
     global clock
     clock = pygame.time.Clock()
@@ -75,7 +77,8 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    axe_alaska()
+    #axe_alaska()
+    sinwave()
     
 def display():
     """Displays the stuff"""
@@ -422,6 +425,7 @@ def axe_alaska():
                 
         screen.fill((0, 0, 0))
         hs.move_right(2)
+        hs.move_down(2)
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
@@ -452,6 +456,46 @@ def hexagon_size(hexagon):
     height = buttom - top
     
     return (width, height)
+
+def sinwave():
+    degree = 0
+    linepos = 0
+    
+    white = (255, 255, 255)
+    startpos, endpos = (0, screenheight / 2), (screenwidth, screenheight / 2)
+    
+    pygame.draw.line(background, white, startpos, endpos, 1)
+    
+    pygame.draw.line(background, white, (20, 20), (20, 20), 1)
+    screen.blit(background, (0, 0))
+    
+    pygame.display.update()
+    
+    while True:
+        if degree >= 360:
+            degree = 0
+            
+        # limit to 60 fps
+        clock.tick(fps)
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                return
+                
+        sinval = math.sin(torad(degree))
+        drawval = int(round(sinval * 100))
+        print drawval
+        
+        pygame.draw.line(background, white, (linepos, 20), (linepos, 20), 1)
+        screen.blit(background, (0, 0))
+        pygame.display.update()
+        
+        degree += 1
+        linepos += 1
+        
+    #print math.sin(torad(degree))
+    
 
 class HexaSprite(pygame.sprite.Sprite):
     def __init__(self):
