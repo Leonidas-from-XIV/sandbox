@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 """Prime benchmark - and small library
-You can use it in your own programs
+You can use it in your own programs.
 
-Copyright (C) 2003-2005  Leonidas <leonidas AT projectdream DOT org>
+Copyright (C) 2003-2005 Marek 'Leonidas' Kubica <pythonmailing AT web DOT de>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
-import sys, time, optparse
+import sys, time, optparse, math
 
 __version__ = "0.1.3"
 
@@ -29,24 +29,36 @@ def checkPrime(number):
     the number is a prime or not.
     This is the absolute core, so most tuning is needed here."""
     prime_found = False
-    # Some hacks, to return right values
-    if number == 0:
+    if number < 2:
         return False
     elif number == 2:
         return True
-    elif number < 0:
-        # If number is smaller than zero so use absolute value
-        number = abs(number)
     for dividor in xrange(2, number):
         if number % dividor == 0:
             prime_found = False
             return False
         else:
             prime_found = True
-    if prime_found is True:
+    if prime_found == True:
+        return True
+
+def isprime(number):
+    """Tuned code by Adam Gurno (LGPL)
+    http://gurno.com/adam/ taken from mathfun
+    Rewritten to fit into primebench"""
+    if number % 2 == 0 and not number == 2: 
+        return False
+    else:
+        maxval = int(math.sqrt(number)) + 1
+        for count in range(3, maxval, 2):
+            if number % count == 0: 
+                return False
         return True
 
 def gennextprime(start):
+    """Generates the next prime of that one given.
+    Is a generator, so you simply can call next() and
+    this will produce the next bigger prime"""
     while True:
         if checkPrime(start):
             yield start
@@ -62,10 +74,7 @@ def rangeprime(start, end):
         start += 1
 
 def findNumberOfPrimes(primes_to_find):
-    """Returns a list of primes
-    You have to wait long time without output
-    cause it produces no output to stdout
-    ToDo: make a starting value"""
+    """Generates a lot of primes"""
     gen = gennextprime(1)
     for i in range(primes_to_find):
         print "Prime==%d" % gen.next()
@@ -114,12 +123,6 @@ def main():
         type="int",
         action="store", 
         help="check whether NUMBER is a prime")
-    
-    parser.add_option("-p", "--profile", 
-        dest="profile", 
-        default=False, 
-        action="store_true", 
-        help="profile the calls")
     
     (options, args) = parser.parse_args()
     
