@@ -89,33 +89,34 @@ class StationWindow(object):
     
 class TempNewUI(object):
     def __init__(self):
-        import gobject
         self.window = gtk.Window()
         self.window.set_title("What's on Air?")
         self.window.connect("delete_event", self.delete_event) 
         
         self.box = gtk.Table()
         
-        self.stations = gtk.ListStore('gboolean', 'gchar', 'gchar', 'gchar')
-        iter = self.stations.append()
-        print iter
-        self.stations.set(iter, 0, False, 1, 'abc', 2, 'def', 3, 'ghi')
+        sw = gtk.ScrolledWindow()
+        sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         
-        sw = gtk.ScrolledWindow() 
-        treeview = gtk.TreeView(self.stations) 
+        model = gtk.ListStore(bool, str, str, str)
+        treeview = gtk.TreeView(model) 
         sw.add(treeview)
         
-        column = gtk.TreeViewColumn('Question?', 
-                                gtk.CellRendererToggle(),
-                                active=True)
-        treeview.append_column(column) 
+        for i in range(4):
+            if i == 0:
+                renderer = gtk.CellRendererToggle()
+                column = gtk.TreeViewColumn("Question", renderer, active=1)
+            else:
+                renderer = gtk.CellRendererText()
+                column = gtk.TreeViewColumn("bla", renderer, text=i)
+            treeview.append_column(column)
         
-        column = gtk.TreeViewColumn('Station', gtk.CellRendererText())
-        treeview.append_column(column) 
-        column = gtk.TreeViewColumn('Artist', gtk.CellRendererText())
-        treeview.append_column(column) 
-        column = gtk.TreeViewColumn('Title', gtk.CellRendererText())
-        treeview.append_column(column)
+        iterator = model.append()
+        print iterator
+        model.set_value(iterator, 1, "abc")
+        treeview.columns_autosize()
+        
         
         
         self.track = gtk.Label('Click on Update')
@@ -171,13 +172,6 @@ class TempNewUI(object):
             
         self.update.set_sensitive(True)
         self.stations.set_sensitive(True)
-    
-    def create_model(self):
-        import gobject
-        store = gtk.ListStore(gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
-        iter = store.append()
-        store.set(iter, 0, False, 1, 'abc', 2, 'def', 3, 'ghi')
-        return store 
 
 def main():
     """The main method - just opens the window"""
