@@ -392,20 +392,26 @@ def axe_alaska():
 
     #coords = create_hexagon((100, 200), 50)
     # first x value, then y value
-    coords = create_hexagon((50, 43), 50)
-    hexface = pygame.Surface(hexagon_size(coords))
+    #coords = create_hexagon((50, 43), 50)
+    #hexface = pygame.Surface(hexagon_size(coords))
     
-    yellow = (251, 224, 29)
-    white = (255, 255, 255)
-    blue = (46, 144, 189)
+    #yellow = (251, 224, 29)
+    #white = (255, 255, 255)
+    #blue = (46, 144, 189)
     
-    pygame.draw.polygon(hexface, yellow, coords, 0)
-    hexface = pygame.transform.rotate(hexface, 90)
+    #pygame.draw.polygon(hexface, yellow, coords, 0)
+    #hexface = pygame.transform.rotate(hexface, 90)
     
-    hexface.convert_alpha()
-    hexface.set_alpha(50)
-    screen.blit(hexface, (10, 50))
-    pygame.display.flip()
+    #hexface.convert_alpha()
+    #hexface.set_alpha(50)
+    #screen.blit(hexface, (10, 50))
+    #pygame.display.flip()
+    
+    hs = HexaSprite()
+    screen.blit(hs.surface, (10, 50))
+    #pygame.display.flip()
+    pygame.display.update()
+    #print dir(hs)
     
     while True:
         # limit to 60 fps
@@ -416,7 +422,12 @@ def axe_alaska():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
                 
-        hexface = pygame.transform.rotate(hexface, 1)
+        #hexface = pygame.transform.rotate(hexface, 1)
+        #screen.fill([0, 0, 0])
+        hs.move_up()
+        screen.blit(hs.surface, hs.rect)
+        #pygame.display.flip()
+        pygame.display.update()
 
 def create_hexagon(center, radius):
     center_x = center[0]
@@ -445,6 +456,23 @@ def hexagon_size(hexagon):
     height = buttom - top
     
     return (width, height)
+
+class HexaSprite(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        
+        yellow = (251, 224, 29)
+        coords = create_hexagon((50, 43), 50)
+        self.surface = pygame.Surface(hexagon_size(coords))
+        self.rect = self.surface.get_rect()
+        
+        pygame.draw.polygon(self.surface, yellow, coords, 0)
+        self.surface.convert_alpha()
+        self.surface.set_alpha(50)
+    
+    def move_up(self):
+        self.rect.top += 1
+        
         
 if __name__ == '__main__':
     main()
