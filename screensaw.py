@@ -749,8 +749,9 @@ class HexaSprite(pygame.sprite.Sprite):
         
         self.lastdegree = rotation
         
-        
         self.surface = pygame.transform.rotate(self.origsurface, rotation)
+        self.surface.convert_alpha()
+        self.surface.set_alpha(self.alpha)
         self.rect = self.surface.get_rect()
         self.rect.center = center
         
