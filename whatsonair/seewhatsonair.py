@@ -129,13 +129,10 @@ class TempNewUI(object):
         self.update = gtk.Button('Update')
         self.q = gtk.Button('Quit')
         
-        adjustment = gtk.Adjustment(value=0, lower=1, upper=1, step_incr=1, page_incr=1, page_size=1)
-        adj = gtk.Adjustment(1.0, 1.0, 31.0, 1.0, 5.0, 0.0) 
-        #self.interval = gtk.SpinButton(adjustment=adjustment)
+        adj = gtk.Adjustment(value=10, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0) 
         self.interval = gtk.SpinButton(adj, 0, 0)
-        #self.interval = gtk.SpinButton()
-        #self.interval.set_value_as_int(10)
-        #self.interval.set_increments(10, 10)
+        self.interval.set_numeric(True)
+        adj.connect("value_changed", self.interval_changed, self.interval) 
         
         self.q.connect("clicked", lambda widget: gtk.main_quit())
         self.update.connect("clicked", self.update_click)
@@ -168,6 +165,11 @@ class TempNewUI(object):
     
         # set new value
         model.set(iterator, 0, quest) 
+    
+    def interval_changed(self, widget, spin):
+        #print widget
+        new_value = int(spin.get_value())
+        print new_value
     
     def update_click(self, widget):
         """Updates the track,
