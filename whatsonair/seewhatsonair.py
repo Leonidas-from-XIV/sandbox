@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
+"""See Whats On Air
+A GUI for the library written using GTK+"""
 import gtk
 import whatsonair
 
@@ -36,11 +38,15 @@ class StationWindow(object):
         return False
     
     def populate(self):
-        self.stations.append_text('FM4')
-        self.stations.append_text('Antenne Bayern')
-        self.stations.append_text('Bayern 3')
-        self.stations.append_text('Gong')
-        self.stations.append_text('Energy')
+        """Fills that dropdown list"""
+        for station in whatsonair.allparsers:
+            #print station.__station__
+            self.stations.append_text(station.__station__)
+        #self.stations.append_text('FM4')
+        #self.stations.append_text('Antenne Bayern')
+        #self.stations.append_text('Bayern 3')
+        #self.stations.append_text('Gong')
+        #self.stations.append_text('Energy')
         self.stations.set_active(0)
     
     def update_click(self, widget):
