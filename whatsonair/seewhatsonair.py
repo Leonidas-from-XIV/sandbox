@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 """See Whats On Air
-A GUI for the library written using GTK+"""
+A GUI for the library written using GTK+
+This frontend is written by the initiator of the project
+it reflects the most current Parsers available."""
 import gtk
 import whatsonair
 
