@@ -10,13 +10,13 @@ Requirements:
 - pygame (written with 1.6)
 
 Written by Marek Kubica.
-Dedicated to Fritz Cizmarov
+Dedicated to Fritz Cizmarov.
 """
-import os, sys, random, time, math
+import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.11'
+__version__ = '0.0.12'
 
 
 screenwidth = 680
@@ -34,7 +34,7 @@ torad = lambda deg: (deg * math.pi) / 180.0
 
 def prepare():
     """Internal: Prepare the system for running demos"""
-    # Initialise pygame
+    # initialise pygame
     pygame.init()
     
     # open a window
@@ -53,7 +53,6 @@ def prepare():
     #background = background.convert_alpha()
     # fill it black
     background.fill((0, 0, 0))
-    #background.set_alpha(100)
     # create a clock to control the FPS
     global clock
     clock = pygame.time.Clock()
@@ -61,6 +60,24 @@ def prepare():
 
 def main():
     """Starts the demos""" 
+    parser = optparse.OptionParser()
+    parser.add_option("-a", "--all",
+        dest="all", 
+        default=True,
+        action="store_true", 
+        help="run all demos")
+    parser.add_option("-c", "--critter",
+        dest="critter", 
+        default=False,
+        action="store_true", 
+        help="run simple critter demo")
+    parser.add_option("-p", "--prime",
+        dest="prime", 
+        default=False,
+        action="store_true", 
+        help="run prime visualisation")
+    options, arguments = parser.parse_args()
+    
     # We have to prepare display
     prepare()
     
@@ -79,9 +96,10 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    #axe_alaska()
+    axe_alaska()
     #sinwave(True, True)
-    visual_prime()
+    if options.prime:
+        visual_prime()
     
 def display():
     """Displays the stuff"""
@@ -417,6 +435,7 @@ def axe_alaska():
     #pygame.display.update()
     
     move_right = True
+    hs.rotate(45)
     
     while True:
         # limit to 60 fps
@@ -440,6 +459,8 @@ def axe_alaska():
             if not moved:
                 move_right = not move_right
                 continue
+        
+        hs.rotate(1)
         
         # do we change the direction?
         if dirchange.random():
@@ -532,6 +553,8 @@ def visual_prime():
     primecolor = (0, 0, 0)
     primecolor, noprimecolor = noprimecolor, primecolor
     
+    #print screen.get_flags()&pyl.HWSURFACE
+    
     for prime in primebench.rangeprime(0, screenwidth * screenheight):
         for event in pygame.event.get():
                 if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
@@ -562,6 +585,7 @@ def visual_prime():
 
 class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
+    lastdegree = 0
     def __init__(self, radius, color, alpha=255):
         pygame.sprite.Sprite.__init__(self)
         
@@ -573,6 +597,8 @@ class HexaSprite(pygame.sprite.Sprite):
         self.surface.convert_alpha()
         self.surface.set_alpha(alpha)
         self.surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
+        
+        self.origsurface = self.surface
     
     def create_coords(self, radius):
         """Create the coordinates of a hexagon.
@@ -636,6 +662,11 @@ class HexaSprite(pygame.sprite.Sprite):
             return True
         else:
             return False
+    
+    def rotate(self, degree):
+        rotation = degree + self.lastdegree
+        self.surface = pygame.transform.rotate(self.origsurface, rotation)
+        self.lastdegree = rotation
         
 if __name__ == '__main__':
     main()
