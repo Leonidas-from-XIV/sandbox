@@ -108,7 +108,7 @@ def main():
         action="store", help="check whether NUMBER is a prime")
     
     (options, args) = parser.parse_args()
-    print options
+    
     if options.version:
         print 'version'
         sys.exit(0)
@@ -124,7 +124,6 @@ def main():
         sys.exit(0)
     
     if options.times:
-        print 'p'
         if options.benchmark: 
             startTime = time.time()
         primes = findNumberOfPrimes(int(options.times))
@@ -135,25 +134,23 @@ def main():
             print "Prime==%d" % prime
         if options.benchmark: 
             print "Seconds==%G" % taken
-
-    elif sys.argv[1][:2] == "-u":
-        until_number = int(sys.argv[1][2:])
-        if benchmark: 
+    
+    if options.until:
+        if options.benchmark: 
             startTime = time.time()
-        primes = findPrimesUntil(until_number)
-        if benchmark:
+        primes = findPrimesUntil(int(options.until))
+        if options.benchmark:
             stopTime = time.time()
             taken = stopTime - startTime
         for prime in primes:
             print "Prime==%d" % prime
-        if benchmark: 
+        if options.benchmark: 
             print "Seconds==%G" % taken
-            
-    elif sys.argv[1][:2] == "-i":
-        prime_to_check = int(sys.argv[1][2:])
-        if benchmark:
+    
+    if options.check:
+        if options.benchmark:
             print "There is too less to benchmark"
-        result = checkPrime(prime_to_check)
+        result = checkPrime(int(options.check))
         if result == True:
             print "Prime==True"
         else:
