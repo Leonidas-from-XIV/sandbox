@@ -521,13 +521,13 @@ def axe_alaska():
         # do we habe to move right?
         if move_right:
             # yes... did we really moved?
-            moved = hs.move_up(2)
+            moved = hs.move_up(0)
             if not moved:
                 # no, we are at the border
                 move_right = not move_right
                 # so change the direction
         else:
-            moved = hs.move_down(2)
+            moved = hs.move_down(0)
             if not moved:
                 move_right = not move_right
                 continue
@@ -783,11 +783,11 @@ class UnsharpHexaSprite(HexaSprite):
         self.surfaces = []
         self.rects = []
         
-        for layer in range(2):
-            print layer
+        for layer in range(0, 40, 20):
+            #print layer
             coord = self.create_coords(radius - layer)
             self.coords.append(coord)
-            print coord
+            #print coord
             surface = pygame.Surface(self.size_free(coord))
             surface.convert_alpha()
             surface.set_alpha(50)
@@ -795,7 +795,7 @@ class UnsharpHexaSprite(HexaSprite):
             pygame.draw.polygon(surface, color, coord, 0)
             self.surfaces.append(surface)
             rect = surface.get_rect()
-            print rect
+            #print rect
             self.rects.append(rect)
         
         self.rect = self.rects[0]
@@ -804,8 +804,11 @@ class UnsharpHexaSprite(HexaSprite):
         surfsize = surfsize[0] + 4, surfsize[1] + 4
         # four pixels buffer
         self.surface = pygame.Surface(surfsize)
-        for s in self.surfaces:
-            self.surface.blit(s, (2, 2))
+        for s in enumerate(self.surfaces):
+            buffer = s[0] + 2
+            print buffer
+            print self.rects[s[0]].center
+            self.surface.blit(s[1], (buffer, buffer))
         #self.surface.blit(self.surfaces[0], (2, 2))
         # two at the left, two at the right
         #self.surface = self.surfaces[0]
