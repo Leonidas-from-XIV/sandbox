@@ -21,7 +21,7 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'SunshineLive': 'http://www.sunshine-live.de/core/playlist.php3',
     'EnergyBerlin': 'http://213.200.64.229/freestream/download/energy/berlin/start.html'}
 
-__version__ = '0.8.4'
+__version__ = '0.8.5'
 
 def splitver(version):
     """Splits the string representation of the version into a tuple form,
@@ -33,10 +33,9 @@ def openoffline(filename):
     """Reads a local file and returns the raw contents.
     Useful in 'offline' mode, to pass it manually too parsers feed()"""
     f = file(filename, 'r')
-    fc = f.read()
+    content = f.read()
     f.close()
-    return fc
-
+    return content
 
 class IncompatibleParser(Exception):
     """An exception thrown when the parser is incompatible,
@@ -89,7 +88,7 @@ class StationBase(object, HTMLParser.HTMLParser):
         raise NotImplementedError("Abstract class")
     
     def capstext(self, text):
-        """A helper mehtod to make the texts look consistent
+        """A helper method to make the texts look consistent
         [...]"""
         chunks = text.split()
         
@@ -408,7 +407,7 @@ class NRJParser(StationBase):
             result = result[1].split('\n <a href=')
             track = result[0].split(' \xb7 ')
             if len(track) > 1:
-                self.artist, self.title = track[0], track[1]
+                self.artist, self.title = self.capstext(track[0]), self.capstext(track[1])
                 # else: no song now
         except:
             raise IncompatibleParser(self.__station__)
@@ -439,7 +438,7 @@ class RTLParser(StationBase):
             result = result[1].split('</td>')
             track = result[0].split('</b><br>')
             if len(track) > 1:
-                self.artist, self.title = track[0], track[1]
+                self.artist, self.title = self.capstext(track[0]), self.capstext(track[1])
                 # else: no song now
         except:
             raise IncompatibleParser(self.__station__)
@@ -514,7 +513,7 @@ class NJoyParser(StationBase):
             result = result[1].split('\n</a></span>')
             track = result[0].split(' - ')
             if len(track) > 1:
-                self.artist, self.title = track[0], track[1]
+                self.artist, self.title = track[0], self.capstext(track[1])
                 # else: no song now
         except:
             raise IncompatibleParser(self.__station__)
@@ -560,7 +559,9 @@ class EinsLiveParser(StationBase):
             result = result[1].split('</TD></TR><TR><TD valign="top"')
             track = result[0].split('</TD><TD valign="top" class="contbold">')
             if len(track) > 1:
-                self.artist, self.title = track[0], track[1]
+                track[0].relpace('&nbsp;', '')
+                track[1].relpace('&nbsp;', '')
+                self.artist, self.title = track[0], self.capstext(track[1])
                 # else: no song now
         except:
             raise IncompatibleParser(self.__station__)
@@ -626,7 +627,7 @@ class EnergyBerlinParser(StationBase):
             result = result[1].split('</center></font></body></html>')
             track = result[0].split('<br>')
             if len(track) > 1:
-                self.artist, self.title = track[0], track[1]
+                self.artist, self.title = self.capstext(track[0]), track[1]
                 # else: no song now
         except:
             raise IncompatibleParser(self.__station__)
