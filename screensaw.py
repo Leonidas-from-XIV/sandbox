@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 
 screenwidth = 680
@@ -493,9 +493,9 @@ def axe_alaska():
     yellow = (251, 224, 29)
     
     # create the sprite
-    hs = HexaSprite(radius=50, color=yellow, alpha=50)
+    #hs = HexaSprite(radius=50, color=yellow, alpha=255)
     #temp
-    hs = UnsharpHexaSprite(radius=50, color=yellow)
+    hs = UnsharpHexaSprite(radius=50, color=yellow, alpha=50)
     #/temp
     
     # set the sprite on position
@@ -532,7 +532,7 @@ def axe_alaska():
                 move_right = not move_right
                 continue
         
-        hs.rotate(-7)
+        #hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
@@ -741,8 +741,7 @@ class HexaSprite(pygame.sprite.Sprite):
             return False
     
     def rotate(self, degree):
-        """Rotates the object
-        beware of overflow (this has to be checked)"""
+        """Rotates the object"""
         rotation = degree + self.lastdegree
         center = self.rect.center
         
@@ -763,33 +762,37 @@ class HexaSprite(pygame.sprite.Sprite):
 
 class UnsharpHexaSprite(HexaSprite):
     """This child class represents a fuzzy hexagon"""
-    def __init__(self, radius, color, alpha=50):
+    def __init__(self, radius, color, alpha=50, gradient = (0, 10, 2)):
+        """Constructs the hexagon.
+        radius is obvious, color should also be.
+        alpha is the alpha level each laver has (they sum)
+        with alpha == 255 you can disable the unsharpness, and this
+        class works just like it's parent class (but with a longer init time)
+        last but not least, with gradiunt you can control the size
+        and the amount of layers."""
         pygame.sprite.Sprite.__init__(self)
         
-        self.coords = []
-        self.surfaces = []
-        self.rects = []
+        surfaces = []
         
-        for layer in range(0, 10, 2):
+        self.coords = self.create_coords(radius)
+        size = self.__size(self.coords)
+        self.rect = pygame.Rect(0, 0, size[0], size[1])
+        
+        for layer in range(*gradient):
             coord = self.create_coords(radius - layer)
-            self.coords.append(coord)
-            surface = pygame.Surface(self.size_free(coord))
+            surface = pygame.Surface(self.__size(coord))
             surface.convert_alpha()
             surface.set_alpha(alpha)
             surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
             pygame.draw.polygon(surface, color, coord, 0)
-            self.surfaces.append(surface)
-            rect = surface.get_rect()
-            self.rects.append(rect)
+            surfaces.append(surface)
         
-        self.rect = self.rects[0]
-        
-        surfsize = self.size_free(self.coords[0])
+        surfsize = self.__size(self.coords)
         surfsize = surfsize[0] + 4, surfsize[1] + 4
-        # four pixels buffer
+        # four pixels buffer (two on each side)
         self.surface = pygame.Surface(surfsize)
         
-        for surface in self.surfaces:
+        for surface in surfaces:
             ownrect = surface.get_rect()
             masterrect = self.surface.get_rect()
             xmin = ownrect.width / 2
@@ -817,8 +820,9 @@ class UnsharpHexaSprite(HexaSprite):
         self.rect = self.surface.get_rect()
         self.rect.center = center
 
-    def size_free(self, coords):
-        """Get the size of the hexagon"""
+    def __size(self, coords):
+        """Internal: Same as size, but this one takes coordinates.
+        You shouldn't use this from outside this class."""
         left = coords[5][0]
         right = coords[2][0]
         width = right - left
