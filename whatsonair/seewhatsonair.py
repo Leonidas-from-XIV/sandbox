@@ -105,12 +105,37 @@ class UserInterface(object):
         self.sid = gobject.timeout_add(interval, self.cyclic_update)
     
     def cyclic_update(self):
+        #print dir(self.model)
+        #print dir(self.treeview)
+        
+        rows = list()
+        rows.append(self.model.get_iter_first())
+        while True:
+            nextiter = self.model.iter_next(rows[-1])
+            if nextiter:
+                rows.append(nextiter)
+            else:
+                break
+        #print rows
+        
+        for iterator in rows:
+            #print iterator
+            question = self.model.get_value(iterator, 0)
+            station = self.model.get_value(iterator, 1)
+            if question:
+                for stat in whatsonair.allparsers:
+                    if stat.__station__ == station:
+                        self.update_track(stat, iterator)
+            
+        
+        #print self.model.get_data()
         print 'Timeout #%s' % str(self.sid)
-        return True
+        #return True
+        return False
     
     def update_click(self, widget):
         """Updates the track,
-        first fetches informations of rhe selected station"""
+        first fetches informations of the selected station"""
         # get the selection
         selection = self.treeview.get_selection()
         model, selected = selection.get_selected_rows()
