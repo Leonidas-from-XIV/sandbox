@@ -22,15 +22,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys, time, optparse
 
-__version__ = "0.1.0"
-args = """bench.py (%s) - Small benchmark with primes (Free Software - GPLed)
-Commandline arguments:
-bench.py [-n<number>|-t<number>|-u<number>|-i<number>] [-b|--benchmark]
-  -n<number> : get next prime which is bigger than <number>
-  -t<number> : find <number> primes
-  -u<number> : find primes until <number>
-  -i<number> : check whether <number> is a prime
-  -b --benchmark : benchmark results"""
+__version__ = "0.1.2"
 
 def checkPrime(number):
     """This is the core def, it checks whether
@@ -94,23 +86,47 @@ def main():
     """The main def, which makes this script executable"""
     parser = optparse.OptionParser()
     
-    parser.add_option("-v", "--version", dest="version", default=False,
-        action="store_true", help="print program versions and exit")
-    parser.add_option("-b", "--benchmark", dest="benchmark", default=False,
-        action="store_true", help="benchmark results")
-    parser.add_option("-n", "--next", dest="next", default=False, metavar="NUMBER",
+    parser.add_option("-v", "--version",
+        dest="version",
+        default=False,
+        action="store_true", 
+        help="print program versions and exit")
+    parser.add_option("-b", "--benchmark",
+        dest="benchmark", 
+        default=False,
+        action="store_true", 
+        help="benchmark results")
+    parser.add_option("-n", "--next",
+        dest="next", 
+        default=False, 
+        metavar="NUMBER",
+        type="int",
         action="store", help="get next prime which is bigger than NUMBER")
-    parser.add_option("-t", "--times", dest="times", default=False, metavar="NUMBER",
-        action="store", help="find NUMBER primes")
-    parser.add_option("-u", "--until", dest="until", default=False, metavar="NUMBER",
+    parser.add_option("-t", "--times", 
+        dest="times", 
+        default=False, 
+        metavar="NUMBER",
+        type="int",
+        action="store", 
+        help="find NUMBER primes")
+    parser.add_option("-u", "--until", 
+        dest="until", 
+        default=False, 
+        metavar="NUMBER",
+        type="int",
         action="store", help="find primes until NUMBER")
-    parser.add_option("-c", "--check", dest="check", default=False, metavar="NUMBER",
-        action="store", help="check whether NUMBER is a prime")
+    parser.add_option("-c", "--check", 
+        dest="check", 
+        default=False, 
+        metavar="NUMBER",
+        type="int",
+        action="store", 
+        help="check whether NUMBER is a prime")
     
     (options, args) = parser.parse_args()
     
     if options.version:
-        print 'version'
+        print 'primebench.py (%s) - Small benchmark with primes (Free Software - GPLed)' % __version__
         sys.exit(0)
         
     if options.benchmark:
@@ -119,14 +135,14 @@ def main():
     if options.next:
         if options.benchmark:
             print "There is too less to benchmark"
-        prime_found = nextPrime(int(options.next))
+        prime_found = nextPrime(options.next)
         print "Prime==%d" % prime_found
         sys.exit(0)
     
     if options.times:
         if options.benchmark: 
             startTime = time.time()
-        primes = findNumberOfPrimes(int(options.times))
+        primes = findNumberOfPrimes(options.times)
         if options.benchmark:
             stopTime = time.time()
             taken = stopTime - startTime
@@ -138,7 +154,7 @@ def main():
     if options.until:
         if options.benchmark: 
             startTime = time.time()
-        primes = findPrimesUntil(int(options.until))
+        primes = findPrimesUntil(options.until)
         if options.benchmark:
             stopTime = time.time()
             taken = stopTime - startTime
@@ -150,7 +166,7 @@ def main():
     if options.check:
         if options.benchmark:
             print "There is too less to benchmark"
-        result = checkPrime(int(options.check))
+        result = checkPrime(options.check)
         if result == True:
             print "Prime==True"
         else:
