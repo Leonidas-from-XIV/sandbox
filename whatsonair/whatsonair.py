@@ -21,6 +21,8 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'SunshineLive': 'http://www.sunshine-live.de/core/playlist.php3',
     'EnergyBerlin': 'http://213.200.64.229/freestream/download/energy/berlin/start.html'}
 
+# http://www.energy.de/static/ticker/titel_muc.swf
+
 __version__ = '0.8.5'
 
 def splitver(version):

@@ -394,27 +394,14 @@ def critter():
 
 def axe_alaska():
     """Make that AXE Alaska Logo"""
-
-    #coords = create_hexagon((100, 200), 50)
     # first x value, then y value
-    #coords = create_hexagon((50, 43), 50)
-    #hexface = pygame.Surface(hexagon_size(coords))
     
-    #yellow = (251, 224, 29)
     #white = (255, 255, 255)
     #blue = (46, 144, 189)
     
-    #pygame.draw.polygon(hexface, yellow, coords, 0)
-    #hexface = pygame.transform.rotate(hexface, 90)
-    
-    #hexface.convert_alpha()
-    #hexface.set_alpha(50)
-    #screen.blit(hexface, (10, 50))
-    #pygame.display.flip()
-    
     yellow = (251, 224, 29)
     
-    hs = HexaSprite(color=yellow)
+    hs = HexaSprite(radius=50, color=yellow, alpha=50)
     screen.blit(hs.surface, (0, 0))
     pygame.display.update()
     
@@ -427,7 +414,7 @@ def axe_alaska():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
                 
-        screen.fill((0, 0, 0))
+        #screen.fill((0, 0, 0))
         hs.move_right(2)
         hs.move_down(2)
         screen.blit(hs.surface, hs.rect)
@@ -536,19 +523,17 @@ def sinwave(colorchange=False, thick=False):
     
 
 class HexaSprite(pygame.sprite.Sprite):
-    def __init__(self, color, alpha=255):
+    def __init__(self, radius, color, alpha=255):
         pygame.sprite.Sprite.__init__(self)
         
-        #coords = create_hexagon((50, 43), 50)
-        coords = create_hexagon(50)
-        #print hexagon_size(coords)
+        coords = create_hexagon(radius)
         self.surface = pygame.Surface(hexagon_size(coords))
         self.rect = self.surface.get_rect()
         
         pygame.draw.polygon(self.surface, color, coords, 0)
         self.surface.convert_alpha()
         self.surface.set_alpha(alpha)
-        self.surface.set_colorkey((0, 0, 0))
+        self.surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
     
     def move_up(self, pixels=1):
         if self.rect.top > 0:

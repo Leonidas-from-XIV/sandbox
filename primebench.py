@@ -38,25 +38,20 @@ def checkPrime(number):
         number = abs(number)
     for dividor in xrange(2, number):
         if number % dividor == 0:
-            #print "No Prime: %d" % lastprime
             prime_found = False
             return False
         else:
             prime_found = True
     if prime_found is True:
-        #print "Prime: %d" % lastprime
         return True
         
 def nextPrime(prime_to_test):
     """Returns the next prime"""
     while True:
         prime_to_test += 1
-        #print "ptt==%d" % prime_to_test
         if checkPrime(prime_to_test):
             # Found prime
-            #print "Prime==%d" % prime_to_test
             return prime_to_test
-            #break
             
 def findNumberOfPrimes(primes_to_find):
     """Returns a list of primes
