@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 """See Whats On Air
-A GUI for the library written using GTK+
-This frontend is written by the initiator of the project
-it reflects the most current parsers available."""
+A GUI for the WhatsOnAir bachend library written using GTK+.
+
+This frontend is written by Leonidas, the initiator of the 
+WhatsOnAir project.
+
+It reflects the most current parsers available, although it is
+pretty minimalistic at the moment"""
+
 import gtk
 import whatsonair
 
@@ -57,14 +62,27 @@ class StationWindow(object):
         for station in whatsonair.allparsers:
             if station.__station__ == selectedstation:
                 #self.update_track(station)
+                self.update.set_sensitive(False)
+                self.stations.set_sensitive(False)
+                self.track.set_text('Updating...')
                 # use GTK pseudo threads
                 gtk.idle_add(self.update_track, station)
     
     def update_track(self, parser):
         """Universal caption updater"""
-        station = parser()
-        station.feed(station.pagecontent)
-        self.track.set_label(station.currenttrack())
+        try:
+            station = parser()
+            station.feed(station.pagecontent)
+            self.track.set_label(station.currenttrack())
+        except whatsonair.IncompatibleParser:
+            self.track.set_label('Update failed')
+        except IOError:
+            self.track.set_label('Network error')
+        else:
+            self.track.set_label(station.currenttrack())
+            
+        self.update.set_sensitive(True)
+        self.stations.set_sensitive(True)
 
 def main():
     """The main method - just opens the window"""
