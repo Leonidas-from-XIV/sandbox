@@ -12,10 +12,11 @@ pretty minimalistic at the moment.
 The newer in-development GUI uses a more interesting interface
 with gtk.ListStore and gtk.SpinButton (for time intervals)"""
 
-import gtk
+import gtk, gobject
 import whatsonair
     
 class UserInterface(object):
+    sid = None
     def __init__(self):
         self.window = gtk.Window()
         self.window.set_title("What's on Air?")
@@ -97,7 +98,17 @@ class UserInterface(object):
     def interval_changed(self, widget, spin):
         #print widget
         new_value = int(spin.get_value())
-        print new_value
+        interval = new_value * 1000
+        if not self.sid:
+            self.sid = gobject.timeout_add(interval, self.tout)
+        else:
+            # stop the former microthread
+            gobject.source_remove(self.sid)
+            self.sid = gobject.timeout_add(interval, self.tout)
+    
+    def tout(self):
+        print 'Timeout #%s' % str(self.sid)
+        return True
     
     def update_click(self, widget):
         """Updates the track,
