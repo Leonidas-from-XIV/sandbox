@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 screenwidth = 680
@@ -168,7 +168,7 @@ def main():
         if options.intro:
             info("AXE Alaska", "Animated AXE Alaska logo")
         axe_alaska()
-        reblank(options.frameskip)
+        #reblank(options.frameskip)
     
 def display():
     """Displays the stuff"""
@@ -532,7 +532,7 @@ def axe_alaska():
                 move_right = not move_right
                 continue
         
-        #hs.rotate(-7)
+        hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
@@ -763,39 +763,23 @@ class HexaSprite(pygame.sprite.Sprite):
 
 class UnsharpHexaSprite(HexaSprite):
     """This child class represents a fuzzy hexagon"""
-    def __init__(self, radius, color):
+    def __init__(self, radius, color, alpha=50):
         pygame.sprite.Sprite.__init__(self)
-        #self.alpha = alpha
-        
-        #coords = self.create_coords(radius)
-        #self.surface = pygame.Surface(self.size_free(coords))
-        #self.rect = self.surface.get_rect()
-        
-        
-        #pygame.draw.polygon(self.surface, color, self.coords, 0)
-        #self.surface.convert_alpha()
-        #self.surface.set_alpha(self.alpha)
-        #self.surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
-        
-        #self.origsurface = self.surface
         
         self.coords = []
         self.surfaces = []
         self.rects = []
         
-        for layer in range(0, 40, 20):
-            #print layer
+        for layer in range(0, 10, 2):
             coord = self.create_coords(radius - layer)
             self.coords.append(coord)
-            #print coord
             surface = pygame.Surface(self.size_free(coord))
             surface.convert_alpha()
-            surface.set_alpha(50)
+            surface.set_alpha(alpha)
             surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
             pygame.draw.polygon(surface, color, coord, 0)
             self.surfaces.append(surface)
             rect = surface.get_rect()
-            #print rect
             self.rects.append(rect)
         
         self.rect = self.rects[0]
@@ -804,19 +788,21 @@ class UnsharpHexaSprite(HexaSprite):
         surfsize = surfsize[0] + 4, surfsize[1] + 4
         # four pixels buffer
         self.surface = pygame.Surface(surfsize)
-        for s in enumerate(self.surfaces):
-            buffer = s[0] + 2
-            print buffer
-            print self.rects[s[0]].center
-            self.surface.blit(s[1], (buffer, buffer))
-        #self.surface.blit(self.surfaces[0], (2, 2))
-        # two at the left, two at the right
-        #self.surface = self.surfaces[0]
-        print self.surface
+        
+        for surface in self.surfaces:
+            ownrect = surface.get_rect()
+            masterrect = self.surface.get_rect()
+            xmin = ownrect.width / 2
+            ymin = ownrect.height / 2
+            xpoint = masterrect.width / 2 - xmin
+            ypoint = masterrect.height / 2 - ymin
+            self.surface.blit(surface, (xpoint, ypoint))
+        
+        # make a backup of the surface for ratating
+        self.origsurface = self.surface
     
     def rotate(self, degree):
-        """Rotates the object
-        beware of overflow (this has to be checked)"""
+        """Rotates the object"""
         rotation = degree + self.lastdegree
         center = self.rect.center
         
@@ -828,8 +814,6 @@ class UnsharpHexaSprite(HexaSprite):
         self.lastdegree = rotation
         
         self.surface = pygame.transform.rotate(self.origsurface, rotation)
-        #self.surface.convert_alpha()
-        #self.surface.set_alpha(self.alpha)
         self.rect = self.surface.get_rect()
         self.rect.center = center
 
