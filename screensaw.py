@@ -408,10 +408,9 @@ def axe_alaska():
     #pygame.display.flip()
     
     hs = HexaSprite()
-    screen.blit(hs.surface, (10, 100))
-    #pygame.display.flip()
+    startpos = (10, 100)
+    screen.blit(hs.surface, startpos)
     pygame.display.update()
-    #print dir(hs)
     
     while True:
         # limit to 60 fps
@@ -422,12 +421,10 @@ def axe_alaska():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
                 
-        #hexface = pygame.transform.rotate(hexface, 1)
         screen.fill((0, 0, 0))
         hs.move_right()
-        screen.blit(hs.surface, hs.rect)
-        pygame.display.flip()
-        #pygame.display.update()
+        screen.blit(hs.surface, (startpos[0] + hs.rect[0], startpos[1] + hs.rect[1]))
+        pygame.display.update()
 
 def create_hexagon(center, radius):
     center_x = center[0]
