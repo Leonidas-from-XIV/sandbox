@@ -79,9 +79,9 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    axe_alaska()
+    #axe_alaska()
     #sinwave(True, True)
-    #visual_prime()
+    visual_prime()
     
 def display():
     """Displays the stuff"""
@@ -528,33 +528,25 @@ def visual_prime():
     """This displays primes. Numbers being primes are black,
     numbers not being primes white (change this?)"""
     import primebench
-    noprime = (255, 255, 255)
-    prime = (0, 0, 0)
-    #prime, noprime = noprime, prime
-    #screenwidth = 30
-    #screenheight = 60
-    curnum = 1
+    noprimecolor = (255, 255, 255)
+    primecolor = (0, 0, 0)
+    primecolor, noprimecolor = noprimecolor, primecolor
     
-    for y in xrange(screenheight):
-        for x in xrange(screenwidth):
-            # handle events
-            for event in pygame.event.get():
+    for prime in primebench.rangeprime(0, screenwidth * screenheight):
+        for event in pygame.event.get():
                 if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                     return
-            
-            isprime = primebench.isPrime(curnum)
-            #print isprime
-                
-            #print y, x
-            coord = [x, y]
-            if isprime:
-                pygame.draw.line(background, prime, coord, coord, 1)
-            else:
-                pygame.draw.line(background, noprime, coord, coord, 1)
-            screen.blit(background, (0, 0))
-            pygame.display.update()
-            
-            curnum += 1
+        
+        # get the line of the point (y-axis)
+        line = prime/screenwidth
+        # get the position of the point in the line (x-axis)
+        pos = prime - line * screenwidth
+        coord = (pos, line)
+        
+        # drawing.. as usual
+        pygame.draw.line(background, primecolor, coord, coord, 1)
+        screen.blit(background, (0, 0))
+        pygame.display.update()
             
     while True:
         # limit to 60 fps
