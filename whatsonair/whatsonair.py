@@ -365,8 +365,40 @@ class PSRParser(StationBase):
             return self.artist + ' - ' + self.title
         else:
             return "No title info currently"
-
-allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, GongParser, PSRParser]
+        
+class NRJParser(StationBase):
+    """Coded by Iopodx, just testing"""
+    __station__ = 'NRJ'
+    __version__ = '0.3.0'
+    __versiontuple__ = splitver(__version__)
+    trackparsing = False
+    artist = ''
+    title = ''
+    
+    def __init__(self, url=stationurls['NRJ'], offline=False):
+        StationBase.__init__(self, url, offline)
+    
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            result=text.split('JETZT BEI ENERGY: \r\n\t')
+            result=result[1].split('\n <a href=')
+            track=result[0].split(' \xb7 ')
+            if len(track) > 1:
+                self.artist, self.title = track[0], track[1]
+                # else: no song now
+                
+        except:
+            raise IncompatibleParser('NRJ')
+    
+    def currenttrack(self):
+        if not self.artist == '':
+            return self.artist + ' - ' + self.title
+        else:
+            return "No title info currently"
+        
+allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, GongParser, PSRParser, NRJParser]
     
 def main():
     parser = optparse.OptionParser()
@@ -388,6 +420,8 @@ def main():
         action="store_true", help="question Gong")
     parser.add_option("--psr", dest="psr", default=False,
         action="store_true", help="question PSR (Sachsen)")
+    parser.add_option("--nrj", dest="nrj", default=False,
+        action="store_true", help="question NRJ")
         
     (options, args) = parser.parse_args()
     
@@ -398,7 +432,7 @@ def main():
             print "%s Parser \t%s" % (parser.__name__, parser.__version__)
         sys.exit(0)
     
-    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr:
+    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr or options.nrj:
         options.all = False
     
     if options.all:
@@ -422,6 +456,8 @@ def main():
             printcurrent(GongParser, options.descriptive)
         if options.psr:
             printcurrent(PSRParser, options.descriptive)
+        if options.nrj:
+            printcurrent(NRJParser, options.descriptive) 
         
 def printcurrent(parser, descriptive):
     current = parser()
