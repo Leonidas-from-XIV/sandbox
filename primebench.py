@@ -45,14 +45,6 @@ def checkPrime(number):
             prime_found = True
     if prime_found is True:
         return True
-        
-def nextPrime(prime_to_test):
-    """Returns the next prime"""
-    while True:
-        prime_to_test += 1
-        if checkPrime(prime_to_test):
-            # Found prime
-            return prime_to_test
 
 def gennextprime(start):
     while True:
@@ -141,7 +133,7 @@ def main():
     if options.next:
         if options.benchmark:
             print "There is too less to benchmark"
-        prime_found = nextPrime(options.next)
+        prime_found = gennextprime(options.next + 1).next()
         print "Prime==%d" % prime_found
         sys.exit(0)
     
