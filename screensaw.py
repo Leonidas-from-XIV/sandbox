@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.12'
+__version__ = '0.0.13'
 
 
 screenwidth = 680
@@ -65,28 +65,79 @@ def main():
         dest="all", 
         default=True,
         action="store_true", 
-        help="run all demos")
-    parser.add_option("-c", "--critter",
+        help="run all demos (which work mostly)")
+    parser.add_option("-n", "--nointro",
+        dest="intro", 
+        default=True,
+        action="store_false", 
+        help="show intro")
+    parser.add_option("-r", "--reblank",
+        dest="frameskip", 
+        default=8,
+        action="store", 
+        help="How many frames to skip in the reblanks",
+        metavar="FRAMESKIP",
+        type="int")
+    parser.add_option("--critter",
         dest="critter", 
         default=False,
         action="store_true", 
         help="run simple critter demo")
-    parser.add_option("-p", "--prime",
+    parser.add_option("--ant",
+        dest="ant", 
+        default=False,
+        action="store_true", 
+        help="show ant demo")
+    parser.add_option("--popsquares",
+        dest="popsquares", 
+        default=False,
+        action="store_true", 
+        help="run popsquares effect")
+    parser.add_option("--magnets",
+        dest="magnets", 
+        default=False,
+        action="store_true", 
+        help="run magnetic simulation")
+    parser.add_option("--wave",
+        dest="wave", 
+        default=False,
+        action="store_true", 
+        help="run sine wave demo")
+    parser.add_option("--alaska",
+        dest="alaska", 
+        default=False,
+        action="store_true", 
+        help="run AXE alaska demo")
+    parser.add_option("--prime",
         dest="prime", 
         default=False,
         action="store_true", 
         help="run prime visualisation")
-    options, arguments = parser.parse_args()
+    options, args = parser.parse_args()
     
     # We have to prepare display
     prepare()
     
     # run the demos
-    #info("Screensaw " + __version__, "The Python GFX demonstration program")
-    #reblank(frameskip=8)
-    #info("Critter", "The first demo, a very simple one")
-    #critter()
-    #reblank(frameskip=8)
+    #print options
+    if options.intro:
+        info("Screensaw " + __version__, "The Python GFX demonstration program")
+        reblank(options.frameskip)
+    
+    if options.critter or options.ant:
+        options.all = False
+    
+    if options.all or options.critter:
+        if options.intro:
+            info("Critter", "The first demo, a very simple one")
+        critter()
+        reblank(options.frameskip)
+    
+    if options.all or options.ant:
+        if options.intro:
+            info("Ant", "A more interessting demo, ressembles Snake")
+        ant()
+        reblank(options.frameskip)
     #info("Ant", "A more interessting demo, ressembles Snake")
     #ant()
     #reblank(frameskip=8)
@@ -96,10 +147,10 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    axe_alaska()
+    #axe_alaska()
     #sinwave(True, True)
-    if options.prime:
-        visual_prime()
+    #if options.prime:
+    #    visual_prime()
     
 def display():
     """Displays the stuff"""
@@ -449,18 +500,18 @@ def axe_alaska():
         # do we habe to move right?
         if move_right:
             # yes... did we really moved?
-            moved = hs.move_right(0)
+            moved = hs.move_right(2)
             if not moved:
                 # no, we are at the border
                 move_right = not move_right
                 # so change the direction
         else:
-            moved = hs.move_left(0)
+            moved = hs.move_left(2)
             if not moved:
                 move_right = not move_right
                 continue
         
-        hs.rotate(-7)
+        #hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
