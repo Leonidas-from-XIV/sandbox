@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.2'
+__version__ = '0.1.4'
 
 
 screenwidth = 680
@@ -113,6 +113,16 @@ def main():
         default=False,
         action="store_true", 
         help="run prime visualisation")
+    parser.add_option("--cube",
+        dest="cube",
+        default=False,
+        action="store_true",
+        help="show kind of Gamecube logo")
+    parser.add_option("--laser",
+        dest="laser",
+        default=False,
+        action="store_true",
+        help="fun with laser emulation")
     options, args = parser.parse_args()
     
     # We have to prepare display
@@ -125,7 +135,8 @@ def main():
         reblank(options.frameskip)
     
     if (options.critter or options.ant or options.popsquares or options.magnets
-        or options.prime or options.wave or options.alaska):
+        or options.prime or options.wave or options.alaska or options.cube
+        or options.laser):
         options.all = False
     
     if options.all or options.critter:
@@ -168,6 +179,17 @@ def main():
         if options.intro:
             info("AXE Alaska", "Animated AXE Alaska logo")
         axe_alaska()
+        #reblank(options.frameskip)
+    
+    if options.all or options.cube:
+        if options.intro:
+            info("Cube", "Creates a kind of Gamecube logo")
+        cube()
+        reblank(options.frameskip)
+    if options.all or options.laser:
+        if options.intro:
+            info("Laser", "Work in progress")
+        laser()
         #reblank(options.frameskip)
     
 def display():
@@ -368,7 +390,59 @@ def magnets():
     
 def laser():
     """Laser demo (unfinished) - taken from XScreenSaver"""
-    pass
+    def nextpos():
+        target = [0, 0]
+        speed = 5
+        direction = 'right'
+        while True:
+            if direction == 'right':
+                if target[0] < screenwidth:
+                    target[0] += speed
+                    yield target
+                else:
+                    direction = 'down'
+                
+            if direction == 'down':
+                if target[1] < screenheight:
+                    target[1] += speed
+                    yield target
+                else:
+                    direction = 'left'
+                    
+            if direction == 'left':
+                if target[0] > 0:
+                    target[0] -= speed
+                    yield target
+                else:
+                    direction = 'up'
+                
+            if direction == 'up':
+                if target[1] > 0:
+                    target[1] -= speed
+                    yield target
+                else:
+                    direction = 'right'
+    
+    laserposition = (200, 300)
+    laserlight = (255, 0, 0)
+    
+    pos = nextpos()
+    
+    while True:
+        # limit fps
+        clock.tick(fps)
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                return
+        
+        screen.fill((0, 0, 0))
+        
+        target = pos.next()
+                
+        pygame.draw.line(screen, laserlight, laserposition, target, 1)
+        pygame.display.update()
     
     
 def ant():
@@ -493,9 +567,9 @@ def axe_alaska():
     yellow = (251, 224, 29)
     
     # create the sprite
-    #hs = HexaSprite(radius=50, color=yellow, alpha=255)
+    hs = HexaSprite(radius=50, color=yellow, alpha=255)
     #temp
-    hs = UnsharpHexaSprite(radius=50, color=yellow, alpha=50)
+    #hs = UnsharpHexaSprite(radius=50, color=yellow, alpha=50)
     #/temp
     
     # set the sprite on position
@@ -521,18 +595,18 @@ def axe_alaska():
         # do we habe to move right?
         if move_right:
             # yes... did we really moved?
-            moved = hs.move_up(0)
+            moved = hs.move_right(2)
             if not moved:
                 # no, we are at the border
                 move_right = not move_right
                 # so change the direction
         else:
-            moved = hs.move_down(0)
+            moved = hs.move_left(2)
             if not moved:
                 move_right = not move_right
                 continue
         
-        #hs.rotate(-7)
+        hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
@@ -540,7 +614,7 @@ def axe_alaska():
             move_right = not move_right
         
         # show the stuff
-        #screen.fill((0, 0, 0))
+        screen.fill((0, 0, 0))
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
@@ -652,6 +726,57 @@ def visual_prime():
     while True:
         # limit to 60 fps
         clock.tick(fps)
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                return
+
+def cube(sizes=(100, 70), alpha=50, hexacol=(251, 224, 29), linecol=(0, 0, 0), pixel=1):
+    """Creates the alpha'ed hexagons, and draws some lines.
+    Ressembles the Gamecube logo, somehow."""
+    
+    # reblank the screen
+    screen.fill((0, 0, 0))
+    
+    # create the sprites
+    # the bigger
+    bigrad = sizes[0]
+    big = HexaSprite(radius=bigrad, color=hexacol, alpha=alpha)
+    big.move_right(screenwidth/2-bigrad)
+    big.move_down(screenheight/2-bigrad)
+    screen.blit(big.surface, big.rect)
+    
+    # the smaller
+    smallrad = sizes[1]
+    small = HexaSprite(radius=smallrad, color=hexacol, alpha=alpha)
+    small.move_right(screenwidth/2-smallrad)
+    small.move_down(screenheight/2-smallrad)
+    screen.blit(small.surface, small.rect)
+    
+    # get the coords of the center
+    center = (screenwidth/2, big.rect.height/2 + screenheight/2-bigrad)
+    
+    # get the coordinates of the ending points
+    ends = [
+        # the right end point
+        (big.rect.right, big.rect.height/2 + screenheight/2-bigrad),
+        # the upper left point
+        (big.rect.center[0] - big.coords[0][0], big.rect.center[1] - big.coords[2][1]),
+        # the lower left point
+        (big.rect.center[0] - big.coords[0][0], big.rect.center[1] + big.coords[2][1])
+        ]
+    
+    # draws the lines
+    for end in ends:
+        pygame.draw.line(screen, linecol, center, end, pixel)
+    
+    # shows it
+    pygame.display.update()
+    
+    while True:
+        # limit to 10 fps
+        clock.tick(10)
 
         # handle events
         for event in pygame.event.get():
