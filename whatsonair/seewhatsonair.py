@@ -129,11 +129,19 @@ class TempNewUI(object):
         self.update = gtk.Button('Update')
         self.q = gtk.Button('Quit')
         
+        adjustment = gtk.Adjustment(value=0, lower=1, upper=1, step_incr=1, page_incr=1, page_size=1)
+        adj = gtk.Adjustment(1.0, 1.0, 31.0, 1.0, 5.0, 0.0) 
+        #self.interval = gtk.SpinButton(adjustment=adjustment)
+        self.interval = gtk.SpinButton(adj, 0, 0)
+        #self.interval = gtk.SpinButton()
+        #self.interval.set_value_as_int(10)
+        #self.interval.set_increments(10, 10)
+        
         self.q.connect("clicked", lambda widget: gtk.main_quit())
         self.update.connect("clicked", self.update_click)
         
         self.box.attach(sw, 0, 1, 0, 1)
-        self.box.attach(self.track, 0, 1, 1, 2)
+        self.box.attach(self.interval, 0, 1, 1, 2)
         self.box.attach(self.update, 1, 2, 0, 1)
         self.box.attach(self.q, 1, 2, 1, 2)
         self.box.set_row_spacings(5)
