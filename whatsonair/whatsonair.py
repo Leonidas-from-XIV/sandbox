@@ -397,8 +397,42 @@ class NRJParser(StationBase):
             return self.artist + ' - ' + self.title
         else:
             return "No title info currently"
+
+class RTLParser(StationBase):
+    """Coded by Iopodx"""
+    __station__ = 'RTL'
+    __version__ = '0.1.0'
+    __versiontuple__ = splitver(__version__)
+    trackparsing = False
+    artist = ''
+    title = ''
+    
+    def __init__(self, url=stationurls['RTL'], offline=False):
+        StationBase.__init__(self, url, offline)
+    
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            result=text.split('<td class="Stil1"><b>')
+            result=result[1].split('</td>')
+            track=result[0].split('</b><br>')
+            if len(track) > 1:
+                self.artist, self.title = track[0], track[1]
+                # else: no song now
+                
+        except:
+            
+            raise IncompatibleParser('RTL')
+    
+    def currenttrack(self):
+        if not self.artist == '':
+            return self.artist + ' - ' + self.title
+        else:
+            return "No title info currently"
         
-allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, GongParser, PSRParser, NRJParser]
+allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, 
+    GongParser, PSRParser, NRJParser, RTLParser]
     
 def main():
     parser = optparse.OptionParser()
@@ -422,17 +456,19 @@ def main():
         action="store_true", help="question PSR (Sachsen)")
     parser.add_option("--nrj", dest="nrj", default=False,
         action="store_true", help="question NRJ")
+    parser.add_option("--rtl", dest="rtl", default=False,
+        action="store_true", help="question RTL")
         
     (options, args) = parser.parse_args()
     
     if options.version:
-        print "WhatsOnAir \t\t%s" % __version__
+        print "WhatsOnAir \t%s" % __version__
         print 
         for parser in allparsers:
-            print "%s Parser \t%s" % (parser.__name__, parser.__version__)
+            print "%s Parser \t%s" % (parser.__station__, parser.__version__)
         sys.exit(0)
     
-    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr or options.nrj:
+    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr or options.nrj or options.rtl:
         options.all = False
     
     if options.all:
@@ -444,6 +480,7 @@ def main():
                 pass
     else:
         # which stations to question?
+        # should be refactored at some time
         if options.fm4:
             printcurrent(FM4Parser, options.descriptive)
         if options.antenne:
@@ -457,6 +494,8 @@ def main():
         if options.psr:
             printcurrent(PSRParser, options.descriptive)
         if options.nrj:
+            printcurrent(NRJParser, options.descriptive) 
+        if options.rtl:
             printcurrent(NRJParser, options.descriptive) 
         
 def printcurrent(parser, descriptive):
