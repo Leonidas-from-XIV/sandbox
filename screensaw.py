@@ -412,17 +412,10 @@ def axe_alaska():
     #screen.blit(hexface, (10, 50))
     #pygame.display.flip()
     
-    hs = HexaSprite()
-    screen.blit(hs.surface, (0, 0))
-    #pygame.display.update()
+    yellow = (251, 224, 29)
     
-    hs2 = HexaSprite()
-    hs2.move_right(50)
-    hs2.move_down(50)
-    print hs2.surface.get_colorkey()
-    hs2.surface.set_colorkey((0, 0, 0))
-    print hs2.surface.get_colorkey()
-    screen.blit(hs2.surface, hs2.rect)
+    hs = HexaSprite(color=yellow)
+    screen.blit(hs.surface, (0, 0))
     pygame.display.update()
     
     while True:
@@ -434,15 +427,17 @@ def axe_alaska():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
                 
-        #screen.fill((0, 0, 0))
-        #hs.move_right(2)
-        #hs.move_down(2)
-        #screen.blit(hs.surface, hs.rect)
-        #pygame.display.update()
+        screen.fill((0, 0, 0))
+        hs.move_right(2)
+        hs.move_down(2)
+        screen.blit(hs.surface, hs.rect)
+        pygame.display.update()
 
 def create_hexagon(center, radius):
     center_x = center[0]
     center_y = center[1]
+    #center_x = radius
+    #center_y = radius
     
     middleleft = (center_x - radius, center_y)
     middleright = (center_x + radius, center_y)
@@ -543,17 +538,19 @@ def sinwave(colorchange=False, thick=False):
     
 
 class HexaSprite(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, color, alpha=255):
         pygame.sprite.Sprite.__init__(self)
         
-        yellow = (251, 224, 29)
         coords = create_hexagon((50, 43), 50)
+        #coords = create_hexagon((0, 0), 50)
+        #print hexagon_size(coords)
         self.surface = pygame.Surface(hexagon_size(coords))
         self.rect = self.surface.get_rect()
         
-        pygame.draw.polygon(self.surface, yellow, coords, 0)
+        pygame.draw.polygon(self.surface, color, coords, 0)
         self.surface.convert_alpha()
-        self.surface.set_alpha(50)
+        self.surface.set_alpha(alpha)
+        self.surface.set_colorkey((0, 0, 0))
     
     def move_up(self, pixels=1):
         if self.rect.top > 0:
