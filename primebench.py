@@ -24,7 +24,7 @@ import sys, time, optparse, math
 
 __version__ = "0.1.4"
 
-def checkPrime(number):
+def isPrime_mk(number):
     """This is the core def, it checks whether
     the number is a prime or not.
     This is the absolute core, so most tuning is needed here."""
@@ -38,7 +38,7 @@ def checkPrime(number):
     # we got until there, so it must be a prime
     return True
 
-def isprime(number):
+def isPrime_ag(number):
     """Tuned code by Adam Gurno (LGPL)
     http://gurno.com/adam/ taken from mathfun
     Rewritten to fit into primebench"""
@@ -51,12 +51,14 @@ def isprime(number):
                 return False
         return True
 
+isPrime = isPrime_ag
+
 def gennextprime(start):
     """Generates the next prime of that one given.
     Is a generator, so you simply can call next() and
     this will produce the next bigger prime"""
     while True:
-        if checkPrime(start):
+        if isPrime(start):
             yield start
         start += 1
 
@@ -65,7 +67,7 @@ def rangeprime(start, end):
     while True:
         if start > end:
             raise StopIteration
-        if checkPrime(start):
+        if isPrime(start):
             yield start
         start += 1
 
@@ -161,7 +163,7 @@ def main():
     if options.check:
         if options.benchmark:
             print "There is too less to benchmark"
-        result = checkPrime(options.check)
+        result = isPrime(options.check)
         if result == True:
             print "Prime==True"
         else:
