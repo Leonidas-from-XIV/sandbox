@@ -435,7 +435,7 @@ def axe_alaska():
     #pygame.display.update()
     
     move_right = True
-    hs.rotate(45)
+    #hs.rotate(45)
     
     while True:
         # limit to 60 fps
@@ -460,7 +460,7 @@ def axe_alaska():
                 move_right = not move_right
                 continue
         
-        hs.rotate(1)
+        hs.rotate(7)
         
         # do we change the direction?
         if dirchange.random():
@@ -668,10 +668,20 @@ class HexaSprite(pygame.sprite.Sprite):
         beware of overflow (this has to be checked)"""
         rotation = degree + self.lastdegree
         center = self.rect.center
+        
+        if rotation > 360:
+            #print rotation
+            #print self.lastdegree
+            rotation = rotation - self.lastdegree
+        
+        self.lastdegree = rotation
+        
+        
         self.surface = pygame.transform.rotate(self.origsurface, rotation)
         self.rect = self.surface.get_rect()
         self.rect.center = center
-        self.lastdegree = rotation
+        
+        
         
 if __name__ == '__main__':
     main()
