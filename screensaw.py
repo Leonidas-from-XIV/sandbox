@@ -401,9 +401,16 @@ def axe_alaska():
     
     yellow = (251, 224, 29)
     
+    # create the sprite
     hs = HexaSprite(radius=50, color=yellow, alpha=50)
-    screen.blit(hs.surface, (0, 0))
-    pygame.display.update()
+    
+    # set the sprite on position
+    hs.move_right(screenwidth/2-50)
+    hs.move_down(screenheight/2-50)
+    
+    # blit
+    #screen.blit(hs.surface, (0, 0))
+    #pygame.display.update()
     
     while True:
         # limit to 60 fps
@@ -414,9 +421,9 @@ def axe_alaska():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
                 
-        #screen.fill((0, 0, 0))
+        screen.fill((0, 0, 0))
         hs.move_right(2)
-        hs.move_down(2)
+        hs.move_left(2)
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
