@@ -16,7 +16,8 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'YOUFM' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=youfm',
     'HR3' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=hr3neu',
     'NJoy' : 'http://www1.n-joy.de/njoy_pages_idx/0,3043,SPM2140,00.html',
-    'EinsLive' : 'http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml'}
+    'EinsLive' : 'http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml',
+    'SunshineLive': 'http://www.sunshine-live.de/core/playlist.php3'}
 
 __version__ = '0.8.4'
 
@@ -426,7 +427,7 @@ class RTLParser(StationBase):
                 # else: no song now
                 
         except:
-            raise IncompatibleParser('RTL')
+            raise IncompatibleParser(self.__station__)
     
     def currenttrack(self):
         if not self.artist == '':
@@ -435,7 +436,7 @@ class RTLParser(StationBase):
             return "No title info currently"
 
 class YOUFMParser(StationBase):
-    "unsauberer code von johi"
+    """Quickly coded by johi"""
     __station__ = 'YOUFM'
     __version__ = '0.1.1'
     __versiontuple__ = splitver(__version__)
@@ -443,8 +444,21 @@ class YOUFMParser(StationBase):
     aired = {}
     
     def __init__(self, url=stationurls['YOUFM'], offline=False):
-        StationBase.__init__(self, url, offline)
-    
+        # get the normal timeout
+        timeout = urllib.socket.getdefaulttimeout()
+        # set ten seconds timeout
+        urllib.socket.setdefaulttimeout(10.0)
+        
+        # get the data
+        try:
+            StationBase.__init__(self, url, offline)
+        except:
+            # return to default timeout lenght
+            urllib.socket.setdefaulttimeout(timeout)
+            raise IncompatibleParser(self.__station__)
+        else:
+            urllib.socket.setdefaulttimeout(timeout)
+        
     def feed(self, text):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
@@ -469,16 +483,24 @@ class YOUFMParser(StationBase):
             return 'No title info currently'
 
 class HR3Parser(YOUFMParser):
-    "unsauberer code von johi"
+    """Quickly coded by johi"""
     __station__ = 'HR3'
     __version__ = '0.0.1'
     __versiontuple__ = splitver(__version__)
     def __init__(self, url=stationurls['HR3'], offline=False):
+        # get the normal timeout
+        timeout = urllib.socket.getdefaulttimeout()
+        # set ten seconds timeout
+        urllib.socket.setdefaulttimeout(10.0)
+        
+        # get the data
         YOUFMParser.__init__(self, url, offline)
+        
+        # return to default timeout lenght
+        urllib.socket.setdefaulttimeout(timeout)
 
 class NJoyParser(StationBase):
     """NJoy Parser by Iopodx"""
-   ###URL: http://www1.n-joy.de/njoy_pages_idx/0,3043,SPM2140,00.html###
     __station__='NJoy'
     __version__ = '0.1.0'
     __versiontuple__ = splitver(__version__)
@@ -546,7 +568,6 @@ class EinsLiveParser(StationBase):
             if len(track) > 1:
                 self.artist, self.title = track[0], track[1]
                 # else: no song now
-                
         except:
             raise IncompatibleParser(self.__station__)
     
@@ -555,10 +576,54 @@ class EinsLiveParser(StationBase):
             return self.artist + ' - ' + self.title
         else:
             return "No title info currently"
+
+class SunshineLiveParser(StationBase):
+    """SunshineLiveParser by Iopodx
+    various additions by Leonidas"""
+    __station__='SunshineLive'
+    __version__ = '0.1.1'
+    __versiontuple__ = splitver(__version__)
+    trackparsing = False
+    artist = ''
+    title = ''
+    
+    def __init__(self, url=stationurls['SunshineLive'], offline=False):
+        """Constructs the Parser"""
+        # get the normal timeout
+        timeout = urllib.socket.getdefaulttimeout()
+        # set ten seconds timeout
+        urllib.socket.setdefaulttimeout(10.0)
         
+        # get the data
+        StationBase.__init__(self, url, offline)
+        
+        # return to default timeout lenght
+        urllib.socket.setdefaulttimeout(timeout)
+
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            result1=text.split('</TD><TD NOWRAP>')
+            result=text.split('</TD><TD NOWRAP>')
+            result=result[2].split('</TD><TD><A HREF="')
+            track=[result[0], result1[1]]
+            if len(track) > 1:
+                self.artist, self.title = track[0], track[1]
+                # else: no song now
+
+        except:
+            raise IncompatibleParser(self.__station__)
+    
+    def currenttrack(self):
+        if not self.artist == '':
+            return self.artist + ' - ' + self.title
+        else:
+            return "No title info currently"
+
 allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, 
     GongParser, PSRParser, NRJParser, RTLParser, YOUFMParser, HR3Parser,
-    NJoyParser, EinsLiveParser]
+    NJoyParser, EinsLiveParser, SunshineLiveParser]
     
 def main():
     parser = optparse.OptionParser()
@@ -592,6 +657,8 @@ def main():
         action="store_true", help="question NJoy")
     parser.add_option("--einslive", dest="einslive", default=False,
         action="store_true", help="question EinsLive")
+    parser.add_option("--sunshinelive", dest="sunshinelive", default=False,
+        action="store_true", help="question SunshineLive")
         
     (options, args) = parser.parse_args()
     
@@ -603,16 +670,17 @@ def main():
         sys.exit(0)
     
     if (options.fm4 or options.antenne or options.energy or options.bayern3 or
-        options.gong or options.psr or options.nrj or options.rtl or options.you or
-        options.hr3 or options.njoy or options.einslive):
+        options.gong or options.psr or options.nrj or options.rtl or options.njoy or
+        options.einslive or options.sunshinelive):
         options.all = False
     
     if options.all:
+        options.descriptive = True
         for parser in allparsers:
             try:
                 printcurrent(parser, options.descriptive)
             except:
-                # failed
+                # failed, so ignore silently
                 pass
     else:
         # which stations to question?
@@ -640,7 +708,9 @@ def main():
         if options.njoy:
             printcurrent(NJoyParser, options.descriptive) 
         if options.einslive:
-            printcurrent(EinsLiveParser, options.descriptive) 
+            printcurrent(EinsLiveParser, options.descriptive)
+        if options.sunshinelive:
+            printcurrent(SunshineLiveParser, options.descriptive) 
         
 def printcurrent(parser, descriptive):
     current = parser()
