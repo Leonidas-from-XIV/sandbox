@@ -7,8 +7,7 @@ from time import sleep
 from tkMessageBox import showwarning
 
 all=[] 
-for current in allparsers: 
-    current=current() 
+for current in allparsers:
     all.append(current.__station__) 
 
 def htmlspecialchars(chars):
@@ -37,15 +36,19 @@ def update(toupdate):
     i=0 
     result=[] 
     for current in allparsers: 
-        if toupdate[i]==1:
-            try: 
-                current=current() 
-                current.feed(current.pagecontent) 
-                result.append(current.currenttrack()) 
-            except:result.append('ERROR!') 
-        else: 
-            result.append(0) 
-        i=i+1 
+        try:
+            if toupdate[i] == 1:
+                try: 
+                    current=current() 
+                    current.feed(current.pagecontent) 
+                    result.append(current.currenttrack()) 
+                except:
+                    result.append('ERROR!') 
+            else: 
+                result.append(0)
+            i += 1 
+        except:
+            pass
     return result 
 
 def save_settings(values, settingsroot, root, reloadtime): 
@@ -70,6 +73,8 @@ def read_sets():
             current=0
         if current=='\n':
             current=0
+        if current == '#':
+            continue
         stations.append(int(current)) 
     return stations
 
@@ -93,17 +98,20 @@ def start():
     checksum=read_sets() 
     var=[StringVar(root), StringVar(root), StringVar(root), StringVar(root), StringVar(root), StringVar(root), StringVar(root),
          StringVar(root), StringVar(root), StringVar(root), StringVar(root), StringVar(root), StringVar(root), StringVar(root)]
-    for current in allparsers: 
-        if checksum[aa]==1: 
-            current=current() 
-            current=current.__station__ 
-            var.append(StringVar(root)) 
-            Label(root, text=current).place(x=4, y=20*s) 
-            tracklabels[aa]=Label(root, textvariable=var[aa]) 
-            var[aa].set(uptodate[aa]) 
-            tracklabels[aa].place(x=100, y=20*s)
-            s=s+1
-        aa=aa+1 
+    for current in allparsers:
+        try:
+            if checksum[aa]==1: 
+                current=current() 
+                current=current.__station__ 
+                var.append(StringVar(root)) 
+                Label(root, text=current).place(x=4, y=20*s) 
+                tracklabels[aa]=Label(root, textvariable=var[aa]) 
+                var[aa].set(uptodate[aa]) 
+                tracklabels[aa].place(x=100, y=20*s)
+                s += 1
+            aa += 1 
+        except:
+            pass
     start_new_thread(update_it, (var, root, read_reload()))
     root.minsize(450, 20*s) 
     #root.maxsize(450, 20*s) 
@@ -135,7 +143,8 @@ def settings(*root):
     Label(settingsroot, text='Refresh time: ').place(x=4, y=20*r+10)
     reloadtime=Entry(settingsroot, width=4)
     reloadtime.place(x=90, y=20*r+10)
-    reloadtime.insert(END, str(read_reload()))
+    try:reloadtime.insert(END, str(read_reload()))
+    except:reloadtime.insert(END, '5')
     settingsroot.minsize(200, 20*r+75) 
     settingsroot.maxsize(200, 20*r+75) 
     Button(settingsroot, text="Save", command=lambda:save_settings(v, settingsroot, root, reloadtime)).place(x=50, y=(20*r)+40) 
