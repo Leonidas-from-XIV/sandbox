@@ -12,7 +12,9 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'Gong' : 'http://web1.beamgate.com/Gong/getPlaylist.jsp',
     'RTL' : 'http://www.hitradio-rtl-sachsen.de/streamplayer/onair.php',
     'NRJ' : 'http://www.nrj.de/www/index_top.php',
-    'PSR' : 'http://www.radiopsr.de/www/webradio/e98cb037f376fa53b314c166766ef55e.php'}
+    'PSR' : 'http://www.radiopsr.de/www/webradio/e98cb037f376fa53b314c166766ef55e.php',
+    'YOUFM' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=youfm',
+    'HR3' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=hr3neu'}
 
 __version__ = '0.8.3'
 
@@ -212,7 +214,7 @@ class AntenneParser(StationBase):
         try:
             StationBase.feed(self, *args, **kwargs)
         except:
-            raise IncompatibleParser('Antenne')
+            raise IncompatibleParser(self.__station__)
     
     def currenttrack(self):
         if not self.artist == '':
@@ -322,7 +324,7 @@ class GongParser(StationBase):
         try:
             StationBase.feed(self, *args, **kwargs)
         except:
-            raise IncompatibleParser('Gong')
+            raise IncompatibleParser(self.__station__)
     
     def currenttrack(self):
         timekeys = sorted(self.aired)
@@ -358,7 +360,7 @@ class PSRParser(StationBase):
                 # else: no song now
                 
         except:
-            raise IncompatibleParser('PSR')
+            raise IncompatibleParser(self.__station__)
     
     def currenttrack(self):
         if not self.artist == '':
@@ -390,7 +392,7 @@ class NRJParser(StationBase):
                 # else: no song now
                 
         except:
-            raise IncompatibleParser('NRJ')
+            raise IncompatibleParser(self.__station__)
     
     def currenttrack(self):
         if not self.artist == '':
@@ -422,7 +424,6 @@ class RTLParser(StationBase):
                 # else: no song now
                 
         except:
-            
             raise IncompatibleParser('RTL')
     
     def currenttrack(self):
@@ -430,9 +431,51 @@ class RTLParser(StationBase):
             return self.artist + ' - ' + self.title
         else:
             return "No title info currently"
+
+class YOUFMParser(StationBase):
+    "unsauberer code von johi"
+    __station__ = 'YOUFM'
+    __version__ = '0.1.1'
+    __versiontuple__ = splitver(__version__)
+    
+    aired = {}
+    
+    def __init__(self, url=stationurls['YOUFM'], offline=False):
+        StationBase.__init__(self, url, offline)
+    
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            feed = text.split('<table width="100%" cellpadding="2">\r\n\t<tr>\r\n\t\t<td><span class="text">Datum</span></td>\r\n\t\t<td><span class="text">Zeit</span></td>\r\n\t\t<td><span class="text">Interpret</span></td>\r\n\t\t<td><span class="text">Titel</span></td>\r\n\t</tr>\r\n\t\t<tr>')[1].split('</table>')[0]
+            data = feed.split("</tr>\r\n\t\t<tr>")[:-1]
+            for item in data:
+                values = item.replace('\t','').replace('\r','').replace('<td bgcolor="#ffffff">', '').replace('<td bgcolor="#ffffff" align="center">', '').replace('</td>', '').split("\n")[1:-1]
+                timex = int(values[0].replace('.','') + values[1].replace(':',''))
+                self.aired[timex] = {"Artist":values[2].decode("latin-1"), "Title":values[3].decode("latin-1"), "Day": values[0], "Time": values[1]} 
+        except:
+            raise IncompatibleParser(self.__station__)
+    
+    def currenttrack(self):
+        if len(self.aired) > 0:
+            timekeys = self.aired.keys()[:]
+            timekeys.sort()
+            playing = self.aired[timekeys[-1]]
+            current = playing['Artist'] + ' - ' + playing['Title']
+            return current
+        else:
+            return 'No title info currently'
+
+class HR3Parser(YOUFMParser):
+    "unsauberer code von johi"
+    __station__ = 'HR3'
+    __version__ = '0.0.1'
+    __versiontuple__ = splitver(__version__)
+    def __init__(self, url=stationurls['HR3'], offline=False):
+        YOUFMParser.__init__(self, url, offline)
         
 allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, 
-    GongParser, PSRParser, NRJParser, RTLParser]
+    GongParser, PSRParser, NRJParser, RTLParser, YOUFMParser, HR3Parser]
     
 def main():
     parser = optparse.OptionParser()
@@ -458,6 +501,10 @@ def main():
         action="store_true", help="question NRJ")
     parser.add_option("--rtl", dest="rtl", default=False,
         action="store_true", help="question RTL")
+    parser.add_option("--youfm", dest="you", default=False,
+        action="store_true", help="question YOUFM")
+    parser.add_option("--hr3", dest="hr3", default=False,
+        action="store_true", help="HR3")
         
     (options, args) = parser.parse_args()
     
@@ -468,7 +515,7 @@ def main():
             print "%s Parser \t%s" % (parser.__station__, parser.__version__)
         sys.exit(0)
     
-    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr or options.nrj or options.rtl:
+    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr or options.nrj or options.rtl or options.you or options.hr3:
         options.all = False
     
     if options.all:
@@ -497,6 +544,10 @@ def main():
             printcurrent(NRJParser, options.descriptive) 
         if options.rtl:
             printcurrent(NRJParser, options.descriptive) 
+        if options.you:
+            printcurrent(YOUFMParser, options.descriptive) 
+        if options.hr3:
+            printcurrent(HR3Parser, options.descriptive) 
         
 def printcurrent(parser, descriptive):
     current = parser()
