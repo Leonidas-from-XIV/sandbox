@@ -494,6 +494,9 @@ def axe_alaska():
     
     # create the sprite
     hs = HexaSprite(radius=50, color=yellow, alpha=50)
+    #temp
+    hs = UnsharpHexaSprite(radius=50, color=yellow)
+    #/temp
     
     # set the sprite on position
     hs.move_right(screenwidth/2-50)
@@ -518,18 +521,18 @@ def axe_alaska():
         # do we habe to move right?
         if move_right:
             # yes... did we really moved?
-            moved = hs.move_right(2)
+            moved = hs.move_up(2)
             if not moved:
                 # no, we are at the border
                 move_right = not move_right
                 # so change the direction
         else:
-            moved = hs.move_left(2)
+            moved = hs.move_down(2)
             if not moved:
                 move_right = not move_right
                 continue
         
-        hs.rotate(-7)
+        #hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
@@ -537,7 +540,7 @@ def axe_alaska():
             move_right = not move_right
         
         # show the stuff
-        screen.fill((0, 0, 0))
+        #screen.fill((0, 0, 0))
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
@@ -659,6 +662,7 @@ class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
     lastdegree = 0
     def __init__(self, radius, color, alpha=255):
+        """Create a blabal"""
         pygame.sprite.Sprite.__init__(self)
         
         self.coords = self.create_coords(radius)
@@ -756,6 +760,87 @@ class HexaSprite(pygame.sprite.Sprite):
         self.rect.center = center
         
         
+
+class UnsharpHexaSprite(HexaSprite):
+    """This child class represents a fuzzy hexagon"""
+    def __init__(self, radius, color):
+        pygame.sprite.Sprite.__init__(self)
+        #self.alpha = alpha
         
+        #coords = self.create_coords(radius)
+        #self.surface = pygame.Surface(self.size_free(coords))
+        #self.rect = self.surface.get_rect()
+        
+        
+        #pygame.draw.polygon(self.surface, color, self.coords, 0)
+        #self.surface.convert_alpha()
+        #self.surface.set_alpha(self.alpha)
+        #self.surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
+        
+        #self.origsurface = self.surface
+        
+        self.coords = []
+        self.surfaces = []
+        self.rects = []
+        
+        for layer in range(2):
+            print layer
+            coord = self.create_coords(radius - layer)
+            self.coords.append(coord)
+            print coord
+            surface = pygame.Surface(self.size_free(coord))
+            surface.convert_alpha()
+            surface.set_alpha(50)
+            surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
+            pygame.draw.polygon(surface, color, coord, 0)
+            self.surfaces.append(surface)
+            rect = surface.get_rect()
+            print rect
+            self.rects.append(rect)
+        
+        self.rect = self.rects[0]
+        
+        surfsize = self.size_free(self.coords[0])
+        surfsize = surfsize[0] + 4, surfsize[1] + 4
+        # four pixels buffer
+        self.surface = pygame.Surface(surfsize)
+        for s in self.surfaces:
+            self.surface.blit(s, (2, 2))
+        #self.surface.blit(self.surfaces[0], (2, 2))
+        # two at the left, two at the right
+        #self.surface = self.surfaces[0]
+        print self.surface
+    
+    def rotate(self, degree):
+        """Rotates the object
+        beware of overflow (this has to be checked)"""
+        rotation = degree + self.lastdegree
+        center = self.rect.center
+        
+        if rotation > 360 or rotation < -360:
+            # if the rotation got out of a full 360° movement, 
+            #+reset it back to lower values
+            rotation = rotation - self.lastdegree
+        
+        self.lastdegree = rotation
+        
+        self.surface = pygame.transform.rotate(self.origsurface, rotation)
+        #self.surface.convert_alpha()
+        #self.surface.set_alpha(self.alpha)
+        self.rect = self.surface.get_rect()
+        self.rect.center = center
+
+    def size_free(self, coords):
+        """Get the size of the hexagon"""
+        left = coords[5][0]
+        right = coords[2][0]
+        width = right - left
+    
+        top = coords[0][1]
+        buttom = coords[3][1]
+        height = buttom - top
+    
+        return (width, height)
+    
 if __name__ == '__main__':
     main()
