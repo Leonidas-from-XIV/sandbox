@@ -96,30 +96,27 @@ class TempNewUI(object):
         
         self.box = gtk.Table()
         
-        self.stations = gtk.ListStore(bool, str, str, str)
+        self.stations = gtk.ListStore('gboolean', 'gchar', 'gchar', 'gchar')
         iter = self.stations.append()
         print iter
-
-        #self.stations.set(iter, 0, True, 1, "Bla", 2, "Bal", 3, "blub")
-        #print dir(self.stations)
+        self.stations.set(iter, 0, False, 1, 'abc', 2, 'def', 3, 'ghi')
+        
         sw = gtk.ScrolledWindow() 
         treeview = gtk.TreeView(self.stations) 
-        #print treeview
         sw.add(treeview)
-        renderer = gtk.CellRendererToggle()
         
-        column = gtk.TreeViewColumn('Question?', renderer, active=0)
+        column = gtk.TreeViewColumn('Question?', 
+                                gtk.CellRendererToggle(),
+                                active=True)
         treeview.append_column(column) 
         
-        column = gtk.TreeViewColumn('Station', renderer)
+        column = gtk.TreeViewColumn('Station', gtk.CellRendererText())
         treeview.append_column(column) 
-        column = gtk.TreeViewColumn('Artist', renderer)
+        column = gtk.TreeViewColumn('Artist', gtk.CellRendererText())
         treeview.append_column(column) 
-        column = gtk.TreeViewColumn('Title', renderer)
+        column = gtk.TreeViewColumn('Title', gtk.CellRendererText())
         treeview.append_column(column)
         
-        self.stations.set(iter, 0, 'Foo')
-        self.stations.append([False, 'red', "green", "blue"])
         
         self.track = gtk.Label('Click on Update')
         self.update = gtk.Button('Update')
@@ -174,6 +171,13 @@ class TempNewUI(object):
             
         self.update.set_sensitive(True)
         self.stations.set_sensitive(True)
+    
+    def create_model(self):
+        import gobject
+        store = gtk.ListStore(gobject.TYPE_BOOLEAN, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        iter = store.append()
+        store.set(iter, 0, False, 1, 'abc', 2, 'def', 3, 'ghi')
+        return store 
 
 def main():
     """The main method - just opens the window"""
