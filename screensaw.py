@@ -8,16 +8,12 @@ Requirements:
 - Python (written with 2.4)
 - pygame (written with 1.6)
 
-written by Marek Kubica
+Written by Marek Kubica.
+Dedicated to Fritz Cizmarov
 """
 import os, sys, random, time, math
 import pygame
 import pygame.locals as pyl
-
-if not pygame.font:
-	print 'WARNING (pygame): Fonts disabled'
-if not pygame.mixer:
-	print 'WARNING (pygame): Sound disabled'
 
 __version__ = '0.0.7'
 
@@ -50,8 +46,10 @@ def prepare():
     background = pygame.Surface(screen.get_size())
     # convert it to be faster
     background = background.convert()
+    #background = background.convert_alpha()
     # fill it black
     background.fill((0, 0, 0))
+    background.set_alpha(100)
     # create a clock to control the FPS
     global clock
     clock = pygame.time.Clock()
@@ -392,11 +390,23 @@ def critter():
 def axe_alaska():
     """Make that AXE Alaska Logo"""
 
-    p = create_hexagon((100, 200), 50)
-    hexface = pygame.Surface(hexagon_size(p))
-    print hexface
+    #coords = create_hexagon((100, 200), 50)
+    # first x value, then y value
+    coords = create_hexagon((50, 43), 50)
+    hexface = pygame.Surface(hexagon_size(coords))
     
-    print p
+    yellow = (251, 224, 29)
+    white = (255, 255, 255)
+    blue = (46, 144, 189)
+    
+    pygame.draw.polygon(hexface, yellow, coords, 0)
+    hexface = pygame.transform.rotate(hexface, 90)
+    
+    hexface.convert_alpha()
+    hexface.set_alpha(50)
+    screen.blit(hexface, (10, 50))
+    pygame.display.flip()
+    
     while True:
         # limit to 60 fps
         clock.tick(fps)
@@ -405,23 +415,8 @@ def axe_alaska():
         for event in pygame.event.get():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
-    
-
-        white = (255, 255, 255)
-        yellow = (251, 224, 29)
-        blue = (46, 144, 189)
-        
-        # first x value, then y value
-        #coords = ((10, 10), (20, 10), (30, 20), (20, 30), (10, 30), (0, 20))
-        coords = p
-        
-        polyface = pygame.Surface(screen.get_size())
-        
-        pygame.draw.polygon(polyface, yellow, coords, 0)
-        rotface = pygame.transform.rotate(polyface, 0)
-        screen.blit(rotface, (0, 0))
-        pygame.display.flip()
-        
+                
+        hexface = pygame.transform.rotate(hexface, 1)
 
 def create_hexagon(center, radius):
     center_x = center[0]
