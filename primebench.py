@@ -18,7 +18,7 @@ You can use it in your own programs"""
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import sys, time
+import sys, time, optparse
 
 __version__ = "0.1.0"
 args = """bench.py (%s) - Small benchmark with primes (Free Software - GPLed)
@@ -89,21 +89,35 @@ def findPrimesUntil(until_number):
     return primes_list
 
 def main():
-    """The main def, which makes this script executable
-    PyLint: this def has to many branches, but what to do?"""
+    """The main def, which makes this script executable"""
+    parser = optparse.OptionParser()
+    
+    parser.add_option("-v", "--version", dest="version", default=False,
+        action="store_true", help="print program versions and exit")
+    parser.add_option("-b", "--benchmark", dest="benchmark", default=False,
+        action="store_true", help="benchmark results")
+    parser.add_option("-n", "--next", dest="next", default=False, metavar="NUMBER",
+        action="store", help="get next prime which is bigger than NUMBER")
+    parser.add_option("-t", "--times", dest="times", default=False, metavar="NUMBER",
+        action="store", help="find NUMBER primes")
+    parser.add_option("-u", "--until", dest="until", default=False, metavar="NUMBER",
+        action="store", help="find primes until NUMBER")
+    parser.add_option("-c", "--check", dest="check", default=False, metavar="NUMBER",
+        action="store", help="check whether NUMBER is a prime")
+    
+    
+    
+    (options, args) = parser.parse_args()
+    print options
+    if options.benchmark:
+        print 'Benchmark enabled'
+    
     benchmark = False
     if len(sys.argv) == 1: 
         # if no arguments display help
-        print args % __version__
+        #print args % __version__
         # and exit
         sys.exit(1)
-    elif len(sys.argv) == 3:
-        # benchmarking on?
-        if sys.argv[2][:2] == "-b" or sys.argv[2][:11] == "--benchmark":
-            print "Benchmark enabled"
-            benchmark = True
-        else:
-            print "There is no such commandline argument!"
     if sys.argv[1][:2] == "-n":
         # Simply get the next prime
         if benchmark:
