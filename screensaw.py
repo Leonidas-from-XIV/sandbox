@@ -166,7 +166,7 @@ def popsquares(slow=20):
     squareswidth = screenwidth / 5
     
     # test the input
-    if slow is 0:
+    if slow == 0:
         raise ZeroDivisionError("You should take values higher than zero, Sai.")
     
     # we have to prepare the initial popsquares
@@ -392,7 +392,10 @@ def critter():
 def axe_alaska():
     """Make that AXE Alaska Logo"""
 
-    p = create_poly((100, 200), 50)
+    p = create_hexagon((100, 200), 50)
+    hexface = pygame.Surface(hexagon_size(p))
+    print hexface
+    
     print p
     while True:
         # limit to 60 fps
@@ -412,11 +415,15 @@ def axe_alaska():
         #coords = ((10, 10), (20, 10), (30, 20), (20, 30), (10, 30), (0, 20))
         coords = p
         
-        pygame.draw.polygon(background, yellow, coords, 0)
+        polyface = pygame.Surface(screen.get_size())
         
-        display()
+        pygame.draw.polygon(polyface, yellow, coords, 0)
+        rotface = pygame.transform.rotate(polyface, 0)
+        screen.blit(rotface, (0, 0))
+        pygame.display.flip()
+        
 
-def create_poly(center, radius):
+def create_hexagon(center, radius):
     center_x = center[0]
     center_y = center[1]
     
@@ -432,6 +439,17 @@ def create_poly(center, radius):
     lowerright = (int(round(center_x + radius/2.0)), center_y + deviation)
     
     return (upperleft, upperright, middleright, lowerright, lowerleft, middleleft)
+
+def hexagon_size(hexagon):
+    left = hexagon[5][0]
+    right = hexagon[2][0]
+    width = right - left
+    
+    top = hexagon[0][1]
+    buttom = hexagon[3][1]
+    height = buttom - top
+    
+    return (width, height)
         
 if __name__ == '__main__':
     main()
