@@ -16,7 +16,7 @@ import os, sys, random, time, math
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.8'
+__version__ = '0.0.9'
 
 
 screenwidth = 680
@@ -433,17 +433,15 @@ def axe_alaska():
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
-def create_hexagon(center, radius):
-    center_x = center[0]
-    center_y = center[1]
-    #center_x = radius
-    #center_y = radius
+def create_hexagon(radius):
+    d = math.sqrt(radius ** 2 - (radius/2.0) ** 2)
+    deviation = int(round(d))
+    
+    center_x = radius
+    center_y = deviation
     
     middleleft = (center_x - radius, center_y)
     middleright = (center_x + radius, center_y)
-    
-    d = math.sqrt(radius ** 2 - (radius/2.0) ** 2)
-    deviation = int(round(d))
     
     upperleft = (int(round(center_x - radius/2.0)), center_y - deviation)
     upperright = (int(round(center_x + radius/2.0)), center_y - deviation)
@@ -541,8 +539,8 @@ class HexaSprite(pygame.sprite.Sprite):
     def __init__(self, color, alpha=255):
         pygame.sprite.Sprite.__init__(self)
         
-        coords = create_hexagon((50, 43), 50)
-        #coords = create_hexagon((0, 0), 50)
+        #coords = create_hexagon((50, 43), 50)
+        coords = create_hexagon(50)
         #print hexagon_size(coords)
         self.surface = pygame.Surface(hexagon_size(coords))
         self.rect = self.surface.get_rect()
