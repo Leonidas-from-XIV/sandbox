@@ -6,6 +6,7 @@ from os import remove
 from time import sleep, time, ctime
 from tkMessageBox import showwarning
 from ScrolledText import ScrolledText
+from os import popen
 
 all=[] 
 for current in allparsers:
@@ -35,11 +36,31 @@ def create_default_ini():
     file.write(towrite)
     file.close()
 
+def mkdir(dir, target):
+    print 'md '+target+dir
+    popen('md '+target+dir)
+
+def chkdir(dir, target):
+    pipe=popen('dir '+target)
+    result=pipe.read()
+    result=result.find(dir)
+    if result >0:
+        return 1
+    else:
+        return 0
+
 def log(station, track):
     ##Logs the Current track##
     if(track !=0):
-        writefile=open(ctime(time()).split(' ')[1]+'_'+ctime(time()).split(' ')[2]+'_'+ctime(time()).split(' ')[4]+'_'+station+'.log', 'a+')
-        readfile=open(ctime(time()).split(' ')[1]+'_'+ctime(time()).split(' ')[2]+'_'+ctime(time()).split(' ')[4]+'_'+station+'.log', 'r')
+        if chkdir('logs', '')==0:
+            mkdir('logs', '')
+        else:pass
+        if chkdir(station, 'logs\\')==0:
+            mkdir(station, 'logs\\')
+        else: pass
+        writefile=open('logs/'+station+'/'+ctime(time()).split(' ')[1]+'_'+ctime(time()).split(' ')[2]+'_'+ctime(time()).split(' ')[4]+'_'+station+'.log', 'a+')
+        readfile=open('logs/'+station+'/'+ctime(time()).split(' ')[1]+'_'+ctime(time()).split(' ')[2]+'_'+ctime(time()).split(' ')[4]+'_'+station+'.log', 'r')
+        track=htmlspecialchars(track)
         
     try:
         a=readfile.read()
@@ -57,20 +78,29 @@ def log(station, track):
             writefile.write(towrite)
         else:
             pass
+    try:
+        writefile.close()
+        readfile.close()
+    except:pass
         
 def openlogs(station, *root):
     try:
-        readfile=open(ctime(time()).split(' ')[1]+'_'+ctime(time()).split(' ')[2]+'_'+ctime(time()).split(' ')[4]+'_'+station+'.log', 'r')
+        readfile=open('logs/'+station+'/'+ctime(time()).split(' ')[1]+'_'+ctime(time()).split(' ')[2]+'_'+ctime(time()).split(' ')[4]+'_'+station+'.log', 'r')
         result=readfile.read()
         logroot=Tk()
         logroot.title(station)
         TrackBox=ScrolledText(logroot, width=80, height=15)
         Label(logroot, text=station).place(x=250, y=0)
         TrackBox.place(x=0, y=20)
-        TrackBox.insert(END, result)
+        result=result.split('\n')
+        for current in result:
+            current=htmlspecialchars(current)
+            if current !='\n':
+                TrackBox.insert(END, current+'\n')
         logroot.minsize(530, 240)
         logroot.maxsize(530, 240)
         logroot.mainloop()
+        readfile.close()
     except:pass
 
 def update_it(var, root, reloadtime): 
@@ -172,6 +202,8 @@ def start():
     logmenu=Menu(root)
     root.config(menu=menu)
     menu.add_command(label='Settings', command=lambda:settings(root))
+    logmenu = Menu(menu) 
+    menu.add_cascade(label='Logs', menu=logmenu) 
     for current in allparsers:
         try:
             if checksum[aa]==1: 
@@ -180,6 +212,7 @@ def start():
                 var.append(StringVar(root))
                 Label(root, text=current).place(x=4, y=23*s)
                 Button(text=all[aa], command=lambda arg=all[aa]:openlogs(arg, root)).place(x=4, y=23*s)
+                logmenu.add_command(label=current, command=lambda arg=all[aa]:openlogs(arg, root)) 
                 tracklabels[aa]=Label(root, textvariable=var[aa]) 
                 var[aa].set(uptodate[aa]) 
                 tracklabels[aa].place(x=100, y=23*s)
