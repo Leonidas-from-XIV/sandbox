@@ -107,7 +107,8 @@ class TempNewUI(object):
         for i in range(4):
             if i == 0:
                 renderer = gtk.CellRendererToggle()
-                column = gtk.TreeViewColumn("Question", renderer)
+                renderer.connect('toggled', self.quest_toggled, model)
+                column = gtk.TreeViewColumn("Question", renderer, active=i)
             elif i == 1:
                 renderer = gtk.CellRendererText()
                 column = gtk.TreeViewColumn("Station", renderer, text=i)
@@ -122,7 +123,6 @@ class TempNewUI(object):
         for st in whatsonair.allparsers:
             iterator = model.append()
             model.set_value(iterator, 1, st.__station__)
-        
         
         
         self.track = gtk.Label('Click on Update')
@@ -146,6 +146,20 @@ class TempNewUI(object):
         """Window closing"""
         gtk.main_quit()
         return False
+    
+    def quest_toggled(self, cell, path, model):
+        """The handler for clicking on the checkmark"""
+        # get toggled iter
+        iterator = model.get_iter((int(path),))
+        quest = model.get_value(iterator, 0)
+        #print "Currently ", quest, " changed to ",
+    
+        # do something with the value
+        quest = not quest
+        #print quest
+    
+        # set new value
+        model.set(iterator, 0, quest) 
     
     def update_click(self, widget):
         """Updates the track,
