@@ -99,14 +99,12 @@ class UserInterface(object):
         #print widget
         new_value = int(spin.get_value())
         interval = new_value * 1000
-        if not self.sid:
-            self.sid = gobject.timeout_add(interval, self.tout)
-        else:
+        if self.sid:
             # stop the former microthread
             gobject.source_remove(self.sid)
-            self.sid = gobject.timeout_add(interval, self.tout)
+        self.sid = gobject.timeout_add(interval, self.cyclic_update)
     
-    def tout(self):
+    def cyclic_update(self):
         print 'Timeout #%s' % str(self.sid)
         return True
     
@@ -144,6 +142,8 @@ class UserInterface(object):
             self.update.set_label('Network error')
             
         self.update.set_sensitive(True)
+        # do not start periodically
+        return False
 
 def main():
     """The main method - just opens the window"""
