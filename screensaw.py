@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: latin-1 -*-
 """A program for demonstrating the graphical abilities of Python.
 It uses just the 2D mode, who needs 3D?
 Some demos are taken from XScreenSaver (really cool prog)
@@ -78,8 +79,8 @@ def main():
     #magnets()
     #reblank(frameskip=8)
     
-    #axe_alaska()
-    sinwave(True, True)
+    axe_alaska()
+    #sinwave(True, True)
     
 def display():
     """Displays the stuff"""
@@ -413,6 +414,15 @@ def axe_alaska():
     
     hs = HexaSprite()
     screen.blit(hs.surface, (0, 0))
+    #pygame.display.update()
+    
+    hs2 = HexaSprite()
+    hs2.move_right(50)
+    hs2.move_down(50)
+    print hs2.surface.get_colorkey()
+    hs2.surface.set_colorkey((0, 0, 0))
+    print hs2.surface.get_colorkey()
+    screen.blit(hs2.surface, hs2.rect)
     pygame.display.update()
     
     while True:
@@ -424,11 +434,11 @@ def axe_alaska():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
                 
-        screen.fill((0, 0, 0))
-        hs.move_right(2)
-        hs.move_down(2)
-        screen.blit(hs.surface, hs.rect)
-        pygame.display.update()
+        #screen.fill((0, 0, 0))
+        #hs.move_right(2)
+        #hs.move_down(2)
+        #screen.blit(hs.surface, hs.rect)
+        #pygame.display.update()
 
 def create_hexagon(center, radius):
     center_x = center[0]
