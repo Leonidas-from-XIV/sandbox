@@ -543,10 +543,13 @@ def visual_prime():
         pos = prime - line * screenwidth
         coord = (pos, line)
         
-        # drawing.. as usual
-        pygame.draw.line(background, primecolor, coord, coord, 1)
+        # drawing.. nearly as usual.. this time we use "dirty rectangles"
+        drect = pygame.draw.line(background, primecolor, coord, coord, 1)
+        # blit the surface on the screen
         screen.blit(background, (0, 0))
-        pygame.display.update()
+        # update _just_ the dirty rect... a great speedup compared to normal update
+        pygame.display.update(drect)
+        # just remove the "drect" here ^^ and you'll see
             
     while True:
         # limit to 60 fps
