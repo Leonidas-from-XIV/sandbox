@@ -421,7 +421,7 @@ def axe_alaska():
                 return
                 
         screen.fill((0, 0, 0))
-        hs.move_right()
+        hs.move_right(2)
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
@@ -466,30 +466,30 @@ class HexaSprite(pygame.sprite.Sprite):
         self.surface.convert_alpha()
         self.surface.set_alpha(50)
     
-    def move_up(self):
+    def move_up(self, pixels=1):
         if self.rect.top > 0:
-            self.rect.top -= 1
+            self.rect.top -= pixels
             return True
         else:
             return False
     
-    def move_down(self):
+    def move_down(self, pixels=1):
         if self.rect.bottom < screenheight:
-            self.rect.top += 1
+            self.rect.top += pixels
             return True
         else:
             return False
         
-    def move_right(self):
+    def move_right(self, pixels=1):
         if self.rect.right < screenwidth:
-            self.rect.left += 1
+            self.rect.left += pixels
             return True
         else:
             return False
     
-    def move_left(self):
+    def move_left(self, pixels=1):
         if self.rect.left > 0:
-            self.rect.left -= 1
+            self.rect.left -= pixels
             return True
         else:
             return False
