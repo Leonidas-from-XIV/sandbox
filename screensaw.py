@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.13'
+__version__ = '0.1.0'
 
 
 screenwidth = 680
@@ -124,7 +124,8 @@ def main():
         info("Screensaw " + __version__, "The Python GFX demonstration program")
         reblank(options.frameskip)
     
-    if options.critter or options.ant:
+    if (options.critter or options.ant or options.popsquares or options.magnets
+        or options.prime or options.wave or options.alaska):
         options.all = False
     
     if options.all or options.critter:
@@ -138,19 +139,36 @@ def main():
             info("Ant", "A more interessting demo, ressembles Snake")
         ant()
         reblank(options.frameskip)
-    #info("Ant", "A more interessting demo, ressembles Snake")
-    #ant()
-    #reblank(frameskip=8)
-    #info("Popsquares", "The XScreenSaver Popsquares ported to Python")
-    #popsquares(slow=5)
-    #reblank(frameskip=8)
-    #magnets()
-    #reblank(frameskip=8)
     
-    #axe_alaska()
-    #sinwave(True, True)
-    #if options.prime:
-    #    visual_prime()
+    if options.all or options.popsquares:
+        if options.intro:
+            info("Popsquares", "The XScreenSaver Popsquares ported to Python")
+        popsquares(slow=5)
+        reblank(options.frameskip)
+    
+    if options.magnets:
+        if options.intro:
+            info("Magnets", "This should be a gravity demo.. unfinished")
+        magnets()
+        reblank(options.frameskip)
+        
+    if options.all or options.wave:
+        if options.intro:
+            info("Wave", "Draws a neat sine wave")
+        sinwave(True, True)
+        reblank(options.frameskip)
+    
+    if options.all or options.prime:
+        if options.intro:
+            info("Primes", "Visualizes primes")
+        visual_prime()
+        reblank(options.frameskip)
+    
+    if options.all or options.alaska:
+        if options.intro:
+            info("AXE Alaska", "Animated AXE Alaska logo")
+        axe_alaska()
+        reblank(options.frameskip)
     
 def display():
     """Displays the stuff"""
@@ -511,7 +529,7 @@ def axe_alaska():
                 move_right = not move_right
                 continue
         
-        #hs.rotate(-7)
+        hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
@@ -604,7 +622,10 @@ def visual_prime():
     primecolor = (0, 0, 0)
     primecolor, noprimecolor = noprimecolor, primecolor
     
-    #print screen.get_flags()&pyl.HWSURFACE
+    # blanking
+    background.fill((0, 0, 0))
+    screen.blit(background, (0, 0))
+    pygame.display.update()
     
     for prime in primebench.rangeprime(0, screenwidth * screenheight):
         for event in pygame.event.get():
@@ -643,10 +664,11 @@ class HexaSprite(pygame.sprite.Sprite):
         self.coords = self.create_coords(radius)
         self.surface = pygame.Surface(self.size())
         self.rect = self.surface.get_rect()
+        self.alpha = alpha
         
         pygame.draw.polygon(self.surface, color, self.coords, 0)
         self.surface.convert_alpha()
-        self.surface.set_alpha(alpha)
+        self.surface.set_alpha(self.alpha)
         self.surface.set_colorkey((0, 0, 0), pyl.RLEACCEL)
         
         self.origsurface = self.surface
