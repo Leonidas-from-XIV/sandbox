@@ -22,25 +22,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys, time, optparse, math
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 def checkPrime(number):
     """This is the core def, it checks whether
     the number is a prime or not.
     This is the absolute core, so most tuning is needed here."""
-    prime_found = False
     if number < 2:
         return False
     elif number == 2:
         return True
     for dividor in xrange(2, number):
         if number % dividor == 0:
-            prime_found = False
             return False
-        else:
-            prime_found = True
-    if prime_found == True:
-        return True
+    # we got until there, so it must be a prime
+    return True
 
 def isprime(number):
     """Tuned code by Adam Gurno (LGPL)
