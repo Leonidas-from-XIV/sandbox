@@ -18,7 +18,7 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'NJoy' : 'http://www1.n-joy.de/njoy_pages_idx/0,3043,SPM2140,00.html',
     'EinsLive' : 'http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml'}
 
-__version__ = '0.8.3'
+__version__ = '0.8.4'
 
 def splitver(version):
     return tuple(version.split('.'))
