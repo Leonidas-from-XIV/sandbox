@@ -16,7 +16,7 @@ import os, sys, random, time, math
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.9'
+__version__ = '0.0.10'
 
 
 screenwidth = 680
@@ -393,12 +393,18 @@ def critter():
         display()
 
 def axe_alaska():
-    """Make that AXE Alaska Logo"""
-    # first x value, then y value
+    """Make that AXE Alaska Logo
+    Remember pygame coords: first x value, then y value"""
     
+    # okay, we first need the probability
+    from entropy import Probability
+    dirchange = Probability()
+    # create X% of probability 
+    dirchange.add(True, 10)
+    dirchange.add(False, dirchange.remaining)
+
     #white = (255, 255, 255)
-    #blue = (46, 144, 189)
-    
+    #blue = (46, 144, 189)    
     yellow = (251, 224, 29)
     
     # create the sprite
@@ -412,6 +418,8 @@ def axe_alaska():
     #screen.blit(hs.surface, (0, 0))
     #pygame.display.update()
     
+    move_right = True
+    
     while True:
         # limit to 60 fps
         clock.tick(fps)
@@ -420,10 +428,28 @@ def axe_alaska():
         for event in pygame.event.get():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
-                
+        
+        # do we habe to move right?
+        if move_right:
+            # yes... did we really moved?
+            moved = hs.move_right(2)
+            if not moved:
+                # no, we are at the border
+                move_right = not move_right
+                # so change the direction
+        else:
+            moved = hs.move_left(2)
+            if not moved:
+                move_right = not move_right
+                continue
+        
+        # do we change the direction?
+        if dirchange.random():
+            # if true, we change, else not
+            move_right = not move_right
+        
+        # show the stuff
         screen.fill((0, 0, 0))
-        hs.move_right(2)
-        hs.move_left(2)
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
@@ -527,6 +553,9 @@ def sinwave(colorchange=False, thick=False):
             degree += 1
             # set the y-axis point of the next point
             linepos += 1
+            
+def visual_prime():
+    import primebench
     
 
 class HexaSprite(pygame.sprite.Sprite):
