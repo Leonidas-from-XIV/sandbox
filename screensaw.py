@@ -15,7 +15,7 @@ import os, sys, random, time, math
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 
 
 screenwidth = 680
@@ -458,23 +458,23 @@ def hexagon_size(hexagon):
     return (width, height)
 
 def sinwave():
-    degree = 0
-    linepos = 0
+    """Draws a sine wave"""
+    # set some starting values
+    degree, linepos = 0, 0
     
-    white = (255, 255, 255)
+    # the color of the points drawn.. can be even changed to archive cool
+    # color effects like a color changing wave
+    color = [255, 255, 255]
     startpos, endpos = (0, screenheight / 2), (screenwidth, screenheight / 2)
     
-    pygame.draw.line(background, white, startpos, endpos, 1)
+    # draw the actual line
+    pygame.draw.line(background, color, startpos, endpos, 1)
     
-    pygame.draw.line(background, white, (20, 20), (20, 20), 1)
+    # update the display
     screen.blit(background, (0, 0))
-    
     pygame.display.update()
     
     while True:
-        if degree >= 360:
-            degree = 0
-            
         # limit to 60 fps
         clock.tick(fps)
 
@@ -482,19 +482,31 @@ def sinwave():
         for event in pygame.event.get():
             if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                 return
-                
-        sinval = math.sin(torad(degree))
-        drawval = int(round(sinval * 100))
-        print drawval
         
-        pygame.draw.line(background, white, (linepos, 20), (linepos, 20), 1)
-        screen.blit(background, (0, 0))
-        pygame.display.update()
+        if linepos <= screenwidth:
+            if degree >= 360:
+                # a full turnaround, reset to zero (to prevent overflows)
+                degree = 0
+            
+            # calculate the exact sine value of that radian 
+            sinval = math.sin(torad(degree))
+            # maximize the value, and round it
+            drawval = int(round(sinval * 100))
         
-        degree += 1
-        linepos += 1
+            # the coordinates of the next point drawn
+            pointpos = (linepos, screenheight / 2 - drawval)
+            # draw a pseudo line - a line with ending and starting poins being the same
+            pygame.draw.line(background, color, pointpos, pointpos, 1)
+            # ^^ that creates a point
+            
+            # blit it on the screen and update the display
+            screen.blit(background, (0, 0))
+            pygame.display.update()
         
-    #print math.sin(torad(degree))
+            # get the next degree
+            degree += 1
+            # set the y-axis point of the next point
+            linepos += 1
     
 
 class HexaSprite(pygame.sprite.Sprite):
