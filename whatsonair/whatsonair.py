@@ -14,7 +14,9 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'NRJ' : 'http://www.nrj.de/www/index_top.php',
     'PSR' : 'http://www.radiopsr.de/www/webradio/e98cb037f376fa53b314c166766ef55e.php',
     'YOUFM' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=youfm',
-    'HR3' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=hr3neu'}
+    'HR3' : 'http://www3.admin.hr-online.de/playlist/playlist.php?tpl=hr3neu',
+    'NJoy' : 'http://www1.n-joy.de/njoy_pages_idx/0,3043,SPM2140,00.html',
+    'EinsLive' : 'http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml'}
 
 __version__ = '0.8.3'
 
@@ -473,9 +475,79 @@ class HR3Parser(YOUFMParser):
     __versiontuple__ = splitver(__version__)
     def __init__(self, url=stationurls['HR3'], offline=False):
         YOUFMParser.__init__(self, url, offline)
+
+class NJoyParser(StationBase):
+    """NJoy Parser by Iopodx"""
+   ###URL: http://www1.n-joy.de/njoy_pages_idx/0,3043,SPM2140,00.html###
+    __station__='NJoy'
+    __version__ = '0.1.0'
+    __versiontuple__ = splitver(__version__)
+    trackparsing = False
+    artist = ''
+    title = ''
+    
+    def __init__(self, url=stationurls['NJoy'], offline=False):
+        StationBase.__init__(self, url, offline)
+    
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            result=text.split('" title="N-JOY Playlist">')
+            result=result[1].split('\n</a></span>')
+            track=result[0].split(' - ')
+            if len(track) > 1:
+                self.artist, self.title = track[0], track[1]
+                # else: no song now
+                
+        except:
+            raise IncompatibleParser(self.__station__)
+    
+    def currenttrack(self):
+        if not self.artist == '':
+            return self.artist + ' - ' + self.title
+        else:
+            return "No title info currently"
+
+class EinsLiveParser(StationBase):
+    """EinsLiveParser by Iopodx"""
+    __station__='EinsLive'
+    __version__ = '0.1.0'
+    __versiontuple__ = splitver(__version__)
+    trackparsing = False
+    artist = ''
+    title = ''
+    
+    def __init__(self, url=stationurls['EinsLive'], offline=False):
+        try:
+            StationBase.__init__(self, url, offline)
+        except:
+            # failed.. somehow so use a mirror
+            StationBase.__init__(self, "http://bofod.bo.funpic.de/einslive.php", offline)
+    
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            result=text.split('</TD><TD valign="top" class="cont">')
+            result=result[1].split('</TD></TR><TR><TD valign="top"')
+            track=result[0].split('</TD><TD valign="top" class="contbold">')
+            if len(track) > 1:
+                self.artist, self.title = track[0], track[1]
+                # else: no song now
+                
+        except:
+            raise IncompatibleParser(self.__station__)
+    
+    def currenttrack(self):
+        if not self.artist == '':
+            return self.artist + ' - ' + self.title
+        else:
+            return "No title info currently"
         
 allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, 
-    GongParser, PSRParser, NRJParser, RTLParser, YOUFMParser, HR3Parser]
+    GongParser, PSRParser, NRJParser, RTLParser, YOUFMParser, HR3Parser,
+    NJoyParser, EinsLiveParser]
     
 def main():
     parser = optparse.OptionParser()
@@ -504,7 +576,11 @@ def main():
     parser.add_option("--youfm", dest="you", default=False,
         action="store_true", help="question YOUFM")
     parser.add_option("--hr3", dest="hr3", default=False,
-        action="store_true", help="HR3")
+        action="store_true", help="question HR3")
+    parser.add_option("--njoy", dest="njoy", default=False,
+        action="store_true", help="question NJoy")
+    parser.add_option("--einslive", dest="einslive", default=False,
+        action="store_true", help="question EinsLive")
         
     (options, args) = parser.parse_args()
     
@@ -512,10 +588,12 @@ def main():
         print "WhatsOnAir \t%s" % __version__
         print 
         for parser in allparsers:
-            print "%s Parser \t%s" % (parser.__station__, parser.__version__)
+            print "%s Parser\t%s" % (parser.__station__, parser.__version__)
         sys.exit(0)
     
-    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr or options.nrj or options.rtl or options.you or options.hr3:
+    if (options.fm4 or options.antenne or options.energy or options.bayern3 or
+        options.gong or options.psr or options.nrj or options.rtl or options.you or
+        options.hr3 or options.njoy or options.einslive):
         options.all = False
     
     if options.all:
@@ -548,6 +626,10 @@ def main():
             printcurrent(YOUFMParser, options.descriptive) 
         if options.hr3:
             printcurrent(HR3Parser, options.descriptive) 
+        if options.njoy:
+            printcurrent(NJoyParser, options.descriptive) 
+        if options.einslive:
+            printcurrent(EinsLiveParser, options.descriptive) 
         
 def printcurrent(parser, descriptive):
     current = parser()
