@@ -101,6 +101,7 @@ class TempNewUI(object):
         
         model = gtk.ListStore(bool, str, str, str)
         treeview = gtk.TreeView(model) 
+        treeview.columns_autosize()
         sw.add(treeview)
         
         for i in range(4):
@@ -118,9 +119,9 @@ class TempNewUI(object):
                 column = gtk.TreeViewColumn("Track", renderer, text=i)
             treeview.append_column(column)
         
-        iterator = model.append()
-        print iterator
-        model.set_value(iterator, 1, "abc")
+        for st in whatsonair.allparsers:
+            iterator = model.append()
+            model.set_value(iterator, 1, st.__station__)
         
         
         
