@@ -510,20 +510,31 @@ class NJoyParser(StationBase):
             return "No title info currently"
 
 class EinsLiveParser(StationBase):
-    """EinsLiveParser by Iopodx"""
+    """EinsLiveParser by Iopodx
+    various additions by Leonidas"""
     __station__='EinsLive'
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
     __versiontuple__ = splitver(__version__)
     trackparsing = False
     artist = ''
     title = ''
     
     def __init__(self, url=stationurls['EinsLive'], offline=False):
+        """Constructs the Parser"""
+        # get the normal timeout
+        timeout = urllib.socket.getdefaulttimeout()
+        # set ten seconds timeout
+        urllib.socket.setdefaulttimeout(10.0)
+        
+        # get the data
         try:
             StationBase.__init__(self, url, offline)
         except:
-            # failed.. somehow so use a mirror
+            # failed.. somehow (maybe by a timeout) so use a mirror
             StationBase.__init__(self, "http://bofod.bo.funpic.de/einslive.php", offline)
+        
+        # return to default timeout lenght
+        urllib.socket.setdefaulttimeout(timeout)
     
     def feed(self, text):
         """Wrapper for the real feed() method,
