@@ -1,22 +1,24 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 """Prime benchmark - and small library
-You can use it in your own programs"""
-# Copyright (C) 2003-2005  Leonidas <leonidas AT projectdream DOT org>
+You can use it in your own programs
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+Copyright (C) 2003-2005  Leonidas <leonidas AT projectdream DOT org>
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+"""
 
 import sys, time, optparse
 
@@ -43,7 +45,7 @@ def checkPrime(number):
         # If number is smaller than zero so use absolute value
         number = abs(number)
     for dividor in xrange(2, number):
-        if number % dividor is 0:
+        if number % dividor == 0:
             #print "No Prime: %d" % lastprime
             prime_found = False
             return False
@@ -56,7 +58,7 @@ def checkPrime(number):
 def nextPrime(prime_to_test):
     """Returns the next prime"""
     while True:
-        prime_to_test = prime_to_test + 1
+        prime_to_test += 1
         #print "ptt==%d" % prime_to_test
         if checkPrime(prime_to_test):
             # Found prime
@@ -105,37 +107,33 @@ def main():
     parser.add_option("-c", "--check", dest="check", default=False, metavar="NUMBER",
         action="store", help="check whether NUMBER is a prime")
     
-    
-    
     (options, args) = parser.parse_args()
     print options
+    if options.version:
+        print 'version'
+        sys.exit(0)
+        
     if options.benchmark:
         print 'Benchmark enabled'
-    
-    benchmark = False
-    if len(sys.argv) == 1: 
-        # if no arguments display help
-        #print args % __version__
-        # and exit
-        sys.exit(1)
-    if sys.argv[1][:2] == "-n":
-        # Simply get the next prime
-        if benchmark:
+        
+    if options.next:
+        if options.benchmark:
             print "There is too less to benchmark"
-        prime_to_test = int(sys.argv[1][2:])
-        prime_found = nextPrime(prime_to_test)
+        prime_found = nextPrime(int(options.next))
         print "Prime==%d" % prime_found
-    elif sys.argv[1][:2] == "-t":
-        until_prime = int(sys.argv[1][2:])
-        if benchmark: 
+        sys.exit(0)
+    
+    if options.times:
+        print 'p'
+        if options.benchmark: 
             startTime = time.time()
-        primes = findNumberOfPrimes(until_prime)
-        if benchmark:
+        primes = findNumberOfPrimes(int(options.times))
+        if options.benchmark:
             stopTime = time.time()
             taken = stopTime - startTime
         for prime in primes:
             print "Prime==%d" % prime
-        if benchmark: 
+        if options.benchmark: 
             print "Seconds==%G" % taken
 
     elif sys.argv[1][:2] == "-u":
