@@ -11,7 +11,7 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'Energy' : 'http://213.200.64.229/freestream/download/energy/muenchen/start.html',
     'Gong' : 'http://web1.beamgate.com/Gong/getPlaylist.jsp'}
 
-__version__ = '0.8.1'
+__version__ = '0.8.2'
 
 def splitver(version):
     return tuple(version.split('.'))
@@ -363,25 +363,31 @@ def main():
     if options.all:
         for parser in allparsers:
             #print parser
-            current = parser()
+            
             try:
-                current.feed(current.pagecontent)
-                
-                if options.descriptive:
-                    print parser.__station__,
-                print current.currenttrack()
+                printcurrent(parser, options.descriptive)
             except:
                 # failed
                 pass
     else:
         # look for the other values
-        pass
+        if options.fm4:
+            printcurrent(FM4Parser, options.descriptive)
+        if options.antenne:
+            printcurrent(AntenneParser, options.descriptive)
+        if options.energy:
+            printcurrent(EnergyParser, options.descriptive)
+        if options.bayern3:
+            printcurrent(Bayern3Parser, options.descriptive)
+        if options.gong:
+            printcurrent(GongParser, options.descriptive)
         
-def printcurrent(current):
+def printcurrent(parser, descriptive):
+    current = parser()
     current.feed(current.pagecontent)
     
-    if options.descriptive:
-        print parser.__station__,
+    if descriptive:
+        print current.__station__,
     print current.currenttrack()
 
 if __name__ == '__main__':
