@@ -9,9 +9,12 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'Bayern3' : 'http://reload.br-online.de/bayern3/playlists/zusatzdaten_hp.html',
     'Charivari' : 'http://www.charivari.de/der_beste_mix.php',
     'Energy' : 'http://213.200.64.229/freestream/download/energy/muenchen/start.html',
-    'Gong' : 'http://web1.beamgate.com/Gong/getPlaylist.jsp'}
+    'Gong' : 'http://web1.beamgate.com/Gong/getPlaylist.jsp',
+    'RTL' : 'http://www.hitradio-rtl-sachsen.de/streamplayer/onair.php',
+    'NRJ' : 'http://www.nrj.de/www/index_top.php',
+    'PSR' : 'http://www.radiopsr.de/www/webradio/e98cb037f376fa53b314c166766ef55e.php'}
 
-__version__ = '0.8.2'
+__version__ = '0.8.3'
 
 def splitver(version):
     return tuple(version.split('.'))
@@ -326,8 +329,44 @@ class GongParser(StationBase):
         playing = self.aired[timekeys[-1]]
         current = playing['Artist'] + ' - ' + playing['Title']
         return current
+    
+class PSRParser(StationBase):
+    """This station provides multiple songs
+    this parser has to be changed a bit
+    
+    code taken from Iopodx"""
+    __station__ = 'PSR'
+    __version__ = '0.3.0'
+    __versiontuple__ = splitver(__version__)
+    
+    trackparsing = False
+    artist = ''
+    title = ''
+    
+    def __init__(self, url=stationurls['PSR'], offline=False):
+        StationBase.__init__(self, url, offline)
+    
+    def feed(self, text):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            result = text.split('</b></td>\n 	<td>')
+            result = result[1].split('</td>')
+            track = result[0].split(' - ')
+            if len(track) > 1:
+                self.artist, self.title = track[0], track[1]
+                # else: no song now
+                
+        except:
+            raise IncompatibleParser('PSR')
+    
+    def currenttrack(self):
+        if not self.artist == '':
+            return self.artist + ' - ' + self.title
+        else:
+            return "No title info currently"
 
-allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, GongParser]
+allparsers = [FM4Parser, EnergyParser, AntenneParser, Bayern3Parser, GongParser, PSRParser]
     
 def main():
     parser = optparse.OptionParser()
@@ -347,6 +386,8 @@ def main():
         action="store_true", help="question Bayern 3")
     parser.add_option("--gong", dest="gong", default=False,
         action="store_true", help="question Gong")
+    parser.add_option("--psr", dest="psr", default=False,
+        action="store_true", help="question PSR (Sachsen)")
         
     (options, args) = parser.parse_args()
     
@@ -357,7 +398,7 @@ def main():
             print "%s Parser \t%s" % (parser.__name__, parser.__version__)
         sys.exit(0)
     
-    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong:
+    if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong or options.psr:
         options.all = False
     
     if options.all:
@@ -379,6 +420,8 @@ def main():
             printcurrent(Bayern3Parser, options.descriptive)
         if options.gong:
             printcurrent(GongParser, options.descriptive)
+        if options.psr:
+            printcurrent(PSRParser, options.descriptive)
         
 def printcurrent(parser, descriptive):
     current = parser()
