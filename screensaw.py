@@ -10,17 +10,16 @@ Requirements:
 
 written by Marek Kubica
 """
-import os, sys, random, time
+import os, sys, random, time, math
 import pygame
 import pygame.locals as pyl
-#from pygame.locals import *
 
 if not pygame.font:
 	print 'WARNING (pygame): Fonts disabled'
 if not pygame.mixer:
 	print 'WARNING (pygame): Sound disabled'
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 
 screenwidth = 680
@@ -64,19 +63,21 @@ def main():
     prepare()
     
     # run the demos
-    info("Screensaw " + __version__, "The Python GFX demonstration program")
-    reblank(frameskip=8)
-    info("Critter", "The first demo, a very simple one")
-    critter()
-    reblank(frameskip=8)
-    info("Ant", "A more interessting demo, ressembles Snake")
-    ant()
-    reblank(frameskip=8)
-    info("Popsquares", "The XScreenSaver Popsquares ported to Python")
-    popsquares(slow=5)
-    reblank(frameskip=8)
+    #info("Screensaw " + __version__, "The Python GFX demonstration program")
+    #reblank(frameskip=8)
+    #info("Critter", "The first demo, a very simple one")
+    #critter()
+    #reblank(frameskip=8)
+    #info("Ant", "A more interessting demo, ressembles Snake")
+    #ant()
+    #reblank(frameskip=8)
+    #info("Popsquares", "The XScreenSaver Popsquares ported to Python")
+    #popsquares(slow=5)
+    #reblank(frameskip=8)
     #magnets()
     #reblank(frameskip=8)
+    
+    axe_alaska()
     
 def display():
     """Displays the stuff"""
@@ -385,8 +386,52 @@ def critter():
         endX = random.randrange(screenwidth)
         endY = random.randrange(screenheight)
         pygame.draw.line(background, (255, 255, 255), (startX, startY), (endX, endY))
-        #pygame.draw.line(background, (255, 255, 255), (40, 40), (80, 80))
         
         display()
+
+def axe_alaska():
+    """Make that AXE Alaska Logo"""
+
+    p = create_poly((100, 200), 50)
+    print p
+    while True:
+        # limit to 60 fps
+        clock.tick(fps)
+
+        # handle events
+        for event in pygame.event.get():
+            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                return
+    
+
+        white = (255, 255, 255)
+        yellow = (251, 224, 29)
+        blue = (46, 144, 189)
         
-main()
+        # first x value, then y value
+        #coords = ((10, 10), (20, 10), (30, 20), (20, 30), (10, 30), (0, 20))
+        coords = p
+        
+        pygame.draw.polygon(background, yellow, coords, 0)
+        
+        display()
+
+def create_poly(center, radius):
+    center_x = center[0]
+    center_y = center[1]
+    
+    middleleft = (center_x - radius, center_y)
+    middleright = (center_x + radius, center_y)
+    
+    d = math.sqrt(radius ** 2 - (radius/2.0) ** 2)
+    deviation = int(round(d))
+    
+    upperleft = (int(round(center_x - radius/2.0)), center_y - deviation)
+    upperright = (int(round(center_x + radius/2.0)), center_y - deviation)
+    lowerleft = (int(round(center_x - radius/2.0)), center_y + deviation)
+    lowerright = (int(round(center_x + radius/2.0)), center_y + deviation)
+    
+    return (upperleft, upperright, middleright, lowerright, lowerleft, middleleft)
+        
+if __name__ == '__main__':
+    main()
