@@ -408,8 +408,7 @@ def axe_alaska():
     #pygame.display.flip()
     
     hs = HexaSprite()
-    startpos = (10, 100)
-    screen.blit(hs.surface, startpos)
+    screen.blit(hs.surface, (0, 0))
     pygame.display.update()
     
     while True:
@@ -423,7 +422,7 @@ def axe_alaska():
                 
         screen.fill((0, 0, 0))
         hs.move_right()
-        screen.blit(hs.surface, (startpos[0] + hs.rect[0], startpos[1] + hs.rect[1]))
+        screen.blit(hs.surface, hs.rect)
         pygame.display.update()
 
 def create_hexagon(center, radius):
