@@ -28,6 +28,7 @@ deathtrap = False
 # verbose output?
 verbose = False
 
+# convert deg values to rad values
 torad = lambda deg: (deg * math.pi) / 180.0
 
 def prepare():
@@ -78,7 +79,7 @@ def main():
     #reblank(frameskip=8)
     
     #axe_alaska()
-    sinwave(True)
+    sinwave(True, True)
     
 def display():
     """Displays the stuff"""
@@ -457,7 +458,7 @@ def hexagon_size(hexagon):
     
     return (width, height)
 
-def sinwave(colorchange=False):
+def sinwave(colorchange=False, thick=False):
     """Draws a sine wave"""
     # set some starting values
     degree, linepos = 0, 0
@@ -512,6 +513,14 @@ def sinwave(colorchange=False):
             # draw a pseudo line - a line with ending and starting poins being the same
             pygame.draw.line(background, color, pointpos, pointpos, 1)
             # ^^ that creates a point
+            
+            if thick:
+                # create additional points to be thicker
+                pointpos_upper = (pointpos[0], pointpos[1] - 1)
+                pointpos_lower = (pointpos[0], pointpos[1] + 1)
+                pygame.draw.line(background, color, pointpos_upper, pointpos_upper, 1)
+                pygame.draw.line(background, color, pointpos_lower, pointpos_lower, 1)
+            
             
             # blit it on the screen and update the display
             screen.blit(background, (0, 0))
