@@ -22,18 +22,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys, time, optparse
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 def checkPrime(number):
     """This is the core def, it checks whether
-    the number is a prime or not."""
+    the number is a prime or not.
+    This is the absolute core, so most tuning is needed here."""
     prime_found = False
     # Some hacks, to return right values
     if number == 0:
         return False
-    if number == 2:
+    elif number == 2:
         return True
-    if number < 0:
+    elif number < 0:
         # If number is smaller than zero so use absolute value
         number = abs(number)
     for dividor in xrange(2, number):
@@ -52,7 +53,25 @@ def nextPrime(prime_to_test):
         if checkPrime(prime_to_test):
             # Found prime
             return prime_to_test
-            
+
+"""def gennextprime(prime_start):
+    while True:
+        prime_start += 1
+        if checkPrime(prime_start):
+            yield prime_start"""
+
+def rangeprime(start, end):
+    """A generator yielding a range of primes"""
+    while True:
+        if start >= end:
+            raise StopIteration
+        if checkPrime(start):
+            yield start
+        start += 1
+
+def Gen(until_number):
+    return rangeprime(0, until_number)
+
 def findNumberOfPrimes(primes_to_find):
     """Returns a list of primes
     You have to wait long time without output
@@ -71,11 +90,7 @@ def findNumberOfPrimes(primes_to_find):
 
 def findPrimesUntil(until_number):
     """Finds primes until number N is reached"""
-    primes_list = []
-    for number in xrange(2, until_number):
-        if checkPrime(number):
-            primes_list.append(number)
-    return primes_list
+    return rangeprime(2, until_number)
 
 def main():
     """The main def, which makes this script executable"""
@@ -117,6 +132,12 @@ def main():
         type="int",
         action="store", 
         help="check whether NUMBER is a prime")
+    
+    parser.add_option("-p", "--profile", 
+        dest="profile", 
+        default=False, 
+        action="store_true", 
+        help="profile the calls")
     
     (options, args) = parser.parse_args()
     
