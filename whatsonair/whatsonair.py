@@ -38,7 +38,7 @@ class StationBase(object, HTMLParser.HTMLParser):
     provides already some rough tools like the HTMLParser.
     The defined methods should be overloaded to provide a
     consistent interface for all derived station parsers"""
-    __name__ = 'StastionBase'
+    __station__ = 'StationBase'
     __version__ = '1.0.0'
     __versiontuple__ = splitver(__version__)
     
@@ -80,7 +80,7 @@ class FM4Parser(StationBase):
     FM4, which is part of ORF
     Look at it's homepage
     http://fm4.orf.at"""
-    __name__ = 'FM4'
+    __station__ = 'FM4'
     __version__ = '0.9.0'
     __versiontuple__ = splitver(__version__)
     
@@ -126,7 +126,7 @@ class FM4Parser(StationBase):
     
     def feed(self, *args, **kwargs):
         """Wrapper for the real feed() method,
-        on errors raises an IncopmatibleParser Exception"""
+        on errors raises an IncompatibleParser Exception"""
         try:
             StationBase.feed(self, *args, **kwargs)
         except:
@@ -139,7 +139,7 @@ class FM4Parser(StationBase):
         return current
 
 class EnergyParser(StationBase):
-    __name__ = 'Energy'
+    __station__ = 'Energy'
     __version__ = '0.6.0'
     __versiontuple__ = splitver(__version__)
     
@@ -171,7 +171,7 @@ class EnergyParser(StationBase):
         return self.artist + ' - ' + self.title
 
 class AntenneParser(StationBase):
-    __name__ = 'Antenne'
+    __station__ = 'Antenne'
     __version__ = '0.6.0'
     __versiontuple__ = splitver(__version__)
     
@@ -218,7 +218,7 @@ class AntenneParser(StationBase):
             return "No title info currently"
 
 class Bayern3Parser(StationBase):
-    __name__ = 'Bayern3'
+    __station__ = 'Bayern3'
     __version__ = '0.6.5'
     __versiontuple__ = splitver(__version__)
     
@@ -260,8 +260,8 @@ class Bayern3Parser(StationBase):
         return self.artist + ' - ' + self.title
 
 class GongParser(StationBase):
-    __name__ = 'Gong'
-    __version__ = '0.9.0'
+    __station__ = 'Gong'
+    __version__ = '0.9.1'
     __versiontuple__ = splitver(__version__)
     
     trackparsing = False
@@ -289,8 +289,8 @@ class GongParser(StationBase):
                 artist, title = self.splittrack(data)
                 artist, title = self.capstext(artist), self.capstext(title)
                 try:
-                    self.aired[self.timenow]['Artist'] += artist
-                    self.aired[self.timenow]['Title'] += title
+                    self.aired[self.timenow]['Artist'] = artist
+                    self.aired[self.timenow]['Title'] = title
                 except KeyError:
                     self.aired[self.timenow] = {}
                     self.aired[self.timenow]['Artist'] = artist
@@ -312,6 +312,14 @@ class GongParser(StationBase):
     def handle_entityref(self, name):
         if trackparsing:
             self.handle_data(htmlentitydefs.entitydefs[name])
+    
+    def feed(self, *args, **kwargs):
+        """Wrapper for the real feed() method,
+        on errors raises an IncompatibleParser Exception"""
+        try:
+            StationBase.feed(self, *args, **kwargs)
+        except:
+            raise IncompatibleParser('Gong')
     
     def currenttrack(self):
         timekeys = sorted(self.aired)
@@ -351,17 +359,30 @@ def main():
     
     if options.fm4 or options.antenne or options.energy or options.bayern3 or options.gong:
         options.all = False
-    print options.all
     
     if options.all:
         for parser in allparsers:
-            print parser
+            #print parser
             current = parser()
-            current.feed(current.pagecontent)
-            print current.currenttrack()
+            try:
+                current.feed(current.pagecontent)
+                
+                if options.descriptive:
+                    print parser.__station__,
+                print current.currenttrack()
+            except:
+                # failed
+                pass
     else:
         # look for the other values
         pass
+        
+def printcurrent(current):
+    current.feed(current.pagecontent)
+    
+    if options.descriptive:
+        print parser.__station__,
+    print current.currenttrack()
 
 if __name__ == '__main__':
     main()
