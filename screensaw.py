@@ -78,7 +78,7 @@ def main():
     #reblank(frameskip=8)
     
     #axe_alaska()
-    sinwave()
+    sinwave(True)
     
 def display():
     """Displays the stuff"""
@@ -457,7 +457,7 @@ def hexagon_size(hexagon):
     
     return (width, height)
 
-def sinwave():
+def sinwave(colorchange=False):
     """Draws a sine wave"""
     # set some starting values
     degree, linepos = 0, 0
@@ -465,6 +465,7 @@ def sinwave():
     # the color of the points drawn.. can be even changed to archive cool
     # color effects like a color changing wave
     color = [255, 255, 255]
+    # white now
     startpos, endpos = (0, screenheight / 2), (screenwidth, screenheight / 2)
     
     # draw the actual line
@@ -473,6 +474,10 @@ def sinwave():
     # update the display
     screen.blit(background, (0, 0))
     pygame.display.update()
+    
+    if colorchange:
+        # set color to blue
+        color = [0, 0, 255]
     
     while True:
         # limit to 60 fps
@@ -492,6 +497,15 @@ def sinwave():
             sinval = math.sin(torad(degree))
             # maximize the value, and round it
             drawval = int(round(sinval * 100))
+            
+            if colorchange:
+                fract = drawval / 100.0
+                fract *= 255
+                fract = int(round(fract))
+                
+                # changes the color of the next point
+                color[0] = abs(fract)
+                color[2] = 255 - abs(fract)
         
             # the coordinates of the next point drawn
             pointpos = (linepos, screenheight / 2 - drawval)
