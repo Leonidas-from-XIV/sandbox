@@ -408,7 +408,7 @@ def axe_alaska():
     #pygame.display.flip()
     
     hs = HexaSprite()
-    screen.blit(hs.surface, (10, 50))
+    screen.blit(hs.surface, (10, 100))
     #pygame.display.flip()
     pygame.display.update()
     #print dir(hs)
@@ -423,11 +423,11 @@ def axe_alaska():
                 return
                 
         #hexface = pygame.transform.rotate(hexface, 1)
-        #screen.fill([0, 0, 0])
-        hs.move_up()
+        screen.fill((0, 0, 0))
+        hs.move_right()
         screen.blit(hs.surface, hs.rect)
-        #pygame.display.flip()
-        pygame.display.update()
+        pygame.display.flip()
+        #pygame.display.update()
 
 def create_hexagon(center, radius):
     center_x = center[0]
@@ -471,8 +471,32 @@ class HexaSprite(pygame.sprite.Sprite):
         self.surface.set_alpha(50)
     
     def move_up(self):
-        self.rect.top += 1
+        if self.rect.top > 0:
+            self.rect.top -= 1
+            return True
+        else:
+            return False
+    
+    def move_down(self):
+        if self.rect.bottom < screenheight:
+            self.rect.top += 1
+            return True
+        else:
+            return False
         
+    def move_right(self):
+        if self.rect.right < screenwidth:
+            self.rect.left += 1
+            return True
+        else:
+            return False
+    
+    def move_left(self):
+        if self.rect.left > 0:
+            self.rect.left -= 1
+            return True
+        else:
+            return False
         
 if __name__ == '__main__':
     main()
