@@ -460,7 +460,7 @@ def axe_alaska():
                 move_right = not move_right
                 continue
         
-        hs.rotate(7)
+        hs.rotate(-7)
         
         # do we change the direction?
         if dirchange.random():
@@ -669,9 +669,9 @@ class HexaSprite(pygame.sprite.Sprite):
         rotation = degree + self.lastdegree
         center = self.rect.center
         
-        if rotation > 360:
-            #print rotation
-            #print self.lastdegree
+        if rotation > 360 or rotation < -360:
+            # if the rotation got out of a full 360° movement, 
+            #+reset it back to lower values
             rotation = rotation - self.lastdegree
         
         self.lastdegree = rotation
