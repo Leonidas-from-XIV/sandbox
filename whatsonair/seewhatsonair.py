@@ -106,16 +106,21 @@ class TempNewUI(object):
         for i in range(4):
             if i == 0:
                 renderer = gtk.CellRendererToggle()
-                column = gtk.TreeViewColumn("Question", renderer, active=1)
-            else:
+                column = gtk.TreeViewColumn("Question", renderer)
+            elif i == 1:
                 renderer = gtk.CellRendererText()
-                column = gtk.TreeViewColumn("bla", renderer, text=i)
+                column = gtk.TreeViewColumn("Station", renderer, text=i)
+            elif i == 2:
+                renderer = gtk.CellRendererText()
+                column = gtk.TreeViewColumn("Artist", renderer, text=i)
+            elif i == 3:
+                renderer = gtk.CellRendererText()
+                column = gtk.TreeViewColumn("Track", renderer, text=i)
             treeview.append_column(column)
         
         iterator = model.append()
         print iterator
         model.set_value(iterator, 1, "abc")
-        treeview.columns_autosize()
         
         
         
