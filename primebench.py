@@ -54,39 +54,29 @@ def nextPrime(prime_to_test):
             # Found prime
             return prime_to_test
 
-"""def gennextprime(prime_start):
+def gennextprime(start):
     while True:
-        prime_start += 1
-        if checkPrime(prime_start):
-            yield prime_start"""
-
-def rangeprime(start, end):
-    """A generator yielding a range of primes"""
-    while True:
-        if start >= end:
-            raise StopIteration
         if checkPrime(start):
             yield start
         start += 1
 
-def Gen(until_number):
-    return rangeprime(0, until_number)
+def rangeprime(start, end):
+    """A generator yielding a range of primes"""
+    while True:
+        if start > end:
+            raise StopIteration
+        if checkPrime(start):
+            yield start
+        start += 1
 
 def findNumberOfPrimes(primes_to_find):
     """Returns a list of primes
     You have to wait long time without output
     cause it produces no output to stdout
     ToDo: make a starting value"""
-    primes_found = 0
-    lastnumber = 2
-    primes_list = []
-    while True:
-        if checkPrime(lastnumber):
-            primes_list.append(lastnumber)
-            primes_found = primes_found + 1
-        if primes_found == primes_to_find:
-            return primes_list
-        lastnumber = lastnumber + 1
+    gen = gennextprime(1)
+    for i in range(primes_to_find):
+        print "Prime==%d" % gen.next()
 
 def findPrimesUntil(until_number):
     """Finds primes until number N is reached"""
@@ -162,8 +152,6 @@ def main():
         if options.benchmark:
             stopTime = time.time()
             taken = stopTime - startTime
-        for prime in primes:
-            print "Prime==%d" % prime
         if options.benchmark: 
             print "Seconds==%G" % taken
     
