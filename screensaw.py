@@ -189,8 +189,8 @@ def main():
     if options.all or options.laser:
         if options.intro:
             info("Laser", "Work in progress")
-        #laser(noblank=True, speed=2)
-        multilaser()
+        #laser(noblank=True, speed=5)
+        multilaser(speed=1)
         #reblank(options.frameskip)
     
 def display():
@@ -445,7 +445,7 @@ def laser(speed=5, noblank=False):
         pygame.draw.line(screen, laserlight, laserposition, target, 1)
         pygame.display.update()
 
-def multilaser():
+def multilaser(speed=5):
     """Laser demo - taken from XScreenSaver"""
     
     laserposition = (200, 300)
@@ -453,7 +453,7 @@ def multilaser():
     rays = 25
     endcoords = []
     
-    pos = laser_nextpos(speed=5)
+    pos = laser_nextpos(speed)
     for i in range(rays):
         c = pos.next()
         endcoords.append([c[0], c[1]])
