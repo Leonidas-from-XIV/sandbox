@@ -3,6 +3,8 @@
 """A namespace wrapper for opengl"""
 
 class OGLWrappers(object):
+    """Wrapper
+    dir(wrapped class) --> glwrap.(wrapped class).attrs.keys()"""
     def __getattr__(self, name):
         try:
             return self.attrs[name]
@@ -10,44 +12,30 @@ class OGLWrappers(object):
             raise AttributeError("%s has no attribute '%s'" % (self.wrapped, name))
         
     def replace(self, module, funcprefix, constprefix):
+        """Returns a dictionary with renamed variables.
+        You need to specify the module, the prefix of the functions
+        and the prefix of the constants to be removed."""
         attrs = {}
         for name in module.__dict__.keys():
-            if name.startswith('gle'):
-               attrs[name[3:]] = module.__dict__[name]
-            elif name.startswith('GLE_'):
-                attrs[name[4:]] = module.__dict__[name]
+            if name.startswith(funcprefix):
+               attrs[name[len(funcprefix):]] = module.__dict__[name]
+            elif name.startswith(constprefix):
+                attrs[name[len(constprefix):]] = module.__dict__[name]
             else:
                 attrs[name] = module.__dict__[name]
         return attrs
-    
 
 class GLWrap(OGLWrappers):
-    wrapped = "OpenGL.GL"
     def __init__(self):
         import OpenGL.GL
-        self.attrs = {}
-        
-        for name in OpenGL.GL.__dict__.keys():
-            if name.startswith('gl'):
-                self.attrs[name[2:]] = OpenGL.GL.__dict__[name]
-            elif name.startswith('GL_'):
-                self.attrs[name[3:]] = OpenGL.GL.__dict__[name]
-            else:
-                self.attrs[name] = OpenGL.GL.__dict__[name]
+        self.wrapped = OpenGL.GL.__name__
+        self.attrs = self.replace(OpenGL.GL, 'gl', 'GL_')
 
 class GLUWrap(OGLWrappers):
-    wrapped = "OpenGL.GLU"
     def __init__(self):
         import OpenGL.GLU
-        self.attrs = {}
-        
-        for name in OpenGL.GLU.__dict__.keys():
-            if name.startswith('glu'):
-                self.attrs[name[3:]] = OpenGL.GLU.__dict__[name]
-            elif name.startswith('GLU_'):
-                self.attrs[name[4:]] = OpenGL.GLU.__dict__[name]
-            else:
-                self.attrs[name] = OpenGL.GLU.__dict__[name]
+        self.wrapped = OpenGL.GLU.__name__
+        self.attrs = self.replace(OpenGL.GLU, 'glu', 'GLU_')
 
 class GLEWrap(OGLWrappers):
     def __init__(self):
