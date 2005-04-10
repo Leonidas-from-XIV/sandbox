@@ -1,10 +1,19 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
 """A namespace wrapper for opengl"""
+import OpenGL
 
-class OGLWrappers(object):
-    """Wrapper"""
-    def __replace(self, module, funcprefix, constprefix):
+class OGLWrapper(object):
+    """General OpenGL wrapper"""
+    def __init__(self, module):
+        module = 'GL'
+        funcprefix = module.lower()
+        constprefix = module.upper() + '_'
+        mod = eval("OpenGL." + module)
+        #mod = __import__('OpenGL.' + module)
+        self.__rename(mod, funcprefix, constprefix)
+        
+    def __rename(self, module, funcprefix, constprefix):
         """Replaces prefixes"""
         for name in module.__dict__.keys():
             if name.startswith(funcprefix):
@@ -14,35 +23,8 @@ class OGLWrappers(object):
             else:
                 setattr(self, name, module.__dict__[name])
 
-class GLWrap(OGLWrappers):
-    """Wrapper for GL"""
-    def __init__(self):
-        import OpenGL.GL
-        self._OGLWrappers__replace(OpenGL.GL, 'gl', 'GL_')
-
-class GLUWrap(OGLWrappers):
-    """Wrapper for GLU"""
-    def __init__(self):
-        import OpenGL.GLU
-        self._OGLWrappers__replace(OpenGL.GLU, 'glu', 'GLU_')
-
-class GLUTWrap(OGLWrappers):
-    def __init__(self):
-        import OpenGL.GLUT
-        self._OGLWrappers__replace(OpenGL.GLUT, 'glut', 'GLUT_')
-
-class GLEWrap(OGLWrappers):
-    def __init__(self):
-        import OpenGL.GLE
-        self._OGLWrappers__replace(OpenGL.GLE, 'gle', 'GLE_')
-
-class WGLWrap(OGLWrappers):
-    def __init__(self):
-        import OpenGL.WGL
-        self._OGLWrappers__replace(OpenGL.WGL, 'wgl', 'WGL_')
-        
-gl = GLWrap()
-glu = GLUWrap()
-glut = GLUTWrap()
-gle = GLEWrap()
-wgl = WGLWrap()
+gl = OGLWrapper('gl')
+glu = OGLWrapper('glu')
+glut = OGLWrapper('glut')
+gle = OGLWrapper('gle')
+wgl = OGLWrapper('wgl')
