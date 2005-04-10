@@ -22,8 +22,27 @@ class OGLWrapper(object):
             else:
                 setattr(self, name, module.__dict__[name])
 
-gl = OGLWrapper('GL')
-glu = OGLWrapper('GLU')
-glut = OGLWrapper('GLUT')
-gle = OGLWrapper('GLE')
-wgl = OGLWrapper('WGL')
+try:
+    gl = OGLWrapper('GL')
+except ImportError:
+    pass
+
+try:
+    glu = OGLWrapper('GLU')
+except ImportError:
+    pass
+
+try:
+    glut = OGLWrapper('GLUT')
+except ImportError:
+    pass
+
+try:
+    gle = OGLWrapper('GLE')
+except ImportError:
+    pass
+
+try:
+    wgl = OGLWrapper('WGL')
+except ImportError:
+    pass
