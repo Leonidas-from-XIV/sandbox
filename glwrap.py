@@ -6,11 +6,10 @@ import OpenGL
 class OGLWrapper(object):
     """General OpenGL wrapper"""
     def __init__(self, module):
-        module = 'GL'
         funcprefix = module.lower()
         constprefix = module.upper() + '_'
-        mod = eval("OpenGL." + module)
-        #mod = __import__('OpenGL.' + module)
+        # import the submodule
+        mod = __import__('OpenGL.' + module, globals(), locals(), ['OpenGL'])
         self.__rename(mod, funcprefix, constprefix)
         
     def __rename(self, module, funcprefix, constprefix):
@@ -23,8 +22,8 @@ class OGLWrapper(object):
             else:
                 setattr(self, name, module.__dict__[name])
 
-gl = OGLWrapper('gl')
-glu = OGLWrapper('glu')
-glut = OGLWrapper('glut')
-gle = OGLWrapper('gle')
-wgl = OGLWrapper('wgl')
+gl = OGLWrapper('GL')
+glu = OGLWrapper('GLU')
+glut = OGLWrapper('GLUT')
+gle = OGLWrapper('GLE')
+wgl = OGLWrapper('WGL')
