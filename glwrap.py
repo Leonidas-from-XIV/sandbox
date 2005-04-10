@@ -18,28 +18,28 @@ class GLWrap(OGLWrappers):
     """Wrapper for GL"""
     def __init__(self):
         import OpenGL.GL
-        self.attrs = self._OGLWrappers__replace(OpenGL.GL, 'gl', 'GL_')
+        self._OGLWrappers__replace(OpenGL.GL, 'gl', 'GL_')
 
 class GLUWrap(OGLWrappers):
     """Wrapper for GLU"""
     def __init__(self):
         import OpenGL.GLU
-        self.attrs = self._OGLWrappers__replace(OpenGL.GLU, 'glu', 'GLU_')
+        self._OGLWrappers__replace(OpenGL.GLU, 'glu', 'GLU_')
 
 class GLUTWrap(OGLWrappers):
     def __init__(self):
         import OpenGL.GLUT
-        self.attrs = self._OGLWrappers__replace(OpenGL.GLUT, 'glut', 'GLUT_')
+        self._OGLWrappers__replace(OpenGL.GLUT, 'glut', 'GLUT_')
 
 class GLEWrap(OGLWrappers):
     def __init__(self):
         import OpenGL.GLE
-        self.attrs = self._OGLWrappers__replace(OpenGL.GLE, 'gle', 'GLE_')
+        self._OGLWrappers__replace(OpenGL.GLE, 'gle', 'GLE_')
 
 class WGLWrap(OGLWrappers):
     def __init__(self):
         import OpenGL.WGL
-        self.attrs = self._OGLWrappers__replace(OpenGL.WGL, 'wgl', 'WGL_')
+        self._OGLWrappers__replace(OpenGL.WGL, 'wgl', 'WGL_')
         
 gl = GLWrap()
 glu = GLUWrap()
