@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 
+import random
 import gtk
 
 __version__ = '0.0.1'
@@ -11,7 +12,7 @@ class MathWindow(object):
         self.window = gtk.Window()
         self.window.set_default_size(350, 100)
         self.window.connect('delete_event', self.delete_event)
-        self.window.set_title('MathEngine')
+        self.window.set_title('MathEngine [no engine running]')
         
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
@@ -22,6 +23,9 @@ class MathWindow(object):
         self.mode_menu = gtk.Menu()
         self.menu.set_submenu(self.mode_menu)
         
+        self.menuitem = gtk.MenuItem('Multiply')
+        self.menuitem.connect('activate', self.OnMultiply)
+        self.mode_menu.add(self.menuitem)
         self.menuitem = gtk.SeparatorMenuItem()
         self.mode_menu.add(self.menuitem)
         self.menuitem = gtk.MenuItem('About')
@@ -65,12 +69,13 @@ class MathWindow(object):
         
         self.check = gtk.Button('Check it!')
         self.check.connect('clicked', self.OnCheck)
+        self.check.set_sensitive(False)
         self.table.attach(self.check, 4, 5, 1, 2)
-        
         
         self.vbox.pack_start(self.table)
         
         self.window.show_all()
+        self.motor = None
     
     def delete_event(self, widget, event, data=None):
         gtk.main_quit()
@@ -87,6 +92,39 @@ class MathWindow(object):
     
     def OnCheck(self, widget):
         print widget
+    
+    def OnMultiply(self, widget):
+        """Starts the Multiply Engine"""
+        self.window.set_title('MathEngine [Multiply Engine running]')
+        self.motor = 'multiply'
+
+        # call the first question
+        self.display()
+        # activate the button
+        self.check.set_sensitive(True)
+    
+    def display(self):
+        if self.motor == 'multiply':
+            self.engine = MultiplyEngine()
+        
+        self.quest = self.engine.question()
+        
+        self.factor1.set_text(str(self.quest[0]))
+        self.factor2.set_text(str(self.quest[1]))
+        self.factor3.set_text(str(self.quest[2]))
+        
+        if self.engine.question_field == 1:
+            self.factor1.set_sensitive(True)
+            self.factor1.set_text('')
+        elif self.engine.question_field == 2:
+            self.factor2.set_sensitive(True)
+            self.factor2.set_text('')
+        elif self.engine.question_field == 3:
+            self.factor3.set_sensitive(True)
+            self.factor3.set_text('')
+        
+        self.op1.set_text(self.engine.ops[0])
+        self.op2.set_text(self.engine.ops[1]) 
 
 class LoadableEngine:
     """A super class for all engines.
