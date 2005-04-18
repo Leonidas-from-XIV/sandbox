@@ -91,7 +91,26 @@ class MathWindow(object):
         pass
     
     def OnCheck(self, widget):
-        print widget
+        if self.engine.question_field == 1:
+            user_answer = int(self.factor1.get_text())
+        elif self.engine.question_field == 2:
+            user_answer = int(self.factor2.get_text())
+        elif self.engine.question_field == 3:
+            user_answer = int(self.factor3.get_text())
+        print user_answer
+        
+        if self.engine.question_field == 1:
+            program_answer = self.quest[0]
+        elif self.engine.question_field == 2:
+            program_answer = self.quest[1]
+        elif self.engine.question_field == 3:
+            program_answer = self.quest[2]
+        print program_answer
+        
+        if user_answer == program_answer:
+            self.lastresult.set_text('Right')
+        else:
+            self.lastresult.set_text('Wrong: %d %s %d %s %d' % (self.quest[0], self.engine.ops[0], self.quest[1], self.engine.ops[1], self.quest[2]))
     
     def OnMultiply(self, widget):
         """Starts the Multiply Engine"""
