@@ -26,6 +26,13 @@ class MathWindow(object):
         self.menuitem = gtk.MenuItem('Multiply')
         self.menuitem.connect('activate', self.OnMultiply)
         self.mode_menu.add(self.menuitem)
+        self.menuitem = gtk.MenuItem('Division')
+        self.menuitem.connect('activate', self.OnDivision)
+        self.mode_menu.add(self.menuitem)
+        self.menuitem = gtk.MenuItem('Chunkdivision')
+        self.menuitem.connect('activate', self.OnChunkDivision)
+        self.mode_menu.add(self.menuitem)
+        
         self.menuitem = gtk.SeparatorMenuItem()
         self.mode_menu.add(self.menuitem)
         self.menuitem = gtk.MenuItem('About')
@@ -130,10 +137,32 @@ class MathWindow(object):
         self.display()
         # activate the button
         self.check.set_sensitive(True)
+        
+    def OnDivision(self, widget):
+        self.window.set_title('MathEngine [Division Engine running]')
+        self.motor = 'division'
+        
+        # call the first question
+        self.display()
+        # activate the button
+        self.check.set_sensitive(True)
+    
+    def OnChunkDivision(self, widget):
+        self.window.set_title('MathEngine [Chunkdivision Engine running]')
+        self.motor = 'chunkdivision'
+        
+        # call the first question
+        self.display()
+        # activate the button
+        self.check.set_sensitive(True)
     
     def display(self):
         if self.motor == 'multiply':
             self.engine = MultiplyEngine()
+        elif self.motor == 'division':
+            self.engine = DivisionEngine()
+        elif self.motor == 'chunkdivision':
+            self.engine = ChunkDivisionEngine()
         
         self.quest = self.engine.question()
         
@@ -190,6 +219,45 @@ class MultiplyEngine(LoadableEngine):
         b = random.randrange(9)
         c = a * b
         return (a, b, c)
+
+class DivisionEngine(LoadableEngine):
+    """The engine for dividing"""
+    state = 'stable'
+    question_field = 3
+    
+    ops = [" / ",  " = " ]
+    def question(self):
+        b = random.randrange(9)
+        b += 2
+        c = random.randrange(9)
+        c += 2
+        a = b * c
+        return (a, b, c)
+        
+class ChunkDivisionEngine(DivisionEngine):
+    """Division engine with chunks
+    watch out: if chunk == 0 you still have to
+    type 'r0'"""
+    state = 'stable'
+    
+    def question(self):
+        # b = [1; 9]
+        b = random.randrange(9)
+        b += 1
+        
+        # c = [1; 9]
+        c = random.randrange(9)
+        c += 1
+        
+        if b != 1:
+            chunk = random.randrange(b - 1)
+            chunk += 1
+        else:
+            chunk = 0
+        
+        a = b * c + chunk
+        cnew = str(c) + "r" + str(chunk)
+        return (a, b, cnew)
 
 def main():
     mw = MathWindow()
