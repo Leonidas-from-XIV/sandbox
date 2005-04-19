@@ -45,6 +45,7 @@ class MathWindow(object):
         
         self.factor1 = gtk.Entry()
         self.factor1.set_sensitive(False)
+        self.factor1.connect("activate", self.OnCheck)
         self.table.attach(self.factor1, 0, 1, 0, 1)
         
         self.op1 = gtk.Label()
@@ -52,6 +53,7 @@ class MathWindow(object):
         
         self.factor2 = gtk.Entry()
         self.factor2.set_sensitive(False)
+        self.factor2.connect("activate", self.OnCheck)
         self.table.attach(self.factor2, 2, 3, 0, 1)
         
         self.op2 = gtk.Label()
@@ -59,6 +61,7 @@ class MathWindow(object):
         
         self.factor3 = gtk.Entry()
         self.factor3.set_sensitive(False)
+        self.factor3.connect("activate", self.OnCheck)
         self.table.attach(self.factor3, 4, 5, 0, 1)
         
         self.lastresult_label = gtk.Label('Last result:')
@@ -68,11 +71,13 @@ class MathWindow(object):
         self.table.attach(self.lastresult, 2, 3, 1, 2)
         
         self.check = gtk.Button('Check it!')
+        self.check.set_flags(gtk.CAN_DEFAULT)
         self.check.connect('clicked', self.OnCheck)
         self.check.set_sensitive(False)
         self.table.attach(self.check, 4, 5, 1, 2)
         
         self.vbox.pack_start(self.table)
+        self.check.grab_default()
         
         self.window.show_all()
         self.motor = None
@@ -110,7 +115,11 @@ class MathWindow(object):
         if user_answer == program_answer:
             self.lastresult.set_text('Right')
         else:
-            self.lastresult.set_text('Wrong: %d %s %d %s %d' % (self.quest[0], self.engine.ops[0], self.quest[1], self.engine.ops[1], self.quest[2]))
+            self.lastresult.set_text('Wrong: %s %s %s %s %s' % 
+                (str(self.quest[0]), self.engine.ops[0], str(self.quest[1]), 
+                self.engine.ops[1], str(self.quest[2])))
+        
+        self.display()
     
     def OnMultiply(self, widget):
         """Starts the Multiply Engine"""
