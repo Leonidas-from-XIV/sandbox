@@ -4,8 +4,14 @@
 import random
 import gtk
 
-__version__ = '0.0.1'
+__version__ = '0.1.0'
 __author__ = 'Marek Kubica'
+__doc__ = """A graphical, extensible program for learning elementar maths.
+GUI done by GTK+ & PyGTK.
+Features:
+- multiple, selectable engines
+- logging [not yet]
+- statistics [later]"""
 
 class MathWindow(object):
     def __init__(self):
@@ -97,10 +103,20 @@ class MathWindow(object):
         gtk.main_quit()
     
     def OnAbout(self, widget):
-        pass
+        dialog = gtk.MessageDialog(self.window,
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
+            'MathEngine '  + __version__ + '\n' + 'written by ' + __author__ + '\n' + __doc__) 
+        dialog.run()
+        dialog.destroy() 
     
     def OnAboutMode(self, widget):
-        pass
+        dialog = gtk.MessageDialog(self.window,
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+            "You have chosen no engine, Sai.") 
+        dialog.run()
+        dialog.destroy() 
     
     def OnCheck(self, widget):
         if self.engine.question_field == 1:
