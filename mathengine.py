@@ -119,12 +119,20 @@ class MathWindow(object):
             program_answer = self.quest[2]
         print program_answer
         
+        style = self.lastresult.get_style().copy()
+        color = self.lastresult.get_colormap()
+        
         if user_answer == program_answer:
             self.lastresult.set_text('Right')
+            fg = color.alloc_color("blue")
         else:
             self.lastresult.set_text('Wrong: %s %s %s %s %s' % 
                 (str(self.quest[0]), self.engine.ops[0], str(self.quest[1]), 
                 self.engine.ops[1], str(self.quest[2])))
+            fg = color.alloc_color("red")
+        
+        style.fg[gtk.STATE_NORMAL] = fg
+        self.lastresult.set_style(style) 
         
         self.display()
     
