@@ -111,10 +111,18 @@ class MathWindow(object):
         dialog.destroy() 
     
     def OnAboutMode(self, widget):
-        dialog = gtk.MessageDialog(self.window,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-            "You have chosen no engine, Sai.") 
+        try:
+            source = self.engine
+            text = source.__doc__ + '\n'+ 'Version ' + source.__version__ + '\n' + 'Status ' + source.state + '\n' + 'written by ' + source.__author__
+            dialog = gtk.MessageDialog(self.window,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
+                text)
+        except AttributeError:
+            dialog = gtk.MessageDialog(self.window,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                "You have chosen no engine, Sai.")
         dialog.run()
         dialog.destroy() 
     
