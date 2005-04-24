@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 
-import random
+import random, logging, pickle
 import gtk
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __author__ = 'Marek Kubica'
 __doc__ = """A graphical, extensible program for learning elementar maths.
 GUI done by GTK+ & PyGTK.
@@ -15,12 +15,19 @@ Features:
 
 class MathWindow(object):
     def __init__(self):
+        """Creating the window"""
+        # create empty window
         self.window = gtk.Window()
+        # set a default size
         self.window.set_default_size(350, 100)
+        # connect with the destroy event to allow closing
         self.window.connect('delete_event', self.delete_event)
+        # set a title
         self.window.set_title('MathEngine [no engine running]')
         
+        # create a vertival box
         self.vbox = gtk.VBox()
+        # add it to the window
         self.window.add(self.vbox)
         self.menubar = gtk.MenuBar()
         self.vbox.pack_start(self.menubar, expand=False)
@@ -29,9 +36,9 @@ class MathWindow(object):
         self.mode_menu = gtk.Menu()
         self.menu.set_submenu(self.mode_menu)
         
-        self.menuitem = gtk.MenuItem('Multiply')
-        self.menuitem.connect('activate', self.OnMultiply)
-        self.mode_menu.add(self.menuitem)
+        menuitem = gtk.MenuItem('Multiply')
+        menuitem.connect('activate', self.OnMultiply)
+        self.mode_menu.add(menuitem)
         self.menuitem = gtk.MenuItem('Division')
         self.menuitem.connect('activate', self.OnDivision)
         self.mode_menu.add(self.menuitem)
@@ -94,13 +101,22 @@ class MathWindow(object):
         
         self.window.show_all()
         self.motor = None
+        
+        self.bonus = Bonus()
+        self.stat = Stats()
+        logging.info('Program starting')
     
-    def delete_event(self, widget, event, data=None):
+    def delete_event(self, widget, event=None):
+        """Quitting the window"""
+        logging.info('Program exiting')
         gtk.main_quit()
         return False
     
+    def create_window(self):
+        pass
+    
     def OnExit(self, widget):
-        gtk.main_quit()
+        self.delete_event(widget)
     
     def OnAbout(self, widget):
         dialog = gtk.MessageDialog(self.window,
@@ -133,7 +149,7 @@ class MathWindow(object):
             user_answer = int(self.factor2.get_text())
         elif self.engine.question_field == 3:
             user_answer = int(self.factor3.get_text())
-        print user_answer
+        #print user_answer
         
         if self.engine.question_field == 1:
             program_answer = self.quest[0]
@@ -141,14 +157,18 @@ class MathWindow(object):
             program_answer = self.quest[1]
         elif self.engine.question_field == 3:
             program_answer = self.quest[2]
-        print program_answer
+        #print program_answer
         
         style = self.lastresult.get_style().copy()
         color = self.lastresult.get_colormap()
         
         if user_answer == program_answer:
+            # the answer was right, so set text to right
             self.lastresult.set_text('Right')
+            # and display it blue
             fg = color.alloc_color("blue")
+            # and finally add the bonus
+            self.bonus.add(self.engine.bonusadd)
         else:
             self.lastresult.set_text('Wrong: %s %s %s %s %s' % 
                 (str(self.quest[0]), self.engine.ops[0], str(self.quest[1]), 
@@ -240,12 +260,16 @@ class LoadableEngine:
     
     # which operators?
     ops = (" ? ", " ? ")
+    
+    # how much is a question worth?
+    bonusadd = 0
 
 class MultiplyEngine(LoadableEngine):
     """The engine for multiplying"""
     state = 'stable'
     question_field = 3
     ops = (' x ', ' = ')
+    bonusadd = 1
     def question(self):
         a = random.randrange(9)
         b = random.randrange(9)
@@ -257,7 +281,8 @@ class DivisionEngine(LoadableEngine):
     state = 'stable'
     question_field = 3
     
-    ops = [" / ",  " = " ]
+    ops = (" / ",  " = " )
+    bonusadd = 2
     def question(self):
         b = random.randrange(9)
         b += 2
@@ -271,6 +296,7 @@ class ChunkDivisionEngine(DivisionEngine):
     watch out: if chunk == 0 you still have to
     type 'r0'"""
     state = 'stable'
+    bonusadd = 5
     
     def question(self):
         # b = [1; 9]
@@ -290,10 +316,94 @@ class ChunkDivisionEngine(DivisionEngine):
         a = b * c + chunk
         cnew = str(c) + "r" + str(chunk)
         return (a, b, cnew)
+        
+class Stats(object):
+    """A class for statistics"""
+    
+    def __init__(self):
+        self.all = 0
+        self.right = 0
+        self.wrong = 0
+        self.time = 0
+        self.times = []
+    
+    def AddRight(self):
+        """One right"""
+        self.right += 1
+        self.all += 1
+    
+    def AddWrong(self):
+        """One wrong"""
+        self.wrong += 1
+        self.all += 1
+    
+    def GetPercent(self):
+        """Get the percent of right responses"""
+        if self.all != 0:
+            percent = int((float(self.right) / float(self.all)) * 100)
+        else:
+            percent = 0
+        return percent
+        
+    def StartTimer(self):
+        """Starts the timer"""
+        self.time = time.time()
+    
+    def StopTimer(self):
+        """Stops the timer and adds the delta to the times db"""
+        time_stop = time.time()
+        time_delta = time_stop - self.time
+        # reset the timer
+        self.time = 0
+        
+        # get just the seconds...
+        time_delta = int(time_delta)
+        # append the value to the statistic
+        self.times.append(time_delta)
+    
+    def GetAverageTime(self):
+        """Returns the average time of all archived times"""
+        values = len(self.times)
+        if values != 0:
+            alltime = 0
+            for time in self.times:
+                alltime += time
+            average = alltime / values
+            return average
+        else:
+            return 0
+
+def initlog(filename='mathengine.log'):
+    """Use later with logging.info()"""
+    logging.basicConfig(level=logging.DEBUG,
+        format='%(asctime)s %(message)s',
+        datefmt='%Y%m%d %H:%M:%S',
+        filename=filename)
+
+class Bonus(object):
+    def __init__(self, filename='bonusfile.pickle'):
+        self.bonusfile = filename
+        try:
+            f = file(self.bonusfile, 'r')
+            self.bonus = pickle.load(f)
+            f.close()
+        except IOError:
+            self.bonus = 0
+    
+    def add(self, points):
+        self.bonus += points
+        self.save()
+    
+    def save(self):
+        f = file(self.bonusfile, 'w')
+        pickle.dump(self.bonus, f)
+        f.close()
 
 def main():
+    initlog()
     mw = MathWindow()
     gtk.main()
+    
 
 if __name__ == '__main__':
     main()
