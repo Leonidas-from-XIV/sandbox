@@ -25,10 +25,12 @@ def exit(process):
     
 
 def main():
-    left = [1, 0, 0]
+    left = [0, 0, 5]
     cw = CountdownWindow(left)
     gtk.main()
-    
+
+class TimeoutError(Exception):
+    pass
 
 class CountdownWindow(object):
     def __init__(self, left):
@@ -43,29 +45,32 @@ class CountdownWindow(object):
         self.window.add(self.label)
 
         self.window.show_all()
-        gobject.idle_add(self.activate)
         self.timeleft = left
+        self.activate()
     
     def activate(self):
-        print 'activating'
         cmd = ['python.exe', '-c', 'while 1: pass']
         self.process = subprocess.Popen(cmd)
-        #self.process = None
+        self.terminated = False
         self.label.set_text(self.list2time(self.timeleft))
         gobject.timeout_add(1000, self.update)
     
     def update(self):
-        #print 'updating'
-        #print self.process
-        #print self.timeleft
-        self.decrease_time()
-        #print self.timeleft
-        #print 'exiting'
-        #exit(self.process)
-        return True
+        try:
+            print 'decreasing'
+            self.decrease_time()
+            self.label.set_text(self.list2time(self.timeleft))
+            return True
+        except TimeoutError:
+            print 'exiting'
+            exit(self.process)
+            self.terminated = True
+            return False
     
     def delete_event(self, widget, event):
         """Quitting the window"""
+        if not self.terminated:
+            exit(self.process)
         gtk.main_quit()
         return False
     
@@ -88,15 +93,15 @@ class CountdownWindow(object):
         return hours + ':' + minutes + ':' + seconds
     
     def decrease_time(self):
-        print self.timeleft
+        """Decreases the time"""
         hours, minutes, seconds = self.timeleft
         if seconds == 0:
             if minutes == 0:
-                print 'minutes are zero'
                 if hours == 0:
-                    raise NotImplementedError('timeout')
+                    # no hours left, no minutes, no seconds: exit
+                    raise TimeoutError
                 else:
-                    # if there is some hour
+                    # there is some hour
                     hours -= 1
                     minutes = 59
             else:
@@ -105,7 +110,6 @@ class CountdownWindow(object):
         else:
             seconds -= 1
         self.timeleft = [hours, minutes, seconds]
-        print self.timeleft
 
 if __name__ == '__main__':
     main()
