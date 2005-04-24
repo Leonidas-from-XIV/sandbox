@@ -1,33 +1,19 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
 
-import optparse, subprocess, os, pickle
+import sys, subprocess, os, pickle
 import gtk, pango, gobject
+import ctypes
 
-apicall = True
-try:
-    import win32api
-except ImportError:
-    apicall = False
-
-try:
-    import ctypes
-except ImportError:
-    if not apicall:
-        raise ImportError('You need pywin32 or ctypes')
+progpath = 'python.exe'
 
 def exit(process):
     """Kills a process spawned by subprocess"""
-    if apicall:
-        win32api.TerminateProcess(int(process._handle), -1)
-    else:
-        ctypes.windll.kernel32.TerminateProcess(int(process._handle), -1)
+    ctypes.windll.kernel32.TerminateProcess(int(process._handle), -1)
     
 
 def main():
-    left = [0, 0, 5]
     left = bonus2time()
-    #time2bonus(left)
     cw = CountdownWindow(left)
     gtk.main()
     
@@ -70,10 +56,12 @@ class CountdownWindow(object):
 
         self.window.show_all()
         self.timeleft = left
+        
         self.activate()
+        
     
     def activate(self):
-        cmd = ['python.exe', '-c', 'while 1: pass']
+        cmd = [progpath, sys.argv[1]]
         self.process = subprocess.Popen(cmd)
         self.terminated = False
         self.label.set_text(self.list2time(self.timeleft))
@@ -81,21 +69,17 @@ class CountdownWindow(object):
     
     def update(self):
         try:
-            #print 'decreasing'
             self.decrease_time()
             self.label.set_text(self.list2time(self.timeleft))
             return True
         except TimeoutError:
-            #print 'exiting'
             exit(self.process)
-            self.terminated = True
             return False
     
     def delete_event(self, widget, event):
         """Quitting the window"""
-        if not self.terminated:
-            exit(self.process)
-            time2bonus(self.timeleft)
+        exit(self.process)
+        time2bonus(self.timeleft)
         gtk.main_quit()
         return False
     
