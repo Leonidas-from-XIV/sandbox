@@ -1,21 +1,41 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 
-import random, logging, pickle
+import random, logging, pickle, time
 import gtk
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __author__ = 'Marek Kubica'
 __doc__ = """A graphical, extensible program for learning elementar maths.
 GUI done by GTK+ & PyGTK.
 Features:
 - multiple, selectable engines
-- logging [not yet]
-- statistics [later]"""
+- logging
+- statistics
+- a bonus system"""
 
 class MathWindow(object):
     def __init__(self):
         """Creating the window"""
+        self.create_window()
+        
+        self.motor = None
+        self.bonus = Bonus()
+        self.stat = Stats()
+        logging.info('Program starting')
+    
+    def delete_event(self, widget, event=None):
+        """Quitting the window"""
+        logging.info('Program exiting')
+        logging.info('Statistics:')
+        logging.info('%d right, %d wrong of %d' % (self.stat.right, self.stat.wrong, self.stat.all))
+        logging.info('That is %d%%' % self.stat.GetPercent())
+        logging.info('Average time is %d seconds' % self.stat.GetAverageTime())
+        
+        gtk.main_quit()
+        return False
+    
+    def create_window(self):
         # create empty window
         self.window = gtk.Window()
         # set a default size
@@ -100,20 +120,6 @@ class MathWindow(object):
         self.check.grab_default()
         
         self.window.show_all()
-        self.motor = None
-        
-        self.bonus = Bonus()
-        self.stat = Stats()
-        logging.info('Program starting')
-    
-    def delete_event(self, widget, event=None):
-        """Quitting the window"""
-        logging.info('Program exiting')
-        gtk.main_quit()
-        return False
-    
-    def create_window(self):
-        pass
     
     def OnExit(self, widget):
         self.delete_event(widget)
@@ -143,6 +149,8 @@ class MathWindow(object):
         dialog.destroy() 
     
     def OnCheck(self, widget):
+        self.stat.StopTimer()
+        
         if self.engine.question_field == 1:
             user_answer = int(self.factor1.get_text())
         elif self.engine.question_field == 2:
@@ -169,11 +177,19 @@ class MathWindow(object):
             fg = color.alloc_color("blue")
             # and finally add the bonus
             self.bonus.add(self.engine.bonusadd)
+            self.stat.AddRight()
+            logging.info("Right: " + str(self.quest[0]) +
+                self.engine.ops[0] + str(self.quest[1]) + 
+                self.engine.ops[1] + str(self.quest[2]))
         else:
             self.lastresult.set_text('Wrong: %s %s %s %s %s' % 
                 (str(self.quest[0]), self.engine.ops[0], str(self.quest[1]), 
                 self.engine.ops[1], str(self.quest[2])))
             fg = color.alloc_color("red")
+            self.stat.AddWrong()
+            logging.info("Wrong: " + str(self.quest[0]) +
+                self.engine.ops[0] + str(self.quest[1]) + 
+                self.engine.ops[1] + str(self.quest[2]))
         
         style.fg[gtk.STATE_NORMAL] = fg
         self.lastresult.set_style(style) 
@@ -233,7 +249,9 @@ class MathWindow(object):
             self.factor3.set_text('')
         
         self.op1.set_text(self.engine.ops[0])
-        self.op2.set_text(self.engine.ops[1]) 
+        self.op2.set_text(self.engine.ops[1])
+        
+        self.stat.StartTimer()
 
 class LoadableEngine:
     """A super class for all engines.
