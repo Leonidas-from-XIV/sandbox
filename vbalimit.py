@@ -25,7 +25,7 @@ def exit(process):
     
 
 def main():
-    left = [0, 1, 0]
+    left = [1, 0, 0]
     cw = CountdownWindow(left)
     gtk.main()
     
@@ -92,12 +92,15 @@ class CountdownWindow(object):
         hours, minutes, seconds = self.timeleft
         if seconds == 0:
             if minutes == 0:
+                print 'minutes are zero'
                 if hours == 0:
                     raise NotImplementedError('timeout')
                 else:
+                    # if there is some hour
                     hours -= 1
-                minutes = 59
-            minutes -= 1
+                    minutes = 59
+            else:
+                minutes -= 1
             seconds = 59
         else:
             seconds -= 1
