@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*- 
 
-import random, logging, pickle, time
+import random, logging, pickle, time, gettext, locale, os, os.path
 import gtk
 
 __version__ = '0.2.1'
@@ -14,6 +14,21 @@ Features:
 - statistics
 - a bonus system"""
 
+def initlang(langoverride=None):
+    if not langoverride:
+        try:
+            languages = os.listdir('locale')
+            lang = gettext.translation('mathengine', 'locale', 
+                languages=languages)
+            lang.install()
+        except:
+            gettext.install('mathengine')
+    else:
+        lang = gettext.translation('mathengine', 'locale', 
+            languages=[langoverride])
+        lang.install()
+    
+
 class MathWindow(object):
     def __init__(self):
         """Creating the window"""
@@ -22,11 +37,11 @@ class MathWindow(object):
         self.motor = None
         self.bonus = Bonus()
         self.stat = Stats()
-        logging.info('Program starting')
+        logging.info(_('Program starting'))
     
     def delete_event(self, widget, event=None):
         """Quitting the window"""
-        logging.info('Program exiting')
+        logging.info(_('Program exiting'))
         logging.info('Statistics:')
         logging.info('%d right, %d wrong of %d' % (self.stat.right, self.stat.wrong, self.stat.all))
         logging.info('That is %d%%' % self.stat.GetPercent())
@@ -43,7 +58,7 @@ class MathWindow(object):
         # connect with the destroy event to allow closing
         self.window.connect('delete_event', self.delete_event)
         # set a title
-        self.window.set_title('MathEngine [no engine running]')
+        self.window.set_title(_('MathEngine [no engine running]'))
         
         # create a vertival box
         self.vbox = gtk.VBox()
@@ -156,7 +171,10 @@ class MathWindow(object):
         elif self.engine.question_field == 2:
             user_answer = int(self.factor2.get_text())
         elif self.engine.question_field == 3:
-            user_answer = int(self.factor3.get_text())
+            try:
+                user_answer = int(self.factor3.get_text())
+            except ValueError:
+                user_answer = self.factor3.get_text()
         #print user_answer
         
         if self.engine.question_field == 1:
@@ -167,33 +185,39 @@ class MathWindow(object):
             program_answer = self.quest[2]
         #print program_answer
         
+        # some magic for using colors with GTK+
         style = self.lastresult.get_style().copy()
         color = self.lastresult.get_colormap()
         
+        # let's check if the answer was right
         if user_answer == program_answer:
             # the answer was right, so set text to right
             self.lastresult.set_text('Right')
-            # and display it blue
-            fg = color.alloc_color("blue")
-            # and finally add the bonus
+            # mark if for being displayed blue
+            fg = color.alloc_color('blue')
+            # add the bonus
             self.bonus.add(self.engine.bonusadd)
+            # add to the statistics as right
             self.stat.AddRight()
-            logging.info("Right: " + str(self.quest[0]) +
-                self.engine.ops[0] + str(self.quest[1]) + 
-                self.engine.ops[1] + str(self.quest[2]))
+            logging.info('Right: %s %s %s %s %s' % (str(self.quest[0]),
+                self.engine.ops[0], str(self.quest[1]),
+                self.engine.ops[1], str(self.quest[2])))
         else:
+            # no, the answer was wrong
             self.lastresult.set_text('Wrong: %s %s %s %s %s' % 
                 (str(self.quest[0]), self.engine.ops[0], str(self.quest[1]), 
                 self.engine.ops[1], str(self.quest[2])))
-            fg = color.alloc_color("red")
+            fg = color.alloc_color('red')
             self.stat.AddWrong()
-            logging.info("Wrong: " + str(self.quest[0]) +
-                self.engine.ops[0] + str(self.quest[1]) + 
-                self.engine.ops[1] + str(self.quest[2]))
+            logging.info('Wrong: %s %s %s %s %s' % (str(self.quest[0]),
+                self.engine.ops[0], str(self.quest[1]),
+                self.engine.ops[1], str(self.quest[2])))
         
+        # now set the color
         style.fg[gtk.STATE_NORMAL] = fg
-        self.lastresult.set_style(style) 
+        self.lastresult.set_style(style)
         
+        # go on and display the next question
         self.display()
     
     def OnMultiply(self, widget):
@@ -418,6 +442,7 @@ class Bonus(object):
         f.close()
 
 def main():
+    initlang()
     initlog()
     mw = MathWindow()
     gtk.main()
