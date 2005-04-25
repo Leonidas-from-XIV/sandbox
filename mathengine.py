@@ -20,7 +20,7 @@ def initlang(langoverride=None):
             languages = os.listdir('locale')
             lang = gettext.translation('mathengine', 'locale', 
                 languages=languages)
-            lang.install()
+            lang.install(unicode=True)
         except:
             gettext.install('mathengine')
     else:
@@ -42,10 +42,10 @@ class MathWindow(object):
     def delete_event(self, widget, event=None):
         """Quitting the window"""
         logging.info(_('Program exiting'))
-        logging.info('Statistics:')
-        logging.info('%d right, %d wrong of %d' % (self.stat.right, self.stat.wrong, self.stat.all))
-        logging.info('That is %d%%' % self.stat.GetPercent())
-        logging.info('Average time is %d seconds' % self.stat.GetAverageTime())
+        logging.info(_('Statistics:'))
+        logging.info(_('%d right, %d wrong of %d') % (self.stat.right, self.stat.wrong, self.stat.all))
+        logging.info(_('That is %d%%') % self.stat.GetPercent())
+        logging.info(_('Average time is %d seconds') % self.stat.GetAverageTime())
         
         gtk.main_quit()
         return False
@@ -67,29 +67,29 @@ class MathWindow(object):
         self.menubar = gtk.MenuBar()
         self.vbox.pack_start(self.menubar, expand=False)
         
-        self.menu = gtk.MenuItem('Mode')
+        self.menu = gtk.MenuItem(_('Mode'))
         self.mode_menu = gtk.Menu()
         self.menu.set_submenu(self.mode_menu)
         
-        menuitem = gtk.MenuItem('Multiply')
+        menuitem = gtk.MenuItem(_('Multiply'))
         menuitem.connect('activate', self.OnMultiply)
         self.mode_menu.add(menuitem)
-        self.menuitem = gtk.MenuItem('Division')
+        self.menuitem = gtk.MenuItem(_('Division'))
         self.menuitem.connect('activate', self.OnDivision)
         self.mode_menu.add(self.menuitem)
-        self.menuitem = gtk.MenuItem('Chunkdivision')
+        self.menuitem = gtk.MenuItem(_('Chunkdivision'))
         self.menuitem.connect('activate', self.OnChunkDivision)
         self.mode_menu.add(self.menuitem)
         
         self.menuitem = gtk.SeparatorMenuItem()
         self.mode_menu.add(self.menuitem)
-        self.menuitem = gtk.MenuItem('About')
+        self.menuitem = gtk.MenuItem(_('About'))
         self.menuitem.connect('activate', self.OnAbout)
         self.mode_menu.add(self.menuitem)
-        self.menuitem = gtk.MenuItem('About Mode')
+        self.menuitem = gtk.MenuItem(_('About Mode'))
         self.menuitem.connect('activate', self.OnAboutMode)
         self.mode_menu.add(self.menuitem)
-        self.menuitem = gtk.MenuItem('Exit')
+        self.menuitem = gtk.MenuItem(_('Exit'))
         self.menuitem.connect('activate', self.OnExit)
         self.mode_menu.add(self.menuitem)
         
@@ -100,7 +100,7 @@ class MathWindow(object):
         
         self.factor1 = gtk.Entry()
         self.factor1.set_sensitive(False)
-        self.factor1.connect("activate", self.OnCheck)
+        self.factor1.connect('activate', self.OnCheck)
         self.table.attach(self.factor1, 0, 1, 0, 1)
         
         self.op1 = gtk.Label()
@@ -108,7 +108,7 @@ class MathWindow(object):
         
         self.factor2 = gtk.Entry()
         self.factor2.set_sensitive(False)
-        self.factor2.connect("activate", self.OnCheck)
+        self.factor2.connect('activate', self.OnCheck)
         self.table.attach(self.factor2, 2, 3, 0, 1)
         
         self.op2 = gtk.Label()
@@ -116,16 +116,16 @@ class MathWindow(object):
         
         self.factor3 = gtk.Entry()
         self.factor3.set_sensitive(False)
-        self.factor3.connect("activate", self.OnCheck)
+        self.factor3.connect('activate', self.OnCheck)
         self.table.attach(self.factor3, 4, 5, 0, 1)
         
-        self.lastresult_label = gtk.Label('Last result:')
+        self.lastresult_label = gtk.Label(_('Last result:'))
         self.table.attach(self.lastresult_label, 0, 1, 1, 2)
         
-        self.lastresult = gtk.Label('(No last result)')
+        self.lastresult = gtk.Label(_('(No last result)'))
         self.table.attach(self.lastresult, 2, 3, 1, 2)
         
-        self.check = gtk.Button('Check it!')
+        self.check = gtk.Button(_('Check it!'))
         self.check.set_flags(gtk.CAN_DEFAULT)
         self.check.connect('clicked', self.OnCheck)
         self.check.set_sensitive(False)
@@ -143,14 +143,14 @@ class MathWindow(object):
         dialog = gtk.MessageDialog(self.window,
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
             gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
-            'MathEngine '  + __version__ + '\n' + 'written by ' + __author__ + '\n' + __doc__) 
+            'MathEngine %s\nwritten by %s\n%s'% (__version__, __author__, __doc__))
         dialog.run()
         dialog.destroy() 
     
     def OnAboutMode(self, widget):
         try:
             source = self.engine
-            text = source.__doc__ + '\n'+ 'Version ' + source.__version__ + '\n' + 'Status ' + source.state + '\n' + 'written by ' + source.__author__
+            text = _('%s\nVersion %s\nState: %s\nwritten by %s') % (source.__doc__, source.__version__, source.state, source.__author__)
             dialog = gtk.MessageDialog(self.window,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                 gtk.MESSAGE_INFO, gtk.BUTTONS_OK,
@@ -159,7 +159,7 @@ class MathWindow(object):
             dialog = gtk.MessageDialog(self.window,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                 gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                "You have chosen no engine, Sai.")
+                _('You have chosen no engine, Sai.'))
         dialog.run()
         dialog.destroy() 
     
@@ -192,24 +192,24 @@ class MathWindow(object):
         # let's check if the answer was right
         if user_answer == program_answer:
             # the answer was right, so set text to right
-            self.lastresult.set_text('Right')
+            self.lastresult.set_text(_('Right'))
             # mark if for being displayed blue
             fg = color.alloc_color('blue')
             # add the bonus
             self.bonus.add(self.engine.bonusadd)
             # add to the statistics as right
             self.stat.AddRight()
-            logging.info('Right: %s %s %s %s %s' % (str(self.quest[0]),
+            logging.info(_('Right: %s %s %s %s %s') % (str(self.quest[0]),
                 self.engine.ops[0], str(self.quest[1]),
                 self.engine.ops[1], str(self.quest[2])))
         else:
             # no, the answer was wrong
-            self.lastresult.set_text('Wrong: %s %s %s %s %s' % 
+            self.lastresult.set_text(_('Wrong: %s %s %s %s %s') % 
                 (str(self.quest[0]), self.engine.ops[0], str(self.quest[1]), 
                 self.engine.ops[1], str(self.quest[2])))
             fg = color.alloc_color('red')
             self.stat.AddWrong()
-            logging.info('Wrong: %s %s %s %s %s' % (str(self.quest[0]),
+            logging.info(_('Wrong: %s %s %s %s %s') % (str(self.quest[0]),
                 self.engine.ops[0], str(self.quest[1]),
                 self.engine.ops[1], str(self.quest[2])))
         
@@ -222,7 +222,7 @@ class MathWindow(object):
     
     def OnMultiply(self, widget):
         """Starts the Multiply Engine"""
-        self.window.set_title('MathEngine [Multiply Engine running]')
+        self.window.set_title(_('MathEngine [Multiply Engine running]'))
         self.motor = 'multiply'
 
         # call the first question
@@ -231,7 +231,7 @@ class MathWindow(object):
         self.check.set_sensitive(True)
         
     def OnDivision(self, widget):
-        self.window.set_title('MathEngine [Division Engine running]')
+        self.window.set_title(_('MathEngine [Division Engine running]'))
         self.motor = 'division'
         
         # call the first question
@@ -240,7 +240,7 @@ class MathWindow(object):
         self.check.set_sensitive(True)
     
     def OnChunkDivision(self, widget):
-        self.window.set_title('MathEngine [Chunkdivision Engine running]')
+        self.window.set_title(_('MathEngine [Chunkdivision Engine running]'))
         self.motor = 'chunkdivision'
         
         # call the first question
