@@ -106,33 +106,7 @@ class UserInterface(object):
     
     def cyclic_update(self):
         print 'Timeout #%s' % str(self.sid)
-        #print dir(self.model)
-        #print dir(self.treeview)
-        
-        rows = list()
-        rows.append(self.model.get_iter_first())
-        while True:
-            nextiter = self.model.iter_next(rows[-1])
-            if nextiter:
-                rows.append(nextiter)
-            else:
-                break
-        
-        updatestations = []
-        for iterator in rows:
-            #print iterator
-            question = self.model.get_value(iterator, 0)
-            station = self.model.get_value(iterator, 1)
-            if question:
-                for stat in whatsonair.allparsers:
-                    if stat.__station__ == station:
-                        updatestations.append(stat)
-                        #gtk.idle_add(self.update_track, stat, iterator)
-        
-        #print updatestations
-        #gobject.idle_add(self.updatestations, updatestations)
-        self.updatestations()
-            
+        gobject.idle_add(self.updatestations)
         
         return True
         #return False
@@ -177,7 +151,6 @@ class UserInterface(object):
         return False
     
     def updatestations(self):
-        #print stations
         
         for row in self.model:
             # go though all rows
@@ -197,6 +170,10 @@ class UserInterface(object):
                 except whatsonair.IncompatibleParser:
                     row[2] = 'Incompatible'
                     row[3] = 'Parser'
+                    row[0] = False
+                except IOError:
+                    row[2] = 'Network'
+                    row[3] = 'Error'
                     row[0] = False
                 
 
