@@ -118,6 +118,7 @@ class UserInterface(object):
             else:
                 break
         
+        updatestations = []
         for iterator in rows:
             #print iterator
             question = self.model.get_value(iterator, 0)
@@ -125,7 +126,12 @@ class UserInterface(object):
             if question:
                 for stat in whatsonair.allparsers:
                     if stat.__station__ == station:
-                        gtk.idle_add(self.update_track, stat, iterator)
+                        updatestations.append(stat)
+                        #gtk.idle_add(self.update_track, stat, iterator)
+        
+        #print updatestations
+        #gobject.idle_add(self.updatestations, updatestations)
+        self.updatestations()
             
         
         return True
@@ -169,6 +175,30 @@ class UserInterface(object):
         self.update.set_sensitive(True)
         # do not start periodically
         return False
+    
+    def updatestations(self):
+        #print stations
+        
+        for row in self.model:
+            # go though all rows
+            statname = row[1]
+            update = row[0]
+            if update:
+                parser = None
+                for station in whatsonair.allparsers:
+                    if station.__station__ == statname:
+                        parser = station
+                station = parser()
+                try:
+                    station.feed(station.pagecontent)
+                    tr = station.currenttrack().split(' - ', 1)
+                    row[2] = tr[0]
+                    row[3] = tr[1]
+                except whatsonair.IncompatibleParser:
+                    row[2] = 'Incompatible'
+                    row[3] = 'Parser'
+                    row[0] = False
+                
 
 def main():
     """The main method - just opens the window"""
