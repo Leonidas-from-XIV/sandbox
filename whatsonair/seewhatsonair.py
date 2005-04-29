@@ -64,9 +64,9 @@ class UserInterface(object):
         
         self.update.connect("clicked", self.update_click)
         
-        self.box.attach(sw, 0, 1, 0, 1)
-        self.box.attach(self.interval, 1, 2, 1, 2)
-        self.box.attach(self.update, 1, 2, 0, 1)
+        self.box.attach(sw, 0, 2, 0, 1)
+        self.box.attach(self.interval, 0, 1, 1, 2)
+        self.box.attach(self.update, 1, 2, 1, 2)
         self.box.set_row_spacings(5)
         self.box.set_col_spacings(5)
         self.window.add(self.box)
@@ -85,15 +85,17 @@ class UserInterface(object):
         
         quest = model.get_value(iterator, 0)
         station = model.get_value(iterator, 1)
-        print station
+        #print station
         #print "Currently ", quest, " changed to ",
     
-        # do something with the value
+        # swich the value to the negative
         quest = not quest
-        #print quest
     
         # set new value
         model.set(iterator, 0, quest) 
+        
+        # update the values of this station
+        gobject.idle_add(self.updatestations)
     
     def interval_changed(self, widget, spin):
         #print widget
@@ -129,7 +131,7 @@ class UserInterface(object):
                 self.update.set_sensitive(False)
                 self.track.set_text('Updating...')
                 # use GTK pseudo threads
-                gtk.idle_add(self.update_track, station, iterator)
+                gobject.idle_add(self.update_track, station, iterator)
     
     def update_track(self, parser, iterator):
         """Universal caption updater"""
