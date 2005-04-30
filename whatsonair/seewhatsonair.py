@@ -6,21 +6,17 @@ A GUI for the WhatsOnAir backend library written using GTK+.
 This frontend is written by Leonidas, the initiator of the 
 WhatsOnAir project.
 
-It reflects the most current parsers available, although it is
-pretty minimalistic at the moment.
-
-The newer in-development GUI uses a more interesting interface
-with gtk.ListStore and gtk.SpinButton (for time intervals)"""
+The interface is pretty simple: you have a list of radio 
+stations, an interval chooser and a manual update button."""
 
 import gtk, gobject
 import whatsonair
     
 class UserInterface(object):
-    sid = None
     def __init__(self):
         self.window = gtk.Window()
         self.window.set_title("What's on Air?")
-        self.window.connect("delete_event", self.delete_event) 
+        self.window.connect('delete_event', self.delete_event) 
         
         self.box = gtk.Table()
         
@@ -37,16 +33,16 @@ class UserInterface(object):
             if i == 0:
                 renderer = gtk.CellRendererToggle()
                 renderer.connect('toggled', self.quest_toggled, self.model)
-                column = gtk.TreeViewColumn("Question", renderer, active=i)
+                column = gtk.TreeViewColumn('Question', renderer, active=i)
             elif i == 1:
                 renderer = gtk.CellRendererText()
-                column = gtk.TreeViewColumn("Station", renderer, text=i)
+                column = gtk.TreeViewColumn('Station', renderer, text=i)
             elif i == 2:
                 renderer = gtk.CellRendererText()
-                column = gtk.TreeViewColumn("Artist", renderer, text=i)
+                column = gtk.TreeViewColumn('Artist', renderer, text=i)
             elif i == 3:
                 renderer = gtk.CellRendererText()
-                column = gtk.TreeViewColumn("Title", renderer, text=i)
+                column = gtk.TreeViewColumn('Title', renderer, text=i)
             self.treeview.append_column(column)
         
         for st in whatsonair.allparsers:
@@ -60,13 +56,14 @@ class UserInterface(object):
         adj = gtk.Adjustment(value=10, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0) 
         self.interval = gtk.SpinButton(adj, 0, 0)
         self.interval.set_numeric(True)
-        adj.connect("value_changed", self.interval_changed, self.interval) 
+        adj.connect('value_changed', self.interval_changed) 
+        self.sid = gobject.timeout_add(10 * 1000, self.cyclic_update)
         
-        self.update.connect("clicked", self.update_click)
+        self.update.connect('clicked', self.update_click)
         
         self.box.attach(sw, 0, 2, 0, 1)
-        self.box.attach(self.interval, 0, 1, 1, 2)
-        self.box.attach(self.update, 1, 2, 1, 2)
+        self.box.attach(self.interval, 0, 1, 1, 2, yoptions=gtk.SHRINK)
+        self.box.attach(self.update, 1, 2, 1, 2, yoptions=gtk.SHRINK)
         self.box.set_row_spacings(5)
         self.box.set_col_spacings(5)
         self.window.add(self.box)
@@ -97,19 +94,24 @@ class UserInterface(object):
         # update the values of this station
         gobject.idle_add(self.updatestations)
     
-    def interval_changed(self, widget, spin):
+    def interval_changed(self, widget):
+        """The interval in the widget was changed.
+        So stop the current timeout-job and start a new with
+        the new timeout interval"""
         #print widget
-        new_value = int(spin.get_value())
+        new_value = int(self.interval.get_value())
         interval = new_value * 1000
-        if self.sid:
-            # stop the former microthread
-            gobject.source_remove(self.sid)
+        
+        # stop the former microthread
+        gobject.source_remove(self.sid)
+        # start the new microthread
         self.sid = gobject.timeout_add(interval, self.cyclic_update)
     
     def cyclic_update(self):
         print 'Timeout #%s' % str(self.sid)
         gobject.idle_add(self.updatestations)
         
+        # True - wait until the next timeout, False - break
         return True
         #return False
     
@@ -153,7 +155,7 @@ class UserInterface(object):
         return False
     
     def updatestations(self):
-        
+        """Updates the selected stations"""
         for row in self.model:
             # go though all rows
             statname = row[1]
