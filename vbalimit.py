@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
+"""A VisualBoyAdvance time limiter.
+Het VisualBoyAdvance from http://vba.ngemu.com/
+Look on http://www.pdroms.de/ for _legal_ GBA ROMs."""
 
 import sys, subprocess, os, pickle
 import gtk, pango, gobject
 import ctypes
 
-progpath = 'python.exe'
+progpath = r'C:\Programme\VBoy\VisualBoyAdvance.exe'
 
 def exit(process):
     """Kills a process spawned by subprocess"""
