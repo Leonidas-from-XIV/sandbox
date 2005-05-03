@@ -139,6 +139,88 @@ class Application(object):
         
             # display just a short time
             pointer += 1
+    
+    def ant(self):
+        """This demo shows a kind of snake"""
+        global lastcoords
+        # Where should the snake start?
+        lastcoords = [100, 100]
+        # how big should a snakesquare be?
+        squaresize = 10
+    
+        while True:
+            # limit to 60 fps
+            self.clock.tick(self.fps)
+            direction = random.randrange(4)
+            #0 down, 1 up, 2 left, 3 right
+        
+            # to hardcode direction
+            #direction = 2
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT:
+                    return
+                elif event.type == pyl.KEYDOWN:
+                    # quit on keyboard
+                    return
+    
+        
+            re = pygame.Rect(lastcoords, (10, 10))
+        
+            if direction == 0:
+                # 0 -down
+                if lastcoords[1] <= (self.screenheight - 10):
+                    lastcoords[1] = lastcoords[1] + 10
+                else:
+                    if verbose:
+                        print "L[1]", lastcoords[1], "Too down!"
+                    if deathtrap:
+                        sys.exit(9)
+                    else:
+                        pass
+                
+                
+            elif direction == 1:
+                # 1 -up
+                if lastcoords[1] >= 10:
+                    lastcoords[1] = lastcoords[1] - 10
+                else:
+                    if verbose:
+                        print "L[1]", lastcoords[1], "Too up!"
+                    if deathtrap:
+                        sys.exit(9)
+                    else:
+                        pass
+                
+            elif direction == 2:
+                # 2 - left
+                if lastcoords[0] >= 10:
+                    lastcoords[0] = lastcoords[0] - 10
+                else:
+                    #pass
+                    if verbose:
+                        print "L[0]", lastcoords[0], "Too left!"
+                    if deathtrap:
+                        sys.exit(9)
+                    else:
+                        pass
+                
+            elif direction == 3:
+                # 3 -right 
+                if lastcoords[0] <= self.screenwidth:
+                    lastcoords[0] = lastcoords[0] + 10
+                else:
+                    if verbose:
+                        print "L[0]", lastcoords[0], "Too right!"
+                    if deathtrap:
+                        sys.exit(9)
+                    else:
+                        pass
+        
+            pygame.draw.rect(self.background, (255, 255, 255), re, 0)
+            self.display()
+        del(lastcoords)
 
 
 # Does the demos die on small problems?
@@ -241,15 +323,15 @@ def main():
     
     if options.all or options.ant:
         if options.intro:
-            info("Ant", "A more interessting demo, ressembles Snake")
-        ant()
-        reblank(options.frameskip)
+            app.info("Ant", "A more interessting demo, ressembles Snake")
+        app.ant()
+        app.reblank(options.frameskip)
     
     if options.all or options.popsquares:
         if options.intro:
-            info("Popsquares", "The XScreenSaver Popsquares ported to Python")
+            app.info("Popsquares", "The XScreenSaver Popsquares ported to Python")
         popsquares(slow=5)
-        reblank(options.frameskip)
+        app.reblank(options.frameskip)
     
     if options.magnets:
         if options.intro:
@@ -357,7 +439,8 @@ def poplines(squaressize):
     It displays the lines between the squares.
     Usage:
         poplines((width_of_square, height_of_square))
-    """
+    
+    Move this into def popsquares"""
     squareswidth = squaressize[0]
     squaresheight = squaressize[1]
     
@@ -500,6 +583,7 @@ def multilaser(speed=5):
         pygame.display.update()
 
 def laser_nextpos(speed=1):
+    """Move into def laser?"""
     target = [0, 0]
     direction = 'right'
     while True:
@@ -530,89 +614,7 @@ def laser_nextpos(speed=1):
                 yield target
             else:
                 direction = 'right'
-    
-    
-def ant():
-    """This demo shows a kind of snake"""
-    global lastcoords
-    # Where should the snake start?
-    lastcoords = [100, 100]
-    # how big should a snakesquare be?
-    squaresize = 10
-    
-    while True:
-        # limit to 60 fps
-        clock.tick(fps)
-        direction = random.randrange(4)
-        #0 down, 1 up, 2 left, 3 right
-        
-        # to hardcode direction
-        #direction = 2
 
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT:
-                return
-            elif event.type == pyl.KEYDOWN:
-                # quit on keyboard
-                return
-    
-        
-        re = pygame.Rect(lastcoords, (10, 10))
-        
-        if direction == 0:
-            # 0 -down
-            if lastcoords[1] <= (screenheight - 10):
-                lastcoords[1] = lastcoords[1] + 10
-            else:
-                if verbose:
-                    print "L[1]", lastcoords[1], "Too down!"
-                if deathtrap:
-                    sys.exit(9)
-                else:
-                    pass
-                
-                
-        elif direction == 1:
-            # 1 -up
-            if lastcoords[1] >= 10:
-                lastcoords[1] = lastcoords[1] - 10
-            else:
-                if verbose:
-                    print "L[1]", lastcoords[1], "Too up!"
-                if deathtrap:
-                    sys.exit(9)
-                else:
-                    pass
-                
-        elif direction == 2:
-            # 2 - left
-            if lastcoords[0] >= 10:
-                lastcoords[0] = lastcoords[0] - 10
-            else:
-                #pass
-                if verbose:
-                    print "L[0]", lastcoords[0], "Too left!"
-                if deathtrap:
-                    sys.exit(9)
-                else:
-                    pass
-                
-        elif direction == 3:
-            # 3 -right 
-            if lastcoords[0] <= screenwidth:
-                lastcoords[0] = lastcoords[0] + 10
-            else:
-                if verbose:
-                    print "L[0]", lastcoords[0], "Too right!"
-                if deathtrap:
-                    sys.exit(9)
-                else:
-                    pass
-        
-        pygame.draw.rect(background, (255, 255, 255), re, 0)
-        display()
-    del(lastcoords)
 
 def axe_alaska():
     """Make that AXE Alaska Logo
