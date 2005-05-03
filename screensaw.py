@@ -16,13 +16,130 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
+class Application(object):
+    screenwidth = 680
+    screenheight = 480
+    screensize = (screenwidth, screenheight)
+    fps = 60
+    
+    def __init__(self):
+        """Internal: Prepare the system for running demos"""
+        # initialise pygame
+        pygame.init()
+    
+        # open a window
+        self.screen = pygame.display.set_mode(self.screensize)
+        # set the window title
+        pygame.display.set_caption('Screensaw ' + __version__)
+        # hide mouse
+        pygame.mouse.set_visible(False)
+    
+        # create the surface
+        self.background = pygame.Surface(self.screen.get_size())
+        # convert it to be faster
+        self.background = self.background.convert()
+        # fill it black
+        self.background.fill((0, 0, 0))
+        # create a clock to control the FPS
+        self.clock = pygame.time.Clock()
+    
+    def critter(self):
+        """Make some crittering on the screen"""
 
-screenwidth = 680
-screenheight = 480
-screensize = (screenwidth, screenheight)
-fps = 60
+        while True:
+            # limit to 60 fps
+            self.clock.tick(self.fps)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT:
+                    return
+                elif event.type == pyl.KEYDOWN:
+                    # quit on keyboard
+                    return
+    
+            # draw a line
+            startX = random.randrange(self.screenwidth)
+            startY = random.randrange(self.screenheight)
+            endX = random.randrange(self.screenwidth)
+            endY = random.randrange(self.screenheight)
+            pygame.draw.line(self.background, (255, 255, 255), (startX, startY), (endX, endY))
+        
+            self.display()
+    
+    def display(self):
+        """Displays the stuff"""
+        self.screen.blit(self.background, (0, 0))
+        pygame.display.flip()
+        
+    def reblank(self, frameskip=4):
+        """Blanks the screen
+        Can make the animation faster or slower by specifying frameskip"""
+        colors = 256 / frameskip
+        grays = range(colors)
+    
+        # black to white
+        for color in grays:
+            self.clock.tick(self.fps)
+            color = color * frameskip
+            self.background.fill((color, color, color))
+            self.display()
+        
+        grays.reverse()
+    
+        # white to black
+        for color in grays:
+            self.clock.tick(self.fps)
+            color = color * frameskip
+            self.background.fill((color, color, color))
+            self.display()
+        
+    def info(self, caption, description, slow=2):
+        """Shows the description of a demo"""
+    
+        #len of the whole text
+        lenght = len(caption) + len(description)
+    
+        # frames to end
+        end = lenght * slow
+        # current frame
+        pointer = 0
+    
+        while pointer < end:
+            self.clock.tick(self.fps)
+        
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT:
+                    return
+                elif event.type == pyl.KEYDOWN:
+                    # quit on keyboard
+                    return
+        
+            # creates the caption font
+            caption_font = pygame.font.Font(None, 50)
+            caption_size = caption_font.size(caption)
+            cpt = caption_font.render(caption, 1, (255, 255, 255))
+    
+            # creates the description font
+            description_font = pygame.font.Font(None, 22)
+            description_size = description_font.size(description)
+            dsc = description_font.render(description, 0, (255, 255, 255))
+    
+            # shows
+            #screen.blit(cpt, (caption_size[0] -100 , 40 + caption_size[1]))
+            self.screen.blit(cpt, (75 , 100))
+    
+            #screen.blit(dsc, (description_size[0] + 10, 40 + description_size[1]))
+            #screen.blit(dsc, (caption_size[0] -100, description_size[1] + 115))
+            self.screen.blit(dsc, (75, 155))
+            pygame.display.flip()
+        
+            # display just a short time
+            pointer += 1
+
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -32,30 +149,6 @@ verbose = False
 # convert deg values to rad values
 torad = lambda deg: (deg * math.pi) / 180.0
 
-def prepare():
-    """Internal: Prepare the system for running demos"""
-    # initialise pygame
-    pygame.init()
-    
-    # open a window
-    global screen
-    screen = pygame.display.set_mode(screensize)
-    # set the window title
-    pygame.display.set_caption('Screensaw ' + __version__)
-    # hide mouse
-    pygame.mouse.set_visible(0)
-    
-    # create the surface
-    global background
-    background = pygame.Surface(screen.get_size())
-    # convert it to be faster
-    background = background.convert()
-    #background = background.convert_alpha()
-    # fill it black
-    background.fill((0, 0, 0))
-    # create a clock to control the FPS
-    global clock
-    clock = pygame.time.Clock()
     
 
 def main():
@@ -126,13 +219,14 @@ def main():
     options, args = parser.parse_args()
     
     # We have to prepare display
-    prepare()
+    #prepare()
+    app = Application()
     
     # run the demos
     #print options
     if options.intro:
-        info("Screensaw " + __version__, "The Python GFX demonstration program")
-        reblank(options.frameskip)
+        app.info("Screensaw " + __version__, "The Python GFX demonstration program")
+        app.reblank(options.frameskip)
     
     if (options.critter or options.ant or options.popsquares or options.magnets
         or options.prime or options.wave or options.alaska or options.cube
@@ -141,9 +235,9 @@ def main():
     
     if options.all or options.critter:
         if options.intro:
-            info("Critter", "The first demo, a very simple one")
-        critter()
-        reblank(options.frameskip)
+            app.info("Critter", "The first demo, a very simple one")
+        app.critter()
+        app.reblank(options.frameskip)
     
     if options.all or options.ant:
         if options.intro:
@@ -192,81 +286,6 @@ def main():
         #laser(noblank=True, speed=5)
         multilaser(speed=1)
         #reblank(options.frameskip)
-    
-def display():
-    """Displays the stuff"""
-    screen.blit(background, (0, 0))
-    pygame.display.flip()
-    
-def reblank(frameskip=4):
-    """Blanks the screen
-    Can make the animation faster or slower by specifying frameskip"""
-    colors = 256 / frameskip
-    grays = range(colors)
-    
-    # black to white
-    for color in grays:
-        clock.tick(fps)
-        color = color * frameskip
-        background.fill((color, color, color))
-        display()
-        
-    grays.reverse()
-    
-    # white to black
-    for color in grays:
-        clock.tick(fps)
-        color = color * frameskip
-        background.fill((color, color, color))
-        display()
-
-def info(caption, description, slow=2):
-    """Shows the description of a demo"""
-    
-    #len of the whole text
-    lenght = len(caption) + len(description)
-    
-    # frames to end
-    end = lenght * slow
-    # current frame
-    pointer = 0
-    
-    while pointer < end:
-        clock.tick(fps)
-        
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT:
-                return
-            elif event.type == pyl.KEYDOWN:
-                # quit on keyboard
-                return
-        
-        # creates the caption font
-        caption_font = pygame.font.Font(None, 50)
-        caption_size = caption_font.size(caption)
-        cpt = caption_font.render(caption, 1, (255, 255, 255))
-    
-        # creates the description font
-        description_font = pygame.font.Font(None, 22)
-        description_size = description_font.size(description)
-        dsc = description_font.render(description, 0, (255, 255, 255))
-    
-        # shows
-        #screen.blit(cpt, (caption_size[0] -100 , 40 + caption_size[1]))
-        screen.blit(cpt, (75 , 100))
-    
-        #screen.blit(dsc, (description_size[0] + 10, 40 + description_size[1]))
-        #screen.blit(dsc, (caption_size[0] -100, description_size[1] + 115))
-        screen.blit(dsc, (75, 155))
-        pygame.display.flip()
-        
-        # display just a short time
-        pointer += 1
-        
-    
-    # replace
-    #time.sleep(2)
 
 def popsquares(slow=20):
     """POPSquares demo - like this one of XScreenSaver
@@ -594,30 +613,6 @@ def ant():
         pygame.draw.rect(background, (255, 255, 255), re, 0)
         display()
     del(lastcoords)
-
-def critter():
-    """Make some crittering on the screen"""
-
-    while True:
-        # limit to 60 fps
-        clock.tick(fps)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT:
-                return
-            elif event.type == pyl.KEYDOWN:
-                # quit on keyboard
-                return
-    
-        # draw a line
-        startX = random.randrange(screenwidth)
-        startY = random.randrange(screenheight)
-        endX = random.randrange(screenwidth)
-        endY = random.randrange(screenheight)
-        pygame.draw.line(background, (255, 255, 255), (startX, startY), (endX, endY))
-        
-        display()
 
 def axe_alaska():
     """Make that AXE Alaska Logo
