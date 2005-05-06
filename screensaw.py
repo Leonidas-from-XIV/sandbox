@@ -345,7 +345,130 @@ class Application(object):
                     # quit on keyboard
                     return
             self.display()
+    
+    def laser(self, speed=5, noblank=False):
+        """Laser demo - taken from XScreenSaver"""
+        def nextpos(speed):
+            target = [0, 0]
+            direction = 'right'
+            while True:
+                if direction == 'right':
+                    if target[0] < self.screenwidth:
+                        target[0] += speed
+                        yield target
+                    else:
+                        direction = 'down'
+                
+                if direction == 'down':
+                    if target[1] < self.screenheight:
+                        target[1] += speed
+                        yield target
+                    else:
+                        direction = 'left'
+                    
+                if direction == 'left':
+                    if target[0] > 0:
+                        target[0] -= speed
+                        yield target
+                    else:
+                        direction = 'up'
+                
+                if direction == 'up':
+                    if target[1] > 0:
+                        target[1] -= speed
+                        yield target
+                    else:
+                        direction = 'right'
+    
+        laserposition = (200, 300)
+        laserlight = (255, 0, 0)
+    
+        pos = nextpos(speed)
+    
+        while True:
+            # limit fps
+            self.clock.tick(self.fps)
 
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+        
+            if not noblank:
+                screen.fill((0, 0, 0))
+        
+            target = pos.next()
+                
+            pygame.draw.line(self.screen, laserlight, laserposition, target, 1)
+            pygame.display.update()
+
+    def multilaser(self, speed=5):
+        """Laser demo - taken from XScreenSaver"""
+    
+        laserposition = (200, 300)
+        laserlight = (255, 0, 0)
+        rays = 25
+        endcoords = []
+    
+        pos = self.laser_nextpos(speed)
+        for i in range(rays):
+            c = pos.next()
+            endcoords.append([c[0], c[1]])
+        #raise NotImplementedError
+    
+        while True:
+            # limit fps
+            self.clock.tick(self.fps)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+        
+            self.screen.fill((0, 0, 0))
+        
+            for end in endcoords:
+                pygame.draw.line(self.screen, laserlight, laserposition, end, 1)
+            #pygame.draw.line(screen, laserlight, laserposition, target, 1)
+        
+            nexttarget = pos.next()
+            endcoords.pop(0)
+            endcoords.append([nexttarget[0], nexttarget[1]])
+        
+            pygame.display.update()
+
+    def laser_nextpos(self, speed=1):
+        """Move into def laser?"""
+        target = [0, 0]
+        direction = 'right'
+        while True:
+            if direction == 'right':
+                if target[0] < self.screenwidth:
+                    target[0] += speed
+                    yield target
+                else:
+                    direction = 'down'
+                
+            if direction == 'down':
+                if target[1] < self.screenheight:
+                    target[1] += speed
+                    yield target
+                else:
+                    direction = 'left'
+                    
+            if direction == 'left':
+                if target[0] > 0:
+                    target[0] -= speed
+                    yield target
+                else:
+                    direction = 'up'
+                
+            if direction == 'up':
+                if target[1] > 0:
+                    target[1] -= speed
+                    yield target
+                else:
+                    direction = 'right'
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -459,7 +582,7 @@ def main():
     
     if options.magnets:
         if options.intro:
-            info("Magnets", "This should be a gravity demo.. unfinished")
+            app.info("Magnets", "This should be a gravity demo.. unfinished")
         app.magnets()
         reblank(options.frameskip)
         
@@ -488,134 +611,12 @@ def main():
         reblank(options.frameskip)
     if options.all or options.laser:
         if options.intro:
-            info("Laser", "Work in progress")
-        #laser(noblank=True, speed=5)
-        multilaser(speed=1)
+            app.info("Laser", "Work in progress")
+        #app.laser(noblank=True, speed=5)
+        app.multilaser(speed=1)
         #reblank(options.frameskip)
     
-def laser(speed=5, noblank=False):
-    """Laser demo - taken from XScreenSaver"""
-    def nextpos(speed):
-        target = [0, 0]
-        direction = 'right'
-        while True:
-            if direction == 'right':
-                if target[0] < screenwidth:
-                    target[0] += speed
-                    yield target
-                else:
-                    direction = 'down'
-                
-            if direction == 'down':
-                if target[1] < screenheight:
-                    target[1] += speed
-                    yield target
-                else:
-                    direction = 'left'
-                    
-            if direction == 'left':
-                if target[0] > 0:
-                    target[0] -= speed
-                    yield target
-                else:
-                    direction = 'up'
-                
-            if direction == 'up':
-                if target[1] > 0:
-                    target[1] -= speed
-                    yield target
-                else:
-                    direction = 'right'
-    
-    laserposition = (200, 300)
-    laserlight = (255, 0, 0)
-    
-    pos = nextpos(speed)
-    
-    while True:
-        # limit fps
-        clock.tick(fps)
 
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                return
-        
-        if not noblank:
-            screen.fill((0, 0, 0))
-        
-        target = pos.next()
-                
-        pygame.draw.line(screen, laserlight, laserposition, target, 1)
-        pygame.display.update()
-
-def multilaser(speed=5):
-    """Laser demo - taken from XScreenSaver"""
-    
-    laserposition = (200, 300)
-    laserlight = (255, 0, 0)
-    rays = 25
-    endcoords = []
-    
-    pos = laser_nextpos(speed)
-    for i in range(rays):
-        c = pos.next()
-        endcoords.append([c[0], c[1]])
-    #raise NotImplementedError
-    
-    while True:
-        # limit fps
-        clock.tick(fps)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                return
-        
-        screen.fill((0, 0, 0))
-        
-        for end in endcoords:
-            pygame.draw.line(screen, laserlight, laserposition, end, 1)
-        #pygame.draw.line(screen, laserlight, laserposition, target, 1)
-        
-        nexttarget = pos.next()
-        endcoords.pop(0)
-        endcoords.append([nexttarget[0], nexttarget[1]])
-        
-        pygame.display.update()
-
-def laser_nextpos(speed=1):
-    """Move into def laser?"""
-    target = [0, 0]
-    direction = 'right'
-    while True:
-        if direction == 'right':
-            if target[0] < screenwidth:
-                target[0] += speed
-                yield target
-            else:
-                direction = 'down'
-                
-        if direction == 'down':
-            if target[1] < screenheight:
-                target[1] += speed
-                yield target
-            else:
-                direction = 'left'
-                    
-        if direction == 'left':
-            if target[0] > 0:
-                target[0] -= speed
-                yield target
-            else:
-                direction = 'up'
-                
-        if direction == 'up':
-            if target[1] > 0:
-                target[1] -= speed
-                yield target
-            else:
-                direction = 'right'
 
 
 def axe_alaska():
