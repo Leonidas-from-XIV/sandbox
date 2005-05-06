@@ -313,6 +313,38 @@ class Application(object):
             poplines((squareswidth, squaresheight))
         
             self.display()
+    
+    def magnets(self):
+        """Displays some magnets"""
+        squaresize = (150, 40)
+        squarecolor = (255, 0, 255)
+        mass_upper_magnet = 2
+        mass_lower_magnet = mass_upper_magnet
+        # calculate the position of the fixed magnet
+        square_lower_position = ((self.screenwidth / 2 - squaresize[0] /2), (self.screenheight - squaresize[1]))
+        # calculate the position of the upper magnet (the movable one)
+        square_upper_position = (0, 0)
+        #print square_lower_position
+    
+        # The G Constant
+        G = 6.67 * 10-11
+        # what is 10-11?
+    
+        magnet_lower = pygame.Rect(square_lower_position, squaresize)
+        magnet_upper = pygame.Rect(square_upper_position, squaresize)
+        #print magnet_lower
+        print 'Current position of upper magnet: ', square_upper_position
+        pygame.draw.rect(self.background, squarecolor, magnet_lower)
+        pygame.draw.rect(self.background, squarecolor, magnet_upper)
+    
+        while True:
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT:
+                    return
+                elif event.type == pyl.KEYDOWN:
+                    # quit on keyboard
+                    return
+            self.display()
 
 
 # Does the demos die on small problems?
@@ -428,7 +460,7 @@ def main():
     if options.magnets:
         if options.intro:
             info("Magnets", "This should be a gravity demo.. unfinished")
-        magnets()
+        app.magnets()
         reblank(options.frameskip)
         
     if options.all or options.wave:
@@ -460,38 +492,6 @@ def main():
         #laser(noblank=True, speed=5)
         multilaser(speed=1)
         #reblank(options.frameskip)
-
-def magnets():
-    """Displays some magnets"""
-    squaresize = (150, 40)
-    squarecolor = (255, 0, 255)
-    mass_upper_magnet = 2
-    mass_lower_magnet = mass_upper_magnet
-    # calculate the position of the fixed magnet
-    square_lower_position = ((screenwidth / 2 - squaresize[0] /2), (screenheight - squaresize[1]))
-    # calculate the position of the upper magnet (the movable one)
-    square_upper_position = (0, 0)
-    #print square_lower_position
-    
-    # The G Constant
-    G = 6.67 * 10-11
-    # what is 10-11?
-    
-    magnet_lower = pygame.Rect(square_lower_position, squaresize)
-    magnet_upper = pygame.Rect(square_upper_position, squaresize)
-    #print magnet_lower
-    print 'Current position of upper magnet: ', square_upper_position
-    pygame.draw.rect(background, squarecolor, magnet_lower)
-    pygame.draw.rect(background, squarecolor, magnet_upper)
-    
-    while True:
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT:
-                return
-            elif event.type == pyl.KEYDOWN:
-                # quit on keyboard
-                return
-        display()
     
 def laser(speed=5, noblank=False):
     """Laser demo - taken from XScreenSaver"""
