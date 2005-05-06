@@ -469,6 +469,79 @@ class Application(object):
                     yield target
                 else:
                     direction = 'right'
+        
+    def sinwave(self, colorchange=False, thick=False):
+        """Draws a sine wave"""
+        # set some starting values
+        degree, linepos = 0, 0
+    
+        # the color of the points drawn.. can be even changed to archive cool
+        # color effects like a color changing wave
+        color = [255, 255, 255]
+        # white now
+        startpos, endpos = (0, self.screenheight / 2), (self.screenwidth, self.screenheight / 2)
+    
+        # draw the actual line
+        pygame.draw.line(self.background, color, startpos, endpos, 1)
+    
+        # update the display
+        self.screen.blit(self.background, (0, 0))
+        pygame.display.update()
+    
+        if colorchange:
+            # set color to blue
+            color = [0, 0, 255]
+    
+        while True:
+            # limit to 60 fps
+            self.clock.tick(self.fps)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+        
+            if linepos <= self.screenwidth:
+                if degree >= 360:
+                    # a full turnaround, reset to zero (to prevent overflows)
+                    degree = 0
+            
+                # calculate the exact sine value of that radian 
+                sinval = math.sin(torad(degree))
+                # maximize the value, and round it
+                drawval = int(round(sinval * 100))
+            
+                if colorchange:
+                    fract = drawval / 100.0
+                    fract *= 255
+                    fract = int(round(fract))
+                
+                    # changes the color of the next point
+                    color[0] = abs(fract)
+                    color[2] = 255 - abs(fract)
+        
+                # the coordinates of the next point drawn
+                pointpos = (linepos, self.screenheight / 2 - drawval)
+                # draw a pseudo line - a line with ending and starting poins being the same
+                pygame.draw.line(self.background, color, pointpos, pointpos, 1)
+                # ^^ that creates a point
+            
+                if thick:
+                    # create additional points to be thicker
+                    pointpos_upper = (pointpos[0], pointpos[1] - 1)
+                    pointpos_lower = (pointpos[0], pointpos[1] + 1)
+                    pygame.draw.line(self.background, color, pointpos_upper, pointpos_upper, 1)
+                    pygame.draw.line(self.background, color, pointpos_lower, pointpos_lower, 1)
+            
+            
+                # blit it on the screen and update the display
+                self.screen.blit(self.background, (0, 0))
+                pygame.display.update()
+        
+                # get the next degree
+                degree += 1
+                # set the y-axis point of the next point
+                linepos += 1
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -588,9 +661,9 @@ def main():
         
     if options.all or options.wave:
         if options.intro:
-            info("Wave", "Draws a neat sine wave")
-        sinwave(True, True)
-        reblank(options.frameskip)
+            app.info("Wave", "Draws a neat sine wave")
+        app.sinwave(True, True)
+        app.reblank(options.frameskip)
     
     if options.all or options.prime:
         if options.intro:
@@ -685,79 +758,6 @@ def axe_alaska():
         screen.fill((0, 0, 0))
         screen.blit(hs.surface, hs.rect)
         pygame.display.update()
-
-def sinwave(colorchange=False, thick=False):
-    """Draws a sine wave"""
-    # set some starting values
-    degree, linepos = 0, 0
-    
-    # the color of the points drawn.. can be even changed to archive cool
-    # color effects like a color changing wave
-    color = [255, 255, 255]
-    # white now
-    startpos, endpos = (0, screenheight / 2), (screenwidth, screenheight / 2)
-    
-    # draw the actual line
-    pygame.draw.line(background, color, startpos, endpos, 1)
-    
-    # update the display
-    screen.blit(background, (0, 0))
-    pygame.display.update()
-    
-    if colorchange:
-        # set color to blue
-        color = [0, 0, 255]
-    
-    while True:
-        # limit to 60 fps
-        clock.tick(fps)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                return
-        
-        if linepos <= screenwidth:
-            if degree >= 360:
-                # a full turnaround, reset to zero (to prevent overflows)
-                degree = 0
-            
-            # calculate the exact sine value of that radian 
-            sinval = math.sin(torad(degree))
-            # maximize the value, and round it
-            drawval = int(round(sinval * 100))
-            
-            if colorchange:
-                fract = drawval / 100.0
-                fract *= 255
-                fract = int(round(fract))
-                
-                # changes the color of the next point
-                color[0] = abs(fract)
-                color[2] = 255 - abs(fract)
-        
-            # the coordinates of the next point drawn
-            pointpos = (linepos, screenheight / 2 - drawval)
-            # draw a pseudo line - a line with ending and starting poins being the same
-            pygame.draw.line(background, color, pointpos, pointpos, 1)
-            # ^^ that creates a point
-            
-            if thick:
-                # create additional points to be thicker
-                pointpos_upper = (pointpos[0], pointpos[1] - 1)
-                pointpos_lower = (pointpos[0], pointpos[1] + 1)
-                pygame.draw.line(background, color, pointpos_upper, pointpos_upper, 1)
-                pygame.draw.line(background, color, pointpos_lower, pointpos_lower, 1)
-            
-            
-            # blit it on the screen and update the display
-            screen.blit(background, (0, 0))
-            pygame.display.update()
-        
-            # get the next degree
-            degree += 1
-            # set the y-axis point of the next point
-            linepos += 1
             
 def visual_prime():
     """This displays primes. Numbers being primes are black,
