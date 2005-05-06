@@ -542,6 +542,161 @@ class Application(object):
                 degree += 1
                 # set the y-axis point of the next point
                 linepos += 1
+    
+    def visual_prime(self):
+        """This displays primes. Numbers being primes are black,
+        numbers not being primes white (change this?)"""
+        import primebench
+        noprimecolor = (255, 255, 255)
+        primecolor = (0, 0, 0)
+        primecolor, noprimecolor = noprimecolor, primecolor
+    
+        # blanking
+        self.background.fill((0, 0, 0))
+        self.screen.blit(self.background, (0, 0))
+        pygame.display.update()
+    
+        for prime in primebench.rangeprime(0, self.screenwidth * self.screenheight):
+            for event in pygame.event.get():
+                    if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                        return
+        
+            # get the line of the point (y-axis)
+            line = prime/self.screenwidth
+            # get the position of the point in the line (x-axis)
+            pos = prime - line * self.screenwidth
+            coord = (pos, line)
+        
+            # drawing.. nearly as usual.. this time we use "dirty rectangles"
+            drect = pygame.draw.line(self.background, primecolor, coord, coord, 1)
+            # blit the surface on the screen
+            self.screen.blit(self.background, (0, 0))
+            # update _just_ the dirty rect... a great speedup compared to normal update
+            pygame.display.update(drect)
+            # just remove the "drect" here ^^ and you'll see
+            
+        while True:
+            # limit to 60 fps
+            self.clock.tick(self.fps)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+    
+    def cube(self, sizes=(100, 70), alpha=50, hexacol=(251, 224, 29), linecol=(0, 0, 0), pixel=1):
+        """Creates the alpha'ed hexagons, and draws some lines.
+        Ressembles the Gamecube logo, somehow."""
+    
+        # reblank the screen
+        self.screen.fill((0, 0, 0))
+    
+        # create the sprites
+        # the bigger
+        bigrad = sizes[0]
+        big = HexaSprite(radius=bigrad, color=hexacol, alpha=alpha)
+        big.move_right(self.screenwidth/2-bigrad)
+        big.move_down(self.screenheight/2-bigrad)
+        self.screen.blit(big.surface, big.rect)
+    
+        # the smaller
+        smallrad = sizes[1]
+        small = HexaSprite(radius=smallrad, color=hexacol, alpha=alpha)
+        small.move_right(self.screenwidth/2-smallrad)
+        small.move_down(self.screenheight/2-smallrad)
+        self.screen.blit(small.surface, small.rect)
+    
+        # get the coords of the center
+        center = (self.screenwidth/2, big.rect.height/2 + self.screenheight/2-bigrad)
+    
+        # get the coordinates of the ending points
+        ends = [
+            # the right end point
+            (big.rect.right, big.rect.height/2 + self.screenheight/2-bigrad),
+            # the upper left point
+            (big.rect.center[0] - big.coords[0][0], big.rect.center[1] - big.coords[2][1]),
+            # the lower left point
+            (big.rect.center[0] - big.coords[0][0], big.rect.center[1] + big.coords[2][1])
+            ]
+    
+        # draws the lines
+        for end in ends:
+            pygame.draw.line(self.screen, linecol, center, end, pixel)
+    
+        # shows it
+        pygame.display.update()
+    
+        while True:
+            # limit to 10 fps
+            self.clock.tick(10)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+    
+    def axe_alaska(self):
+        """Make that AXE Alaska Logo
+        Remember pygame coords: first x value, then y value"""
+    
+        # okay, we first need the probability
+        from entropy import Probability
+        dirchange = Probability()
+        # create X% of probability 
+        dirchange.add(True, 10)
+        dirchange.add(False, dirchange.remaining)
+
+        #white = (255, 255, 255)
+        #blue = (46, 144, 189)
+        yellow = (251, 224, 29)
+    
+        # create the sprite
+        hs = HexaSprite(radius=50, color=yellow, alpha=255)
+        #temp
+        #hs = UnsharpHexaSprite(radius=50, color=yellow, alpha=50)
+        #/temp
+        
+        # set the sprite on position
+        hs.move_right(self.screenwidth/2-50)
+        hs.move_down(self.screenheight/2-50)
+    
+        move_right = True
+        #hs.rotate(45)
+    
+        while True:
+            # limit to 60 fps
+            self.clock.tick(self.fps)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+        
+            # do we have to move right?
+            if move_right:
+                # yes... did we really moved?
+                moved = hs.move_right(2)
+                if not moved:
+                    # no, we are at the border
+                    move_right = not move_right
+                    # so change the direction
+            else:
+                moved = hs.move_left(2)
+                if not moved:
+                    move_right = not move_right
+                    continue
+        
+            hs.rotate(-7)
+        
+            # do we change the direction?
+            if dirchange.random():
+                # if true, we change, else not
+                move_right = not move_right
+        
+            # show the stuff
+            self.screen.fill((0, 0, 0))
+            self.screen.blit(hs.surface, hs.rect)
+            pygame.display.update()
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -667,193 +822,36 @@ def main():
     
     if options.all or options.prime:
         if options.intro:
-            info("Primes", "Visualizes primes")
-        visual_prime()
-        reblank(options.frameskip)
+            app.info("Primes", "Visualizes primes")
+        app.visual_prime()
+        app.reblank(options.frameskip)
     
     if options.all or options.alaska:
         if options.intro:
-            info("AXE Alaska", "Animated AXE Alaska logo")
-        axe_alaska()
-        #reblank(options.frameskip)
+            app.info("AXE Alaska", "Animated AXE Alaska logo")
+        app.axe_alaska()
+        #app.reblank(options.frameskip)
     
     if options.all or options.cube:
         if options.intro:
-            info("Cube", "Creates a kind of Gamecube logo")
-        cube()
-        reblank(options.frameskip)
+            app.info("Cube", "Creates a kind of Gamecube logo")
+        app.cube()
+        app.reblank(options.frameskip)
+        
     if options.all or options.laser:
         if options.intro:
             app.info("Laser", "Work in progress")
         #app.laser(noblank=True, speed=5)
         app.multilaser(speed=1)
         #reblank(options.frameskip)
-    
-
-
-
-def axe_alaska():
-    """Make that AXE Alaska Logo
-    Remember pygame coords: first x value, then y value"""
-    
-    # okay, we first need the probability
-    from entropy import Probability
-    dirchange = Probability()
-    # create X% of probability 
-    dirchange.add(True, 10)
-    dirchange.add(False, dirchange.remaining)
-
-    #white = (255, 255, 255)
-    #blue = (46, 144, 189)
-    yellow = (251, 224, 29)
-    
-    # create the sprite
-    hs = HexaSprite(radius=50, color=yellow, alpha=255)
-    #temp
-    #hs = UnsharpHexaSprite(radius=50, color=yellow, alpha=50)
-    #/temp
-    
-    # set the sprite on position
-    hs.move_right(screenwidth/2-50)
-    hs.move_down(screenheight/2-50)
-    
-    # blit
-    #screen.blit(hs.surface, (0, 0))
-    #pygame.display.update()
-    
-    move_right = True
-    #hs.rotate(45)
-    
-    while True:
-        # limit to 60 fps
-        clock.tick(fps)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                return
-        
-        # do we habe to move right?
-        if move_right:
-            # yes... did we really moved?
-            moved = hs.move_right(2)
-            if not moved:
-                # no, we are at the border
-                move_right = not move_right
-                # so change the direction
-        else:
-            moved = hs.move_left(2)
-            if not moved:
-                move_right = not move_right
-                continue
-        
-        hs.rotate(-7)
-        
-        # do we change the direction?
-        if dirchange.random():
-            # if true, we change, else not
-            move_right = not move_right
-        
-        # show the stuff
-        screen.fill((0, 0, 0))
-        screen.blit(hs.surface, hs.rect)
-        pygame.display.update()
-            
-def visual_prime():
-    """This displays primes. Numbers being primes are black,
-    numbers not being primes white (change this?)"""
-    import primebench
-    noprimecolor = (255, 255, 255)
-    primecolor = (0, 0, 0)
-    primecolor, noprimecolor = noprimecolor, primecolor
-    
-    # blanking
-    background.fill((0, 0, 0))
-    screen.blit(background, (0, 0))
-    pygame.display.update()
-    
-    for prime in primebench.rangeprime(0, screenwidth * screenheight):
-        for event in pygame.event.get():
-                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                    return
-        
-        # get the line of the point (y-axis)
-        line = prime/screenwidth
-        # get the position of the point in the line (x-axis)
-        pos = prime - line * screenwidth
-        coord = (pos, line)
-        
-        # drawing.. nearly as usual.. this time we use "dirty rectangles"
-        drect = pygame.draw.line(background, primecolor, coord, coord, 1)
-        # blit the surface on the screen
-        screen.blit(background, (0, 0))
-        # update _just_ the dirty rect... a great speedup compared to normal update
-        pygame.display.update(drect)
-        # just remove the "drect" here ^^ and you'll see
-            
-    while True:
-        # limit to 60 fps
-        clock.tick(fps)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                return
-
-def cube(sizes=(100, 70), alpha=50, hexacol=(251, 224, 29), linecol=(0, 0, 0), pixel=1):
-    """Creates the alpha'ed hexagons, and draws some lines.
-    Ressembles the Gamecube logo, somehow."""
-    
-    # reblank the screen
-    screen.fill((0, 0, 0))
-    
-    # create the sprites
-    # the bigger
-    bigrad = sizes[0]
-    big = HexaSprite(radius=bigrad, color=hexacol, alpha=alpha)
-    big.move_right(screenwidth/2-bigrad)
-    big.move_down(screenheight/2-bigrad)
-    screen.blit(big.surface, big.rect)
-    
-    # the smaller
-    smallrad = sizes[1]
-    small = HexaSprite(radius=smallrad, color=hexacol, alpha=alpha)
-    small.move_right(screenwidth/2-smallrad)
-    small.move_down(screenheight/2-smallrad)
-    screen.blit(small.surface, small.rect)
-    
-    # get the coords of the center
-    center = (screenwidth/2, big.rect.height/2 + screenheight/2-bigrad)
-    
-    # get the coordinates of the ending points
-    ends = [
-        # the right end point
-        (big.rect.right, big.rect.height/2 + screenheight/2-bigrad),
-        # the upper left point
-        (big.rect.center[0] - big.coords[0][0], big.rect.center[1] - big.coords[2][1]),
-        # the lower left point
-        (big.rect.center[0] - big.coords[0][0], big.rect.center[1] + big.coords[2][1])
-        ]
-    
-    # draws the lines
-    for end in ends:
-        pygame.draw.line(screen, linecol, center, end, pixel)
-    
-    # shows it
-    pygame.display.update()
-    
-    while True:
-        # limit to 10 fps
-        clock.tick(10)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
-                return
 
 class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
     lastdegree = 0
+    # hack
+    screenwidth = 640
+    screenheight = 480
+    # /hack
     def __init__(self, radius, color, alpha=255):
         """Create a blabal"""
         pygame.sprite.Sprite.__init__(self)
@@ -913,14 +911,14 @@ class HexaSprite(pygame.sprite.Sprite):
             return False
     
     def move_down(self, pixels=1):
-        if self.rect.bottom < screenheight:
+        if self.rect.bottom < self.screenheight:
             self.rect.top += pixels
             return True
         else:
             return False
         
     def move_right(self, pixels=1):
-        if self.rect.right < screenwidth:
+        if self.rect.right < self.screenwidth:
             self.rect.left += pixels
             return True
         else:
@@ -955,7 +953,7 @@ class HexaSprite(pygame.sprite.Sprite):
 
 class UnsharpHexaSprite(HexaSprite):
     """This child class represents a fuzzy hexagon"""
-    def __init__(self, radius, color, alpha=50, gradient = (0, 10, 2)):
+    def __init__(self, radius, color, alpha=50, gradient=(0, 10, 2)):
         """Constructs the hexagon.
         radius is obvious, color should also be.
         alpha is the alpha level each laver has (they sum)
