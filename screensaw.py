@@ -221,6 +221,96 @@ class Application(object):
             pygame.draw.rect(self.background, (255, 255, 255), re, 0)
             self.display()
         del(lastcoords)
+    
+    def poplines(self, squaressize):
+        """This is not a demo - this is a helper to popsquares
+        It displays the lines between the squares.
+        Usage:
+            poplines((width_of_square, height_of_square))
+    
+        Move this into def popsquares"""
+        squareswidth = squaressize[0]
+        squaresheight = squaressize[1]
+    
+        # the color of the lines - blue
+        linecolor = (0, 0, 255)
+    
+        # display the vertical lines
+        for line in xrange((self.screenwidth / squareswidth) -1):
+            line += 1
+            startX = line * squareswidth
+            pygame.draw.line(self.background, linecolor, (startX, 0), (startX, self.screenheight))
+        # display the horizontal lines
+        for line in xrange((self.screenheight / squaresheight) -1):
+            line += 1
+            startY = line * squaresheight
+            pygame.draw.line(self.background, linecolor, (0, startY), (self.screenwidth, startY))
+        self.display()
+    
+    def popsquares(self, slow=20):
+        """POPSquares demo - like this one of XScreenSaver
+        It can be made faster or slower by setting slow.
+        The higher slow is, the slower the demo.
+        You should use values between 1 and 60 or let the default: 20."""
+        squaresheight = self.screenheight / 5
+        squareswidth = self.screenwidth / 5
+    
+        # test the input
+        if slow == 0:
+            raise ZeroDivisionError("You should take values higher than zero, Sai.")
+    
+        # we have to prepare the initial popsquares
+        prepared = False
+        while not prepared:
+            # the squares in a line
+            for yposition in xrange(self.screenheight / squaresheight):
+                ycoords = yposition * squaresheight
+            
+                # the positions of the squares in the line
+                for xposition in xrange(self.screenwidth / squareswidth):
+                    bluecolor = random.randrange(250)
+                    xcoord = xposition * squareswidth
+                    re = pygame.Rect((xcoord, ycoords), (squareswidth, squaresheight))
+                    pygame.draw.rect(self.background, (0, 0, bluecolor), re, 0)
+        
+            # create the lines
+            self.poplines((squareswidth, squaresheight))
+            # we're done with preparation
+            prepared = True
+    
+        # start animation
+        while True:
+            # limit fps - here's the speed defined
+            self.clock.tick(self.fps / slow)
+        
+            #the color of the square
+            bluecolor = random.randrange(250)
+        
+            # which square in line
+            xposition = random.randrange(self.screenwidth / squareswidth)
+            # which square in row
+            yposition = random.randrange(self.screenheight / squaresheight)
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT:
+                    return
+                elif event.type == pyl.KEYDOWN:
+                    # quit on keyboard
+                    return
+    
+            # calculate the coords of the squares
+            xcoord = xposition * squareswidth
+            ycoord = yposition * squaresheight
+        
+
+            re = pygame.Rect((xcoord, ycoord), (squareswidth, squaresheight))
+            pygame.draw.rect(self.background, (0, 0, bluecolor), re, 0)
+        
+            # redraw the lines (because the lines are overlaped by the new squares)
+            self.poplines((squareswidth, squaresheight))
+        
+            self.display()
 
 
 # Does the demos die on small problems?
@@ -330,7 +420,7 @@ def main():
     if options.all or options.popsquares:
         if options.intro:
             app.info("Popsquares", "The XScreenSaver Popsquares ported to Python")
-        popsquares(slow=5)
+        app.popsquares(slow=5)
         app.reblank(options.frameskip)
     
     if options.magnets:
@@ -368,96 +458,6 @@ def main():
         #laser(noblank=True, speed=5)
         multilaser(speed=1)
         #reblank(options.frameskip)
-
-def popsquares(slow=20):
-    """POPSquares demo - like this one of XScreenSaver
-    It can be made faster or slower by setting slow.
-    The higher slow is, the slower the demo.
-    You should use values between 1 and 60 or let the default: 20."""
-    squaresheight = screenheight / 5
-    squareswidth = screenwidth / 5
-    
-    # test the input
-    if slow == 0:
-        raise ZeroDivisionError("You should take values higher than zero, Sai.")
-    
-    # we have to prepare the initial popsquares
-    prepared = False
-    while not prepared:
-        # the squares in a line
-        for yposition in xrange(screenheight / squaresheight):
-            ycoords = yposition * squaresheight
-            
-            # the positions of the squares in the line
-            for xposition in xrange(screenwidth / squareswidth):
-                bluecolor = random.randrange(250)
-                xcoord = xposition * squareswidth
-                re = pygame.Rect((xcoord, ycoords), (squareswidth, squaresheight))
-                pygame.draw.rect(background, (0, 0, bluecolor), re, 0)
-        
-        # create the lines
-        poplines((squareswidth, squaresheight))
-        # we're done with preparation
-        prepared = True
-    
-    # start animation
-    while True:
-        # limit fps - here's the speed defined
-        clock.tick(fps / slow)
-        
-        #the color of the square
-        bluecolor = random.randrange(250)
-        
-        # which square in line
-        xposition = random.randrange(screenwidth / squareswidth)
-        # which square in row
-        yposition = random.randrange(screenheight / squaresheight)
-
-        # handle events
-        for event in pygame.event.get():
-            if event.type == pyl.QUIT:
-                return
-            elif event.type == pyl.KEYDOWN:
-                # quit on keyboard
-                return
-    
-        # calculate the coords of the squares
-        xcoord = xposition * squareswidth
-        ycoord = yposition * squaresheight
-        
-
-        re = pygame.Rect((xcoord, ycoord), (squareswidth, squaresheight))
-        pygame.draw.rect(background, (0, 0, bluecolor), re, 0)
-        
-        # redraw the lines (because the lines are overlaped by the new squares)
-        poplines((squareswidth, squaresheight))
-        
-        display()
-        
-def poplines(squaressize):
-    """This is not a demo - this is a helper to popsquares
-    It displays the lines between the squares.
-    Usage:
-        poplines((width_of_square, height_of_square))
-    
-    Move this into def popsquares"""
-    squareswidth = squaressize[0]
-    squaresheight = squaressize[1]
-    
-    # the color of the lines - blue
-    linecolor = (0, 0, 255)
-    
-    # display the vertical lines
-    for line in xrange((screenwidth / squareswidth) -1):
-        line += 1
-        startX = line * squareswidth
-        pygame.draw.line(background, linecolor, (startX, 0), (startX, screenheight))
-    # display the horizontal lines
-    for line in xrange((screenheight / squaresheight) -1):
-        line += 1
-        startY = line * squaresheight
-        pygame.draw.line(background, linecolor, (0, startY), (screenwidth, startY))
-    display()
 
 def magnets():
     """Displays some magnets"""
