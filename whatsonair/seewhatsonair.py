@@ -9,8 +9,11 @@ WhatsOnAir project.
 The interface is pretty simple: you have a list of radio 
 stations, an interval chooser and a manual update button."""
 
+import pickle
 import gtk, gobject
 import whatsonair
+
+picklefile = 'seewhatsonair.pickle'
     
 class UserInterface(object):
     def __init__(self):
@@ -45,9 +48,25 @@ class UserInterface(object):
                 column = gtk.TreeViewColumn('Title', renderer, text=i)
             self.treeview.append_column(column)
         
+        # load
+        try:
+            f = file(picklefile, 'r')
+            states = pickle.load(f)
+            f.close()
+        except IOError:
+            # file not found
+            # so make a dictionary where all values are False
+            states = {}
+            for st in whatsonair.allparsers:
+                states[st.__station__] = False
+        
+        
         for st in whatsonair.allparsers:
             iterator = self.model.append()
             self.model.set_value(iterator, 1, st.__station__)
+            
+            #load
+            self.model.set_value(iterator, 0, states[st.__station__])
         
         
         self.track = gtk.Label('Click on Update')
@@ -72,6 +91,14 @@ class UserInterface(object):
     
     def delete_event(self, widget, event, data=None):
         """Window closing"""
+        # save the checked stations
+        states = {}
+        for station in self.model:
+            states[station[1]] = station[0]
+        f = file(picklefile, 'w')
+        pickle.dump(states, f, pickle.HIGHEST_PROTOCOL)
+        f.close()
+        
         gtk.main_quit()
         return False
     
