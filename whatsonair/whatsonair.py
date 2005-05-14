@@ -23,7 +23,7 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
 
 # http://www.energy.de/static/ticker/titel_muc.swf
 
-__version__ = '0.8.5'
+__version__ = '0.8.6'
 
 def splitver(version):
     """Splits the string representation of the version into a tuple form,
@@ -561,8 +561,8 @@ class EinsLiveParser(StationBase):
             result = result[1].split('</TD></TR><TR><TD valign="top"')
             track = result[0].split('</TD><TD valign="top" class="contbold">')
             if len(track) > 1:
-                track[0].relpace('&nbsp;', '')
-                track[1].relpace('&nbsp;', '')
+                track[0] = track[0].replace('&nbsp;', '')
+                track[1] = track[1].replace('&nbsp;', '')
                 self.artist, self.title = track[0], self.capstext(track[1])
                 # else: no song now
         except:
