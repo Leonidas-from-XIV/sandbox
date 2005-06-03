@@ -22,6 +22,7 @@ class Application(object):
     screenwidth = 680
     screenheight = 480
     screensize = (screenwidth, screenheight)
+    clamp_window = pyl.Rect(0, 0, screenwidth, screenheight)
     fps = 60
     
     def __init__(self):
@@ -638,6 +639,16 @@ class Application(object):
     def axe_alaska(self):
         """Make that AXE Alaska Logo
         Remember pygame coords: first x value, then y value"""
+        
+        def changed(move_def, pixels=1):
+            # create a copy of the rect
+            r = hs.rect
+            # move
+            move_def(pixels)
+            # clamp it into the main window
+            hs.rect = hs.rect.clamp(self.clamp_window)
+            # check whether it was moved
+            return r == hs.rect
     
         # okay, we first need the probability
         from entropy import Probability
@@ -675,13 +686,13 @@ class Application(object):
             # do we have to move right?
             if move_right:
                 # yes... did we really moved?
-                moved = hs.move_right(2)
+                moved = changed(hs.move_right, 2)
                 if not moved:
                     # no, we are at the border
                     move_right = not move_right
                     # so change the direction
             else:
-                moved = hs.move_left(2)
+                moved = changed(hs.move_left, 2)
                 if not moved:
                     move_right = not move_right
                     continue
@@ -705,8 +716,6 @@ verbose = False
 
 # convert deg values to rad values
 torad = lambda deg: (deg * math.pi) / 180.0
-
-    
 
 def main():
     """Starts the demos""" 
@@ -848,10 +857,6 @@ def main():
 class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
     lastdegree = 0
-    # hack
-    screenwidth = 640
-    screenheight = 480
-    # /hack
     def __init__(self, radius, color, alpha=255):
         """Create a blabal"""
         pygame.sprite.Sprite.__init__(self)
@@ -904,6 +909,7 @@ class HexaSprite(pygame.sprite.Sprite):
     def move_up(self, pixels=1):
         """Moving up...
         returns true if succeeded"""
+        
         if self.rect.top > 0:
             self.rect.top -= pixels
             return True
@@ -911,25 +917,13 @@ class HexaSprite(pygame.sprite.Sprite):
             return False
     
     def move_down(self, pixels=1):
-        if self.rect.bottom < self.screenheight:
-            self.rect.top += pixels
-            return True
-        else:
-            return False
+        self.rect.top += pixels
         
     def move_right(self, pixels=1):
-        if self.rect.right < self.screenwidth:
-            self.rect.left += pixels
-            return True
-        else:
-            return False
+        self.rect.left += pixels
     
     def move_left(self, pixels=1):
-        if self.rect.left > 0:
-            self.rect.left -= pixels
-            return True
-        else:
-            return False
+        self.rect.left -= pixels
     
     def rotate(self, degree):
         """Rotates the object"""
