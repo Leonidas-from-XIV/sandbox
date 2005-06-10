@@ -50,12 +50,26 @@ class MainWindow(object):
     
     def choosecolor(self, widget):
         self.colorseldlg = gtk.ColorSelectionDialog('Choose Hair Color')
+        colorsel = self.colorseldlg.colorsel
+        colorsel.set_has_opacity_control(False)
+        colorsel.set_has_palette(False)
         button = self.colorseldlg.run()
 
         if button == gtk.RESPONSE_OK:
+            self.color_changed()
             self.colorseldlg.hide()
         else:
             self.colorseldlg.hide()
+    
+    def color_changed(self):
+        color = self.colorseldlg.colorsel.get_current_color() 
+        
+        hexcolor = '#'+(hex(color.red)+'0')[2:4] \
+            +(hex(color.green)+'0')[2:4] \
+            +(hex(color.blue)+'0')[2:4]
+        hexcolor = hexcolor.upper()
+        return hexcolor
+    
     
     def load(self):
         self.liststore.append(['Jenny', '#FBFF89'])
