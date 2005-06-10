@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
+import pickle
 import gtk
 
 class MainWindow(object):
@@ -7,6 +8,7 @@ class MainWindow(object):
         self.window = gtk.Window()
         self.window.set_title('Haircolor')
         self.window.connect('delete_event', gtk.main_quit)
+        self.window.set_size_request(200, 200)
         
         self.box = gtk.Table()
         
@@ -19,9 +21,6 @@ class MainWindow(object):
         self.treeview = gtk.TreeView(self.liststore)
         self.tvcolumn1 = gtk.TreeViewColumn('Name')
         self.tvcolumn2 = gtk.TreeViewColumn('Haarfarbe')
-        
-        self.liststore.append(['Open', 'green'])
-        self.liststore.append(['Open', '#000000'])
         
         self.treeview.append_column(self.tvcolumn1)
         self.treeview.append_column(self.tvcolumn2)
@@ -43,7 +42,10 @@ class MainWindow(object):
         self.box.attach(self.colorbutton, 0, 2, 1, 2)
         
         self.window.add(self.box)
+        
+        self.load()
         self.window.show_all()
+        
         
     
     def choosecolor(self, widget):
@@ -56,7 +58,8 @@ class MainWindow(object):
             self.colorseldlg.hide()
     
     def load(self):
-        self.model.append(['n', 'm'])
+        self.liststore.append(['Jenny', '#FBFF89'])
+        self.liststore.append(['Svetla', '#251832'])
         
     def save(self):
         pass
