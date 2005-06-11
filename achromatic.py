@@ -8,7 +8,7 @@ class MainWindow(object):
         # Create a window
         self.window = gtk.Window()
         # set the window title
-        self.window.set_title('Haircolor')
+        self.window.set_title('Achromatic')
         # add a callback for exiting
         self.window.connect('delete_event', self.quit)
         # resize window
@@ -24,7 +24,7 @@ class MainWindow(object):
         
         self.treeview = gtk.TreeView(self.liststore)
         self.tvcolumn1 = gtk.TreeViewColumn('Name')
-        self.tvcolumn2 = gtk.TreeViewColumn('Haarfarbe')
+        self.tvcolumn2 = gtk.TreeViewColumn('Farbe')
         self.treeview.connect('button_press_event', self.treeview_event)
         
         self.treeview.append_column(self.tvcolumn1)
@@ -68,7 +68,7 @@ class MainWindow(object):
             self.backend = PickleBackend()
     
     def choosecolor(self, widget):
-        self.colorseldlg = gtk.ColorSelectionDialog('Choose Hair Color')
+        self.colorseldlg = gtk.ColorSelectionDialog('Choose Color')
         colorsel = self.colorseldlg.colorsel
         
         color = self.current_col()[1]
@@ -101,7 +101,6 @@ class MainWindow(object):
         gtk.main_quit()
     
     def load(self):
-        print self.backend
         vals = self.backend.load()
         
         if vals != {}:
@@ -178,7 +177,7 @@ class MainWindow(object):
         local_entry1 = gtk.Entry()
         table.attach(local_entry1, 1, 2, 0, 1)
     
-        label = gtk.Label("Haarfarbe:")
+        label = gtk.Label("Farbe:")
         table.attach(label, 0, 1, 1, 2)
         local_entry2 = gtk.Entry()
         table.attach(local_entry2, 1, 2, 1, 2)
@@ -215,7 +214,7 @@ class Backend(object):
         pass
     
 class PickleBackend(Backend):
-    picklefile = 'haircolor.pickle'
+    picklefile = 'achromatic.pickle'
     
     def __init__(self):
         import pickle
@@ -236,7 +235,7 @@ class PickleBackend(Backend):
         f.close()
 
 class SQLiteBackend(Backend):
-    dbfile = 'haircolor.sqlite'
+    dbfile = 'achromatic.sqlite'
     
     def __init__(self):
         from pysqlite2 import dbapi2 as sqlite

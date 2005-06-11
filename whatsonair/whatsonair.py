@@ -22,6 +22,8 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'EnergyBerlin': 'http://213.200.64.229/freestream/download/energy/berlin/start.html'}
 
 # http://www.energy.de/static/ticker/titel_muc.swf
+# http://www.energy.de/static/ticker/write_titel.phtml
+# ^^ thx to Packetyzer and ethereal engine
 
 __version__ = '0.8.6'
 
