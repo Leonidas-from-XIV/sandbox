@@ -55,9 +55,17 @@ class MainWindow(object):
         
         self.window.add(self.box)
         
+        self.choosebackend()
         self.load()
-        self.window.show_all()
         
+        self.window.show_all()
+    
+    def choosebackend(self):
+        """Selects the backend and sets it"""
+        try:
+            self.backend = SQLiteBackend()
+        except:
+            self.backend = PickleBackend()
     
     def choosecolor(self, widget):
         self.colorseldlg = gtk.ColorSelectionDialog('Choose Hair Color')
@@ -93,15 +101,14 @@ class MainWindow(object):
         gtk.main_quit()
     
     def load(self):
-        try:
-            f = file(picklefile, 'r')
-            vals = pickle.load(f)
-            f.close()
+        print self.backend
+        vals = self.backend.load()
         
+        if vals != {}:
             for key in vals.keys():
                 l = [key, vals[key]]
                 self.liststore.append(l)
-        except IOError:
+        else:
             self.liststore.append(['Jenny', '#FBFF89'])
             self.liststore.append(['Svetla', '#251832'])
         
@@ -111,10 +118,7 @@ class MainWindow(object):
             name, color = i
             vals[name] = color
         
-        # Save to a picklefile
-        f = file(picklefile, 'w')
-        pickle.dump(vals, f)
-        f.close()
+        self.backend.save(vals)
         
     
     def current_col(self):
@@ -234,11 +238,49 @@ class PickleBackend(Backend):
 class SQLiteBackend(Backend):
     dbfile = 'haircolor.sqlite'
     
+    def __init__(self):
+        from pysqlite2 import dbapi2 as sqlite
+        self.sqlite = sqlite
+        
+        self.con = sqlite.connect(self.dbfile)
+        self.cur = self.con.cursor()
+        self.cur.execute("SELECT * FROM sqlite_master WHERE type='table' AND name='colors'")
+        found = self.cur.fetchall()
+        if found == []:
+            # create table
+            self.cur.execute("CREATE TABLE colors (name TEXT, color TEXT)")
+            self.con.commit()
+
+    def load(self):
+        self.cur.execute("SELECT * FROM colors")
+        vals = self.cur.fetchall()
+        if vals == []:
+            return {}
+        else:
+            data = {}
+            for name, color in vals:
+                name, color = str(name), str(color)
+                data[name] = color
+            return data
+    
+    def save(self, values):
+        # first delete all old records
+        self.cur.execute("DELETE FROM colors")
+        
+        for key in values.keys():
+            color = values[key]
+            cmd = "INSERT INTO colors (name,color) values ('%(key)s','%(color)s')" % locals()
+            #cmd = "INSERT INTO colors (name,color) VALUES (%s,%s)"
+            #print cmd
+            #self.cur.execute(cmd, locals())
+            self.cur.execute(cmd)
+        
+        self.con.commit()
 
 def main():
-    #MainWindow()
-    #gtk.main()
-    print PickleBackend().load()
+    MainWindow()
+    gtk.main()
+    
 
 if __name__ == '__main__':
     main()
