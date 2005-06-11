@@ -21,6 +21,7 @@ class MainWindow(object):
         self.treeview = gtk.TreeView(self.liststore)
         self.tvcolumn1 = gtk.TreeViewColumn('Name')
         self.tvcolumn2 = gtk.TreeViewColumn('Haarfarbe')
+        self.treeview.connect('button_press_event', self.treeview_event)
         
         self.treeview.append_column(self.tvcolumn1)
         self.treeview.append_column(self.tvcolumn2)
@@ -37,6 +38,10 @@ class MainWindow(object):
         
         self.colorbutton = gtk.Button('Color')
         self.colorbutton.connect('clicked', self.choosecolor)
+        
+        self.addbutton = gtk.Button('Add')
+        #self.colorbutton.connect('clicked', self.choosecolor)
+        self.removebutton = gtk.Button('Remove')
 
         self.box.attach(sw, 0, 1, 0, 1)
         self.box.attach(self.colorbutton, 0, 2, 1, 2)
@@ -61,7 +66,9 @@ class MainWindow(object):
         button = self.colorseldlg.run()
 
         if button == gtk.RESPONSE_OK:
-            self.color_changed()
+            color = self.color_changed()
+            current_col = self.current_col()
+            current_col[1] = color
             self.colorseldlg.hide()
         else:
             self.colorseldlg.hide()
@@ -94,6 +101,26 @@ class MainWindow(object):
         
         #print self.liststore[selected]
         return self.liststore[selected]
+    
+    def treeview_event(self, treeview, event):
+        if event.button == 1:
+            x = int(event.x)
+            y = int(event.y)
+            pthinfo = treeview.get_path_at_pos(x, y)
+            if pthinfo != None:
+                current_col = self.current_col()
+                print current_col[1]
+                #self.colorbutton.set_bg_color('red')
+                self.change_button_color(current_col[1])
+    
+    def change_button_color(self, color):
+        """Changes the color of the button"""
+        style = self.colorbutton.get_style().copy()
+        cm = self.colorbutton.get_colormap()
+        bgc = cm.alloc_color(color)
+        style.bg[gtk.STATE_NORMAL] = bgc
+        self.colorbutton.set_style(style) 
+                
 
 def main():
     MainWindow()
