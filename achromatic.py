@@ -14,33 +14,46 @@ class MainWindow(object):
         # resize window
         self.window.set_size_request(400, 200)
         
+        # a layout manager (we have to change this)
         self.box = gtk.Table()
         
+        # create a scrolledwindow, so the content can be scrolled
         sw = gtk.ScrolledWindow()
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         
+        # a liststoe
         self.liststore = gtk.ListStore(str, str)
-        
+        # a treeview
         self.treeview = gtk.TreeView(self.liststore)
+        # some columns
         self.tvcolumn1 = gtk.TreeViewColumn('Name')
         self.tvcolumn2 = gtk.TreeViewColumn('Farbe')
-        self.treeview.connect('button_press_event', self.treeview_event)
+        # the clicked event
+        self.treeview.connect('button_press_event', self.treeview_click)
         
+        # add these columns
         self.treeview.append_column(self.tvcolumn1)
         self.treeview.append_column(self.tvcolumn2)
+        # add the treeview to the ScrolledWindow
         sw.add(self.treeview)
         
+        # the cell renderers for text entries
         self.cell1 = gtk.CellRendererText()
         self.cell2 = gtk.CellRendererText()
         
+        # add them to the columns
         self.tvcolumn1.pack_start(self.cell1, True)
         self.tvcolumn2.pack_start(self.cell2, True)
         
+        # set the attributes of the collumns
+        # first one is the text
         self.tvcolumn1.set_attributes(self.cell1, text=0)
+        # second one just background color
         self.tvcolumn2.set_attributes(self.cell2, background=1)
         
-        self.colorbutton = gtk.Button('Color')
+        # a button
+        self.colorbutton = gtk.Button('_Farbe')
         self.colorbutton.connect('clicked', self.choosecolor)
         
         self.addbutton = gtk.Button(stock=gtk.STOCK_ADD)
@@ -126,7 +139,7 @@ class MainWindow(object):
 
         return self.liststore[selected]
     
-    def treeview_event(self, treeview, event):
+    def treeview_click(self, treeview, event):
         if event.button == 1:
             x = int(event.x)
             y = int(event.y)
@@ -149,9 +162,6 @@ class MainWindow(object):
         if result != ['', '']:
             #self.liststore.append(['Niemand', '#FFFFFF'])
             self.liststore.append(result)
-            
-        for i in self.liststore:
-            print i
     
     def input(self):
         dialog = gtk.Dialog("Input", self.window, 0,
@@ -180,16 +190,38 @@ class MainWindow(object):
         label = gtk.Label("Farbe:")
         table.attach(label, 0, 1, 1, 2)
         local_entry2 = gtk.Entry()
+        local_entry2.set_text('#')
         table.attach(local_entry2, 1, 2, 1, 2)
     
         dialog.show_all()
         
-        response = dialog.run()
+        # Run the dialog as long as we get wrong entries
+        goodentry = False
+        while not goodentry:
+            response = dialog.run()
         
-        result = ['', '']
-        if response == gtk.RESPONSE_OK:
-            result = [local_entry1.get_text(),
-                local_entry2.get_text().upper()]
+            result = ['', '']
+            if response == gtk.RESPONSE_OK:
+                name = local_entry1.get_text()
+                color = local_entry2.get_text().upper()
+                try:
+                    gtk.gdk.color_parse(color)
+                    result = [name, color]
+                    goodentry = True
+                except ValueError:
+                    # not a Hexcolor
+                    d = gtk.MessageDialog(dialog, gtk.DIALOG_MODAL, 
+                        gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, 
+                        'Die angegebene Farbe wurde nicht gefunden. Sie sollte im #RRGGBB-Format sein')
+                
+                    # show the error
+                    d.run()
+                    # destroy the messagebox
+                    d.destroy()
+                    local_entry2.set_text('#')
+                    
+            elif response == gtk.RESPONSE_CANCEL:
+                goodentry = True
         
         dialog.destroy()
         return result
