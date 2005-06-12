@@ -4,7 +4,7 @@
 import qt
 
 for name in dir(qt):
-    if name.startswith('q') or name.startswith('Q'):
+    if name.startswith('q') or name.startswith('Q') and not name == 'Qt':
         globals()[name[1:]] = getattr(qt, name)
     else:
         globals()[name] = getattr(qt, name)
