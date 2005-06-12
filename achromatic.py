@@ -14,8 +14,9 @@ class MainWindow(object):
         # resize window
         self.window.set_size_request(400, 200)
         
-        # a layout manager (we have to change this)
-        self.box = gtk.Table()
+        # the layout managers
+        self.vbox = gtk.VBox()
+        self.hbox = gtk.HBox()
         
         # create a scrolledwindow, so the content can be scrolled
         sw = gtk.ScrolledWindow()
@@ -61,12 +62,13 @@ class MainWindow(object):
         self.removebutton = gtk.Button(stock=gtk.STOCK_REMOVE)
         self.removebutton.connect('clicked', self.removeentry)
 
-        self.box.attach(sw, 0, 3, 0, 1)
-        self.box.attach(self.addbutton, 0, 1, 1, 2)
-        self.box.attach(self.removebutton, 1, 2, 1, 2)
-        self.box.attach(self.colorbutton, 2, 3, 1, 2)
+        self.vbox.pack_start(sw, True, True)
+        self.vbox.pack_start(self.hbox, False, False)
+        self.hbox.pack_start(self.addbutton)
+        self.hbox.pack_start(self.removebutton)
+        self.hbox.pack_start(self.colorbutton)
         
-        self.window.add(self.box)
+        self.window.add(self.vbox)
         
         self.choosebackend()
         self.load()
