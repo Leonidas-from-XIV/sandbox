@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
+"""SQLatorD - the SQLator daemon
+A XML-RPC server for the SQLite database"""
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from pysqlite2 import dbapi2 as sqlite
 
