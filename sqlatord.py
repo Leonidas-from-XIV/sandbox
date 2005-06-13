@@ -14,12 +14,13 @@ class SQLServer(object):
         self.cur = self.con.cursor()
         
     def execute(self, sql):
+        print sql
         self.cur.execute(sql)
         return self.cur.fetchall()
 
 def main():
     sqls = SQLServer()
-    server = SimpleXMLRPCServer(("localhost", 8080))
+    server = SimpleXMLRPCServer(('', 8080))
     server.register_function(sqls.execute)
     server.serve_forever()
 
