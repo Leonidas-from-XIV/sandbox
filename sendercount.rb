@@ -17,8 +17,9 @@ def main()
     w.loadsettings
     
     w.analyze
-    w.authors?
-    
+    w.initsenders
+    w.author_mails_init
+    w.author_mails
     
     # show all unknown adresses
     #w.showunknown
@@ -31,11 +32,11 @@ class Worker
     
     def initialize
         # prepare the counter - set to empty
-        @counter = {}
         @maildirpath = ''
         @known = {}
         @ignore = []
         @mails = []
+        @senders = {}
     end
     
     def analyze
@@ -45,7 +46,7 @@ class Worker
         mailfiles = Dir.glob('*')
     
         # go through all found mails
-        for mail in mailfiles[0..2]
+        for mail in mailfiles#[0..2]
             # open them
             f = File.new(mail, 'r')
             m = MailParser.parse_message f
@@ -57,10 +58,48 @@ class Worker
         end
     end
     
-    def authors?
-        p @known
-        for mail in @mails
-            p mail
+    def initsenders
+        for key in @known.keys
+            s = Sender.new
+            @known[key]
+            @known[key].each { |i| s.addadress(i) }
+            @senders[key] = s
+        end
+    end
+    
+    def author_mails_init
+        authors = {}
+        for m in @mails
+            if not @ignore.index(m.sender) == nil
+                # it is in the ignore list
+                next
+            else
+                #puts 'notthere'
+                sorted = false
+                for sender in @senders
+                    if sender[1].adresses.index(m.sender) != nil
+                        sender[1].addmail(m)
+                        sorted = true
+                    end
+                end
+                if not sorted
+                    s = Sender.new
+                    s.addadress(m.sender)
+                    s.addmail(m)
+                    @senders[m.sender] = s
+                    sorted = true
+                end
+            end
+        end
+    end
+    
+    def author_mails
+        @senders.each do |sender|
+            if sender[1].mails != []
+                name = sender[0]
+                value = sender[1]
+                puts "#{name}: #{value.mails.length}"
+            end
         end
     end
     
@@ -89,47 +128,6 @@ class Worker
             raise(ArgumentError, 'You should check settings.yaml before re-running this program')
         end
     end
-    
-    def showresults
-        # initialize the message count
-        messages = 0
-        # add the values to the count
-        @counter.values.each {|i| messages += i }
-    
-        puts "Results of #{messages} processed messages:"
-    
-        # sort the messages
-        sorted = @counter.sort {|a,b| a[1] <=> b[1] }.reverse
-    
-        # convert to float
-        messages = messages.to_f
-    
-        # display statistics
-        sorted.each do |name, number|
-            # calculate the percent value
-            per = (number / messages) * 100
-            # shorten it to two numbers after the floating point
-            percent = sprintf("%2.2f", per)
-            # display
-            puts "#{name}: #{number} (#{percent}%)"
-        end
-    end
-    
-    def showunknown()
-        # get the users
-        users = @counter.keys()
-        # delete all users without @ and keep just the email adresses
-        users.delete_if { |i| i.match(/@/) == nil }
-    
-        # do we have any?
-        if users.length != 0
-            # yes, so display them
-            puts "Unknown users: #{users.length}"
-            users.each {|i| puts i }
-            puts 'You can add these users to knownlist or to ignorelist in settings.yaml.'
-            puts
-        end
-    end
 end
 
 class Sender
@@ -142,6 +140,14 @@ class Sender
     
     def addmail(mail)
         @mails << mail
+    end
+    
+    def addadress(adress)
+        @adresses << adress
+    end
+    
+    def adresses?
+        @adresses
     end
     
     def mails?
