@@ -5,12 +5,6 @@ require 'mailparser'
 #Date::parse parses RFC2822 dates correctly
 
 def main()
-    #s = Sender.new
-    #s.adresses << 'abc@def.de'
-    #s2 = Sender.new
-    #s2.adresses << 'new@domain.edu'
-    #p s + s2
-    
     # create the worker
     w = Worker.new
     # let him load his settings from the yamlfile
@@ -20,11 +14,6 @@ def main()
     w.initsenders
     w.author_mails_init
     w.author_mails
-    
-    # show all unknown adresses
-    #w.showunknown
-    # show statistic results
-    #w.showresults
 end
 
 class Worker
@@ -49,12 +38,19 @@ class Worker
         for mail in mailfiles#[0..2]
             # open them
             f = File.new(mail, 'r')
+            
+            # let the mailperser parse them
+            #+this is slow so it could be made in some other way
+            #+maybe by just parsing necessary parts
             m = MailParser.parse_message f
-            mail = Mail.new(m)
-            @mails << mail
-        
+            
             # close the file
             f.close
+            
+            # create a new, lighter mail instance (saves a lot of RAM)
+            mail = Mail.new(m)
+            # add this instance to the list of mails
+            @mails << mail
         end
     end
     
@@ -176,23 +172,6 @@ class Sender
     
     def addadress(adress)
         @adresses << adress
-    end
-    
-    def adresses?
-        @adresses
-    end
-    
-    def mails?
-        return @mails.length
-    end
-    
-    def +(another)
-        added = Sender.new
-        another.adresses.each {|i| added.adresses << i }
-        @adresses.each {|i| added.adresses << i }
-        another.mails.each {|i| added.mails << i }
-        @mails.each {|i| added.mails << i }
-        return added
     end
 end
 
