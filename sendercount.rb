@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'yaml'
+require 'mailparser'
 #DateTime, Time, Date
 #Date::parse parses RFC2822 dates correctly
 
@@ -35,31 +36,11 @@ class Worker
         for mail in mailfiles
             # open them
             f = File.new(mail, 'r')
+            m = MailParser.parse_message f
+            #p m[:from][0]
         
             # seach the sender (From: field)
-            sender = ''
-            f.each_line {|i| sender = i if i.match(/From: /)}
-            
-            # seach the date (Date: field)
-            date = Date.today
-            f.each_line {|i| date = Date.parse(i) if i.match(/Date: /)}
-            #p date
-        
-            # remove From: parts
-            sender.gsub!(/From: /, '')
-        
-            # get just the email address, not the name
-            sender = sender.split
-            sendermail = ''
-            sender.each {|i| sendermail = i if i.match(/@/) }
-        
-            # remove <> tags around email-adresses
-            sendermail.gsub!('<', '')
-            sendermail.gsub!('>', '')
-            # remove =20-styled MIME influences
-            sendermail.gsub!(/=\d\d/, '')
-            # rewrite adresses into lower case
-            sendermail.downcase!
+            sendermail = m[:from][0].downcase
         
             # now inspect:
             if @known[sendermail]
@@ -155,25 +136,18 @@ class Worker
     end
 end
 
-class Author
+class Sender
     def initialize(adress)
         @adress = adress
-        @dates = []
+        @mails = []
     end
     
-    def addmail(date)
-        @dates << date
+    def addmail(mail)
+        @mails << mail
     end
     
     def mails?
-        return @dates.length
-    end
-end
-
-class Mail
-    def initialize(sender=nil, date=nil)
-        @sender = sender
-        @date = date
+        return @mails.length
     end
 end
 
