@@ -5,25 +5,37 @@ require 'mailparser'
 #Date::parse parses RFC2822 dates correctly
 
 def main()
+    #s = Sender.new
+    #s.adresses << 'abc@def.de'
+    #s2 = Sender.new
+    #s2.adresses << 'new@domain.edu'
+    #p s + s2
+    
     # create the worker
     w = Worker.new
     # let him load his settings from the yamlfile
     w.loadsettings
+    
+    p w.mails
+    
     # analyze the mail
-    w.analyze
+    #w.analyze
     # show all unknown adresses
-    w.showunknown
+    #w.showunknown
     # show statistic results
-    w.showresults
+    #w.showresults
 end
 
 class Worker
+    attr_reader :mails
+    
     def initialize
         # prepare the counter - set to empty
         @counter = {}
         @maildirpath = ''
         @known = {}
         @ignore = []
+        @mails = []
     end
     
     def analyze
@@ -37,7 +49,8 @@ class Worker
             # open them
             f = File.new(mail, 'r')
             m = MailParser.parse_message f
-            #p m[:from][0]
+            mail = Mail.new(m)
+            @mails << mail
         
             # seach the sender (From: field)
             sendermail = m[:from][0].downcase
@@ -137,8 +150,10 @@ class Worker
 end
 
 class Sender
-    def initialize(adress)
-        @adress = adress
+    attr_reader :mails, :adresses
+    attr_writer :mails, :adresses
+    def initialize
+        @adresses = []
         @mails = []
     end
     
@@ -148,6 +163,23 @@ class Sender
     
     def mails?
         return @mails.length
+    end
+    
+    def +(another)
+        #another
+        added = Sender.new
+        another.adresses.each {|i| added.adresses << i }
+        @adresses.each {|i| added.adresses << i }
+        another.mails.each {|i| added.mails << i }
+        @mails.each {|i| added.mails << i }
+        return added
+    end
+end
+
+class Mail
+    def initialize(parsedmail)
+        @sender = parsedmail[:from][0].downcase
+        @date = parsedmail[:date]
     end
 end
 
