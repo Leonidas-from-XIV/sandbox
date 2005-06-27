@@ -16,10 +16,10 @@ def main()
     # let him load his settings from the yamlfile
     w.loadsettings
     
-    p w.mails
+    w.analyze
+    w.authors?
     
-    # analyze the mail
-    #w.analyze
+    
     # show all unknown adresses
     #w.showunknown
     # show statistic results
@@ -45,39 +45,22 @@ class Worker
         mailfiles = Dir.glob('*')
     
         # go through all found mails
-        for mail in mailfiles
+        for mail in mailfiles[0..2]
             # open them
             f = File.new(mail, 'r')
             m = MailParser.parse_message f
             mail = Mail.new(m)
             @mails << mail
         
-            # seach the sender (From: field)
-            sendermail = m[:from][0].downcase
-        
-            # now inspect:
-            if @known[sendermail]
-                #yeah, we know this user (is in the known list), so add him by name
-                sendername = @known[sendermail]
-            else
-                # no we do not know him
-                if not @ignore.include? sendermail
-                    # ^^ check if he is in blacklist
-                    sendername = sendermail
-                    # ^^ no he wasn't, so add him to the statistic
-                end
-            end
-        
-            begin
-                # add another mail to the counter
-                @counter[sendername] += 1
-            rescue => e
-                # there is no such author yet, so create
-                @counter[sendername] = 1
-            end
-        
             # close the file
             f.close
+        end
+    end
+    
+    def authors?
+        p @known
+        for mail in @mails
+            p mail
         end
     end
     
@@ -99,7 +82,7 @@ class Worker
             # so create a valid one
             File.open('settings.yaml', 'w' ) do |out|
                 save = {'maildirpath' => '/path/to/mh/',
-                    'known' => {'user@server.tld' => 'Firstname Lastname'},
+                    'known' => {'Firstname Lastname' => ['user@server.tld']},
                     'ignore' => ['blacklist@bad.tld']}
                 YAML.dump(save, out)
             end
@@ -166,7 +149,6 @@ class Sender
     end
     
     def +(another)
-        #another
         added = Sender.new
         another.adresses.each {|i| added.adresses << i }
         @adresses.each {|i| added.adresses << i }
@@ -177,6 +159,7 @@ class Sender
 end
 
 class Mail
+    attr_reader :sender, :date
     def initialize(parsedmail)
         @sender = parsedmail[:from][0].downcase
         @date = parsedmail[:date]
