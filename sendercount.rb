@@ -70,23 +70,40 @@ class Worker
     def author_mails_init
         authors = {}
         for m in @mails
+            # go through all malis
+            
+            # check if the sender is in the ignore list
             if not @ignore.index(m.sender) == nil
-                # it is in the ignore list
+                # yes, it is in the ignore list, so skip to the next mail
                 next
             else
-                #puts 'notthere'
+                # no, it is not in the ignore list.. good.
+                
+                # have we sorted this mail to some user? (not yet)
                 sorted = false
+                
+                # okay, check all known senders..
                 for sender in @senders
+                    # if some of these senders hat that adress add this mail to the sender
                     if sender[1].adresses.index(m.sender) != nil
                         sender[1].addmail(m)
+                        # we have found a known user, add the mail to that user
                         sorted = true
                     end
                 end
+                
+                # the mail was still not sorted to some sender, 
+                #+so it must be from some unknown sender 
+                #+(add this sender to the senders list with the mail adress as name)
                 if not sorted
+                    # create new sender
                     s = Sender.new
+                    # add this sender this email adress
                     s.addadress(m.sender)
+                    # and the current mail
                     s.addmail(m)
                     @senders[m.sender] = s
+                    # and now really: we have sorted it
                     sorted = true
                 end
             end
