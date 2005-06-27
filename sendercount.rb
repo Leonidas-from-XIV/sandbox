@@ -111,12 +111,27 @@ class Worker
     end
     
     def author_mails
-        @senders.each do |sender|
-            if sender[1].mails != []
-                name = sender[0]
-                value = sender[1]
-                puts "#{name}: #{value.mails.length}"
-            end
+        messages = 0
+        simplelist = {}
+        
+        @senders.each do |name, value|
+            simplelist[name] = value.mails.length if value.mails != []
+        end
+        
+        # sort the list (from largest to lowest)
+        sortedlist = simplelist.sort {|a,b| b[1] <=> a[1] } 
+        # calculate number of mails
+        sortedlist.each {|i| messages += i[1]}
+        
+        messages = messages.to_f
+        
+        sortedlist.each do |name, number|
+            # calculate the percent value
+            per = (number / messages) * 100
+            # shorten it to two numbers after the floating point
+            percent = sprintf("%2.2f", per)
+            # display
+            puts "#{name}: #{number} (#{percent}%)"
         end
     end
     
