@@ -20,11 +20,15 @@ class Worker
     attr_reader :mails
     
     def initialize
-        # prepare the counter - set to empty
+        # the path to maildir (in MH format)
         @maildirpath = ''
+        # the list of known senders
         @known = {}
+        # the list of ignored mails
         @ignore = []
+        # the full list of _all_mails
         @mails = []
+        # senders in Name => SenderInstance format.
         @senders = {}
     end
     
@@ -55,6 +59,7 @@ class Worker
     end
     
     def initsenders
+        # init the senders (create from every known entry a sender)
         for key in @known.keys
             s = Sender.new
             @known[key]
@@ -69,7 +74,7 @@ class Worker
             # go through all malis
             
             # check if the sender is in the ignore list
-            if not @ignore.index(m.sender) == nil
+            if @ignore.include? m.sender
                 # yes, it is in the ignore list, so skip to the next mail
                 next
             else
@@ -81,7 +86,7 @@ class Worker
                 # okay, check all known senders..
                 for sender in @senders
                     # if some of these senders hat that adress add this mail to the sender
-                    if sender[1].adresses.index(m.sender) != nil
+                    if sender[1].adresses.include? m.sender
                         sender[1].addmail(m)
                         # we have found a known user, add the mail to that user
                         sorted = true
