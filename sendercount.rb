@@ -10,9 +10,9 @@ def main()
     # let him load his settings from the yamlfile
     w.loadsettings
     
-    w.analyze
-    w.initsenders
-    w.author_mails_init
+    w.init_mails
+    w.init_senders
+    w.init_author_mails
     w.author_mails
 end
 
@@ -32,7 +32,7 @@ class Worker
         @senders = {}
     end
     
-    def analyze
+    def init_mails
         # change the mail directory
         Dir.chdir(@maildirpath)
         # get all files from there (except hidden ones)
@@ -43,32 +43,21 @@ class Worker
             # open them
             f = File.new(mail, 'r')
             
-            # let the mailperser parse them
-            #+this is slow so it could be made in some other way
-            #+maybe by just parsing necessary parts
-            m = MailParser.parse_message f
-            
-            # close the file
-            f.close
-            
-            # create a new, lighter mail instance (saves a lot of RAM)
-            mail = Mail.new(m)
-            # add this instance to the list of mails
-            @mails << mail
+            # add the parsed, lightened mail to our list of mails
+            @mails << Mail.new(MailParser.parse_message(f))
         end
     end
     
-    def initsenders
+    def init_senders
         # init the senders (create from every known entry a sender)
         for key in @known.keys
             s = Sender.new
-            @known[key]
-            @known[key].each { |i| s.addadress(i) }
+            @known[key].each { |i| s.addaddress(i) }
             @senders[key] = s
         end
     end
     
-    def author_mails_init
+    def init_author_mails
         authors = {}
         for m in @mails
             # go through all malis
@@ -85,8 +74,8 @@ class Worker
                 
                 # okay, check all known senders..
                 for sender in @senders
-                    # if some of these senders hat that adress add this mail to the sender
-                    if sender[1].adresses.include? m.sender
+                    # if some of these senders hat that address add this mail to the sender
+                    if sender[1].addresses.include? m.sender
                         sender[1].addmail(m)
                         # we have found a known user, add the mail to that user
                         sorted = true
@@ -95,12 +84,12 @@ class Worker
                 
                 # the mail was still not sorted to some sender, 
                 #+so it must be from some unknown sender 
-                #+(add this sender to the senders list with the mail adress as name)
-                if not sorted
+                #+(add this sender to the senders list with the mail address as name)
+                unless sorted
                     # create new sender
                     s = Sender.new
-                    # add this sender this email adress
-                    s.addadress(m.sender)
+                    # add this sender this email address
+                    s.addaddress(m.sender)
                     # and the current mail
                     s.addmail(m)
                     @senders[m.sender] = s
@@ -116,7 +105,7 @@ class Worker
         simplelist = {}
         
         @senders.each do |name, value|
-            simplelist[name] = value.mails.length if value.mails != []
+            simplelist[name] = value.mails.length unless value.mails.empty?
         end
         
         # sort the list (from largest to lowest)
@@ -139,7 +128,7 @@ class Worker
     def loadsettings
         begin
             save = YAML.load_file('settings.yaml')
-            if not save
+            unless save
                 # the file is empty.. well, not valid YAML
                 raise(ArgumentError)
             end
@@ -164,10 +153,9 @@ class Worker
 end
 
 class Sender
-    attr_reader :mails, :adresses
-    attr_writer :mails, :adresses
+    attr_accessor :mails, :addresses
     def initialize
-        @adresses = []
+        @addresses = []
         @mails = []
     end
     
@@ -175,8 +163,8 @@ class Sender
         @mails << mail
     end
     
-    def addadress(adress)
-        @adresses << adress
+    def addaddress(address)
+        @addresses << address
     end
 end
 
