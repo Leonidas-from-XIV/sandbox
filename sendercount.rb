@@ -39,7 +39,7 @@ class Worker
         mailfiles = Dir.glob('*')
     
         # go through all found mails
-        for mail in mailfiles#[0..2]
+        mailfiles.each do |mail|
             # open them
             f = File.new(mail, 'r')
             
@@ -50,7 +50,7 @@ class Worker
     
     def init_senders
         # init the senders (create from every known entry a sender)
-        for key in @known.keys
+        @known.keys.each do |key|
             s = Sender.new
             @known[key].each { |i| s.addaddress(i) }
             @senders[key] = s
@@ -59,7 +59,7 @@ class Worker
     
     def init_author_mails
         authors = {}
-        for m in @mails
+        @mails.each do |m|
             # go through all malis
             
             # check if the sender is in the ignore list
@@ -73,7 +73,7 @@ class Worker
                 sorted = false
                 
                 # okay, check all known senders..
-                for sender in @senders
+                @senders.each do |sender|
                     # if some of these senders hat that address add this mail to the sender
                     if sender[1].addresses.include? m.sender
                         sender[1].addmail(m)
