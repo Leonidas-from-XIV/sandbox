@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'yaml'
+require 'date'
 require 'mailparser'
 #DateTime, Time, Date
 #Date::parse parses RFC2822 dates correctly
@@ -13,8 +14,10 @@ def main()
     w.init_mails
     w.init_senders
     w.init_author_mails
-    w.author_mails
     w.unknown_authors
+    w.author_mails
+    puts
+    w.mails_per_day
 end
 
 class Worker
@@ -114,6 +117,7 @@ class Worker
         # calculate number of mails
         sortedlist.each {|i| messages += i[1]}
         
+        puts "Mail-number results of #{messages} processed messages:"
         messages = messages.to_f
         
         sortedlist.each do |name, number|
@@ -133,8 +137,10 @@ class Worker
         end
         
         unless unknown.empty?
+            puts
             puts "The following #{unknown.length} adresses are unknown: #{unknown.join(', ')}"
-            puts "Consider adding them to the known- or blacklist."
+            puts "Consider adding them to the known- or ignorelist in settings.yaml."
+            puts
         end
     end
     
@@ -163,6 +169,38 @@ class Worker
             raise(ArgumentError, 'You should check settings.yaml before re-running this program')
         end
     end
+    
+    def mails_per_day
+        all_mpd = {}
+        @senders.each do |name, value|
+            # next sender it the current sender has no mails
+            next if value.mails.empty?
+            
+            alldates = []
+            value.mails.each {|i| alldates << i.date }
+            alldates.sort!
+            
+            # get the date of the first (=oldest) mail
+            since = alldates[0]
+            # get the date of today
+            now = Date.today()
+            # how many days is the first mail old?
+            duration = (now - since)
+            # divide the number of mails by the duration
+            mpd = (value.mails.length / duration).to_f
+            # add the mail-per-day value to the dict
+            all_mpd[name] = mpd
+        end
+        
+        # sort from biggest to smallest
+        all_mpd = all_mpd.sort {|a,b| b[1] <=> a[1] }
+        
+        puts "Mails-per-day results of #{all_mpd.length} processed authors:"
+        
+        all_mpd.each do |person, mpd|
+            puts "#{person}: #{sprintf('%0.3f', mpd)} mails/day"
+        end
+    end
 end
 
 class Sender
@@ -185,7 +223,8 @@ class Mail
     attr_reader :sender, :date
     def initialize(parsedmail)
         @sender = parsedmail[:from][0].downcase
-        @date = parsedmail[:date]
+        time = parsedmail[:date]
+        @date = Date.new(time.year, time.month, time.day)
     end
 end
 
