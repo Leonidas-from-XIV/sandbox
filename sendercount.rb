@@ -14,6 +14,7 @@ def main()
     w.init_senders
     w.init_author_mails
     w.author_mails
+    w.unknown_authors
 end
 
 class Worker
@@ -122,6 +123,18 @@ class Worker
             percent = sprintf("%2.2f", per)
             # display
             puts "#{name}: #{number} (#{percent}%)"
+        end
+    end
+    
+    def unknown_authors
+        unknown = []
+        @senders.keys.each() do |sender|
+            unknown << sender if sender =~ /@/
+        end
+        
+        unless unknown.empty?
+            puts "The following #{unknown.length} adresses are unknown: #{unknown.join(', ')}"
+            puts "Consider adding them to the known- or blacklist."
         end
     end
     
