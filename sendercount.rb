@@ -2,15 +2,17 @@
 require 'yaml'
 require 'date'
 require 'mailparser'
-#DateTime, Time, Date
-#Date::parse parses RFC2822 dates correctly
 
+=begin rdoc
+The main method. This one controls the execution of all commands.
+=end
 def main()
     # create the worker
     w = Worker.new
     # let him load his settings from the yamlfile
     w.loadsettings
     
+    # initialize the mails in the maildir
     w.init_mails
     w.init_senders
     w.init_author_mails
@@ -20,9 +22,22 @@ def main()
     w.mails_per_day
 end
 
+=begin rdoc
+The Worker class is used to create a representation of the real world.
+In this world, there are the @mails, the list of @known people,
+some @ignore`d ones, and the @senders who have sent the mails.
+---
+Some kind of example:
+
+  w = Worker.new
+  # load the settings
+  w.loadsettings()
+
+This should be quite easy to understand.
+=end
 class Worker
-    attr_reader :mails
     
+    # Creates a new class. Initializes some variables.
     def initialize
         # the path to maildir (in MH format)
         @maildirpath = ''
@@ -36,6 +51,9 @@ class Worker
         @senders = {}
     end
     
+    # Load all mails from the maildir and save them to 
+    # @mails as Mail instances. This should be called at first
+    # after loading the settings.
     def init_mails
         # change the mail directory
         Dir.chdir(@maildirpath)
@@ -52,6 +70,9 @@ class Worker
         end
     end
     
+    # Initialize the @sender hash: create for each known sender
+    # (from the settings-file) a key in the hash and create there
+    # a Sender instance with all e-mail addresses filled in.
     def init_senders
         # init the senders (create from every known entry a sender)
         @known.keys.each do |key|
@@ -61,6 +82,8 @@ class Worker
         end
     end
     
+    # Sort the mails from @mails to @senders where every 
+    # mail gets sorted properly to the author.
     def init_author_mails
         authors = {}
         @mails.each do |m|
@@ -104,6 +127,8 @@ class Worker
         end
     end
     
+    # Output the list of authors who have written most mails in descending
+    # order. Also prints the percentage of all processed mails.
     def author_mails
         messages = 0
         simplelist = {}
