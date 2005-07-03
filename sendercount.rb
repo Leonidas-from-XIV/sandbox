@@ -3,14 +3,13 @@ require 'yaml'
 require 'date'
 require 'mailparser'
 
-=begin rdoc
-The main method. This one controls the execution of all commands.
-=end
+
+#The main method. This one controls the execution of all commands.
 def main()
     # create the worker
     w = Worker.new
     # let him load his settings from the yamlfile
-    w.loadsettings
+    w.load_settings
     
     # initialize the mails in the maildir
     w.init_mails
@@ -22,19 +21,17 @@ def main()
     w.mails_per_day
 end
 
-=begin rdoc
-The Worker class is used to create a representation of the real world.
-In this world, there are the @mails, the list of @known people,
-some @ignore`d ones, and the @senders who have sent the mails.
----
-Some kind of example:
-
-  w = Worker.new
-  # load the settings
-  w.loadsettings()
-
-This should be quite easy to understand.
-=end
+# The Worker class is used to create a representation of the real world.
+# In this world, there are the @mails, the list of @known people,
+# some @ignore'd ones, and the @senders who have sent the mails.
+# ---
+# Some kind of example:
+#
+#  w = Worker.new
+#  # load the settings
+#  w.load_settings()
+#
+# This should be quite easy to understand.
 class Worker
     
     # Creates a new class. Initializes some variables.
@@ -53,7 +50,7 @@ class Worker
     
     # Load all mails from the maildir and save them to 
     # @mails as Mail instances. This should be called at first
-    # after loading the settings.
+    # after loading the settings. The settings are loaded by load_settings().
     def init_mails
         # change the mail directory
         Dir.chdir(@maildirpath)
@@ -83,9 +80,9 @@ class Worker
     end
     
     # Sort the mails from @mails to @senders where every 
-    # mail gets sorted properly to the author.
+    # mail gets sorted properly to the author. This should be called
+    # after init_mails().
     def init_author_mails
-        authors = {}
         @mails.each do |m|
             # go through all malis
             
@@ -155,6 +152,7 @@ class Worker
         end
     end
     
+    # Outputs the list of unknown addresses
     def unknown_authors
         unknown = []
         @senders.keys.each() do |sender|
@@ -169,7 +167,9 @@ class Worker
         end
     end
     
-    def loadsettings
+    # Loads the settings from a settings file. The file is called
+    # settings.yaml, and is, (surprise) a YAML file.
+    def load_settings
         begin
             save = YAML.load_file('settings.yaml')
             unless save
@@ -195,6 +195,7 @@ class Worker
         end
     end
     
+    # Outputs a statistic about mails-per-day per author.
     def mails_per_day
         all_mpd = {}
         @senders.each do |name, value|
@@ -226,19 +227,31 @@ class Worker
             puts "#{person}: #{sprintf('%0.3f', mpd)} mails/day"
         end
     end
+    
+    def init_mailers
+        @senders.each do |sender|
+        end
+    end
+    
+    def used_mailers
+    end
 end
 
+# This represends an author
 class Sender
     attr_accessor :mails, :addresses
+    # Set some variables
     def initialize
         @addresses = []
         @mails = []
     end
     
+    # Add the Mail object.
     def addmail(mail)
         @mails << mail
     end
     
+    # Adds an email-address.
     def addaddress(address)
         @addresses << address
     end
