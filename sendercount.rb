@@ -19,6 +19,9 @@ def main()
     w.author_mails
     puts
     w.mails_per_day
+    
+    w.init_mailers
+    w.used_mailers
 end
 
 # The Worker class is used to create a representation of the real world.
@@ -46,6 +49,8 @@ class Worker
         @mails = []
         # senders in Name => SenderInstance format.
         @senders = {}
+        
+        @mailers = {}
     end
     
     # Load all mails from the maildir and save them to 
@@ -58,12 +63,13 @@ class Worker
         mailfiles = Dir.glob('*')
     
         # go through all found mails
-        mailfiles.each do |mail|
+        mailfiles[0..2].each do |mail|
             # open them
             f = File.new(mail, 'r')
             
             sender = nil
             date = nil
+            mailer = nil
             f.each_line do |line| 
                 if line.match(/^From: /)
                     line.gsub!(/From: /, '')
@@ -71,11 +77,13 @@ class Worker
                 elsif line.match(/^Date: /)
                     line.gsub!(/Date: /, '')
                     date = Date.parse(line)
+                elsif line.match(/^X-Mailer: /)
+                    mailer = line.gsub(/X-Mailer: /, '')
                 end
             end
             
             # add the parsed, lightened mail to our list of mails
-            @mails << Mail.new(sender, date)
+            @mails << Mail.new(sender, date, mailer)
         end
     end
     
@@ -193,6 +201,7 @@ class Worker
             @maildirpath = save['maildirpath']
             @known = save['known']
             @ignore = save['ignore']
+            @mailers = save['mailers']
             
         rescue Errno::ENOENT, ArgumentError => e
             # file not found or not valid
@@ -241,7 +250,20 @@ class Worker
     end
     
     def init_mailers
-        @senders.each do |sender|
+        @senders.each do |name, value|
+            usedmailer = []
+            value.mails.each do |mail|
+                #puts mail.mailer
+                @mailers.each do |mailername, regexes|
+                    #puts regexes
+                    regexes.each do |regex|
+                        re = Regexp.new(regex)
+                        usedmailer << mailername if re.match(mail.mailer)
+                    end
+                end
+            print name
+            p usedmailer
+            end
         end
     end
     
@@ -270,11 +292,11 @@ class Sender
 end
 
 class Mail
-    attr_reader :sender, :date
-    def initialize(sender, date)
+    attr_reader :sender, :date, :mailer
+    def initialize(sender, date, mailer)
         @sender = sender.downcase
-        #time = parsedmail[:date]
         @date = date
+        @mailer = mailer
     end
 end
 
