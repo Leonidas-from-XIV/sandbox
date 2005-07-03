@@ -3,7 +3,6 @@ require 'yaml'
 require 'date'
 require 'mailparser'
 
-
 #The main method. This one controls the execution of all commands.
 def main()
     # create the worker
@@ -20,7 +19,10 @@ def main()
     puts
     w.mails_per_day
     
-    w.init_mailers
+    unm = w.init_mailers
+    puts
+    w.unknown_mailers(unm)
+    
     w.used_mailers
 end
 
@@ -63,7 +65,7 @@ class Worker
         mailfiles = Dir.glob('*')
     
         # go through all found mails
-        mailfiles[0..2].each do |mail|
+        mailfiles.each do |mail|
             # open them
             f = File.new(mail, 'r')
             
@@ -94,7 +96,7 @@ class Worker
         # init the senders (create from every known entry a sender)
         @known.keys.each do |key|
             s = Sender.new
-            @known[key].each { |i| s.addaddress(i) }
+            @known[key].each { |i| s.add_address(i) }
             @senders[key] = s
         end
     end
@@ -120,7 +122,7 @@ class Worker
                 @senders.each do |sender|
                     # if some of these senders hat that address add this mail to the sender
                     if sender[1].addresses.include? m.sender
-                        sender[1].addmail(m)
+                        sender[1].add_mail(m)
                         # we have found a known user, add the mail to that user
                         sorted = true
                     end
@@ -133,9 +135,9 @@ class Worker
                     # create new sender
                     s = Sender.new
                     # add this sender this email address
-                    s.addaddress(m.sender)
+                    s.add_address(m.sender)
                     # and the current mail
-                    s.addmail(m)
+                    s.add_mail(m)
                     @senders[m.sender] = s
                     # and now really: we have sorted it
                     sorted = true
@@ -209,7 +211,9 @@ class Worker
             File.open('settings.yaml', 'w' ) do |out|
                 save = {'maildirpath' => '/path/to/mh/',
                     'known' => {'Firstname Lastname' => ['user@server.tld']},
-                    'ignore' => ['blacklist@bad.tld']}
+                    'ignore' => ['blacklist@bad.tld'],
+                    'mailers' => {'Mailername' => ['RegEx']}
+                    }
                 YAML.dump(save, out)
             end
             raise(ArgumentError, 'You should check settings.yaml before re-running this program')
@@ -249,48 +253,105 @@ class Worker
         end
     end
     
+    # returns not mathced mailers
     def init_mailers
+        not_matched = []
+        # go through all senders
         @senders.each do |name, value|
-            usedmailer = []
+            # go through all mails
             value.mails.each do |mail|
-                #puts mail.mailer
+                # now go though all defined mailers
+                found = false
                 @mailers.each do |mailername, regexes|
-                    #puts regexes
+                    # go through all defined regexes for that mailer
+                    
                     regexes.each do |regex|
+                        # create a regex
                         re = Regexp.new(regex)
-                        usedmailer << mailername if re.match(mail.mailer)
+                        # add the mailer to sender if the regex matches
+                        # means: the mail was sent by this mailer
+                        if re.match(mail.mailer)
+                            value.add_mailer(mailername) 
+                            found = true
+                        end
+                    
                     end
                 end
-            print name
-            p usedmailer
+                
+                # get the unknown mailers (not matched by any rules in settings.yaml)
+                if not found and mail.mailer
+                    mail.mailer.chomp!
+                    # include them to the list, but only if they aren't already there
+                    unless not_matched.include? mail.mailer
+                        not_matched << mail.mailer
+                    end
+                end
             end
         end
+        return not_matched
     end
     
     def used_mailers
+        usedmailers = {}
+        @senders.each do |name, value|
+            value.mailers.each do |mailer|
+                begin
+                    usedmailers[mailer] += 1
+                rescue NoMethodError => e
+                    usedmailers[mailer] = 1
+                end
+            end
+        end
+        
+        usedmailers = usedmailers.sort {|a,b| b[1] <=> a[1] }
+        puts "List of used mail clients:"
+        usedmailers.each do |name, count|
+            puts "#{name}: #{count}"
+        end
+    end
+    
+    def unknown_mailers(mailers)
+        unless mailers.empty?
+            list = mailers.join(', ')
+            puts "The following mailers were not found and matched by settings.yaml: #{list}."
+            puts
+        end
     end
 end
 
-# This represends an author
+# This represents an author
 class Sender
     attr_accessor :mails, :addresses
+    attr_reader :mailers
     # Set some variables
     def initialize
         @addresses = []
         @mails = []
+        @mailers = []
     end
     
     # Add the Mail object.
-    def addmail(mail)
+    def add_mail(mail)
         @mails << mail
     end
     
     # Adds an email-address.
-    def addaddress(address)
+    def add_address(address)
         @addresses << address
+    end
+    
+    # adds the mailer, but not if if is already there
+    def add_mailer(mailer)
+        unless @mailers.include? mailer 
+            @mailers << mailer
+        end
     end
 end
 
+# This class represents a Mail with it's attributes
+# @sender, @date and @mailer
+# @sender is the e-mail address of the sender
+# @date
 class Mail
     attr_reader :sender, :date, :mailer
     def initialize(sender, date, mailer)
