@@ -62,8 +62,20 @@ class Worker
             # open them
             f = File.new(mail, 'r')
             
+            sender = nil
+            date = nil
+            f.each_line do |line| 
+                if line.match(/^From: /)
+                    line.gsub!(/From: /, '')
+                    sender = MailParser.get_mail_address(line)[0]
+                elsif line.match(/^Date: /)
+                    line.gsub!(/Date: /, '')
+                    date = Date.parse(line)
+                end
+            end
+            
             # add the parsed, lightened mail to our list of mails
-            @mails << Mail.new(MailParser.parse_message(f))
+            @mails << Mail.new(sender, date)
         end
     end
     
@@ -259,10 +271,10 @@ end
 
 class Mail
     attr_reader :sender, :date
-    def initialize(parsedmail)
-        @sender = parsedmail[:from][0].downcase
-        time = parsedmail[:date]
-        @date = Date.new(time.year, time.month, time.day)
+    def initialize(sender, date)
+        @sender = sender.downcase
+        #time = parsedmail[:date]
+        @date = date
     end
 end
 
