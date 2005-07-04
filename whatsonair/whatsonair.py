@@ -19,7 +19,7 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'NJoy' : 'http://www1.n-joy.de/njoy_pages_idx/0,3043,SPM2140,00.html',
     'EinsLive' : 'http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml',
     'SunshineLive': 'http://www.sunshine-live.de/core/playlist.php3',
-    'EnergyBerlin': 'http://213.200.64.229/freestream/download/energy/berlin/start.html'}
+    'EnergyBerlin': 'http://www.energy.de/static/ticker/write_titel.phtml'}
 
 __version__ = '0.8.6'
 
@@ -174,10 +174,13 @@ class EnergyParser(StationBase):
         StationBase.__init__(self, url, offline)
     
     def feed(self, content):
-        r = re.compile(r'(?<=&interpr_muc=)[\w|\s]*(?= &&sg_muc=)')
-        self.artist = self.capstext(r.findall(content)[0])
-        r = re.compile(r'(?<=&&sg_muc=)[\w|\s]*(?=\+\+\+&)')
-        self.title = r.findall(content)[0].strip()
+        try:
+            r = re.compile(r'(?<=&interpr_muc=)[\w|\s]*(?= &&sg_muc=)')
+            self.artist = self.capstext(r.findall(content)[0])
+            r = re.compile(r'(?<=&&sg_muc=)[\w|\s]*(?=\+\+\+&)')
+            self.title = r.findall(content)[0].strip()
+        except:
+            raise IncompatibleParser(self.__station__)
     
     def currenttrack(self):
         return self.artist + ' - ' + self.title
@@ -595,12 +598,12 @@ class SunshineLiveParser(StationBase):
         else:
             return "No title info currently"
 
-class EnergyBerlinParser(StationBase):
-    """EnergyBerlinParser by Iopodx"""
+class EnergyBerlinParser(EnergyParser):
+    """EnergyBerlinParser by Iopodx
+    """
     __station__='EnergyBerlin'
     __version__ = '0.1.1'
     __versiontuple__ = splitver(__version__)
-    trackparsing = False
     artist = ''
     title = ''
     
@@ -608,16 +611,15 @@ class EnergyBerlinParser(StationBase):
         """Constructs the Parser"""
         StationBase.__init__(self, url, offline)
 
-    def feed(self, text):
+    def feed(self, content):
         """Wrapper for the real feed() method,
         on errors raises an IncompatibleParser Exception"""
         try:
-            result = text.split('color="white" size="1"><center>')
-            result = result[1].split('</center></font></body></html>')
-            track = result[0].split('<br>')
-            if len(track) > 1:
-                self.artist, self.title = self.capstext(track[0]), track[1]
-                # else: no song now
+            r = re.compile(r'(?<=&<p>)[\w|\s|/]*(?=<p>)')
+            trackname = r.findall(content)[0].strip()
+            trackname = trackname.split('/')
+            self.artist = self.capstext(trackname[0].strip())
+            self.title = trackname[1].strip()
         except:
             raise IncompatibleParser(self.__station__)
     
