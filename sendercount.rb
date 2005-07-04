@@ -3,7 +3,7 @@ require 'yaml'
 require 'date'
 require 'mailparser'
 
-#The main method. This one controls the execution of all commands.
+# The main method. This one controls the execution of all commands.
 def main()
     # create the worker
     w = Worker.new
@@ -249,7 +249,8 @@ class Worker
         puts "Mails-per-day results of #{all_mpd.length} processed authors:"
         
         all_mpd.each do |person, mpd|
-            puts "#{person}: #{sprintf('%0.3f', mpd)} mails/day"
+            dpm = 1 / mpd
+            puts "#{person}: #{sprintf('%0.3f', mpd)} mails/day = #{sprintf('%0.1f', dpm)} days/mail"
         end
     end
     
@@ -340,7 +341,7 @@ class Sender
         @addresses << address
     end
     
-    # adds the mailer, but not if if is already there
+    # Adds the mailer, but not if if is already there.
     def add_mailer(mailer)
         unless @mailers.include? mailer 
             @mailers << mailer
@@ -348,12 +349,16 @@ class Sender
     end
 end
 
-# This class represents a Mail with it's attributes
-# @sender, @date and @mailer
-# @sender is the e-mail address of the sender
-# @date
+# This class represents a Mail with it's attributes.
 class Mail
-    attr_reader :sender, :date, :mailer
+    # the e-mail address of the sender
+    attr_reader :sender
+    # the date when the mail was sent (a Date instance)
+    attr_reader :date
+    # the MUA the sender was using
+    attr_reader :mailer
+    
+    # Creates a new Mail instance.
     def initialize(sender, date, mailer)
         @sender = sender.downcase
         @date = date
