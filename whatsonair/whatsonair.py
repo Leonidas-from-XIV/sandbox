@@ -9,7 +9,7 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'Antenne' : 'http://webradio.antenne.de/antenne/webradio/new_channels/ant_infos.php',
     'Bayern3' : 'http://reload.br-online.de/bayern3/playlists/zusatzdaten_hp.html',
     'Charivari' : 'http://www.charivari.de/der_beste_mix.php',
-    'Energy' : 'http://213.200.64.229/freestream/download/energy/muenchen/start.html',
+    'Energy' : 'http://www.energy.de/static/ticker/write_titel.phtml',
     'Gong' : 'http://web1.beamgate.com/Gong/getPlaylist.jsp',
     'RTL' : 'http://www.hitradio-rtl-sachsen.de/streamplayer/onair.php',
     'NRJ' : 'http://www.nrj.de/www/index_top.php',
@@ -20,10 +20,6 @@ stationurls = {'FM4' : 'http://fm4.orf.at/trackservicepopup/stream',
     'EinsLive' : 'http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml',
     'SunshineLive': 'http://www.sunshine-live.de/core/playlist.php3',
     'EnergyBerlin': 'http://213.200.64.229/freestream/download/energy/berlin/start.html'}
-
-# http://www.energy.de/static/ticker/titel_muc.swf
-# http://www.energy.de/static/ticker/write_titel.phtml
-# ^^ thx to Packetyzer and ethereal engine
 
 __version__ = '0.8.6'
 
@@ -104,7 +100,7 @@ class StationBase(object, HTMLParser.HTMLParser):
 class FM4Parser(StationBase):
     """The Parser for the austrian sidestream radio station
     FM4, which is part of ORF.
-    Look at it's homepage http://fm4.orf.at"""
+    Look at its homepage http://fm4.orf.at"""
     __station__ = 'FM4'
     __version__ = '0.9.0'
     __versiontuple__ = splitver(__version__)
@@ -165,34 +161,23 @@ class FM4Parser(StationBase):
 
 class EnergyParser(StationBase):
     """The first Energy parser.
-    Handles Energy Munich former known as Energy 93.3"""
+    Handles Energy Munich former known as Energy 93.3
+    """
     __station__ = 'Energy'
-    __version__ = '0.6.0'
+    __version__ = '0.7.0'
     __versiontuple__ = splitver(__version__)
     
-    trackparsing = False
     artist = ''
     title = ''
     
     def __init__(self, url=stationurls['Energy'], offline=False):
         StationBase.__init__(self, url, offline)
     
-    def handle_starttag(self, tag, attrs):
-        if tag == 'font':
-            self.trackparsing = True
-    
-    def handle_endtag(self, tag):
-        if tag == 'font':
-            self.trackparsing = False
-    
-    def handle_data(self, data):
-        splitdata = data.splitlines()
-        for entry in splitdata:
-            if entry != '':
-                track = entry.split(' - ')
-            
-                self.artist = self.capstext(track[0])
-                self.title = track[1]
+    def feed(self, content):
+        r = re.compile(r'(?<=&interpr_muc=)[\w|\s]*(?= &&sg_muc=)')
+        self.artist = self.capstext(r.findall(content)[0])
+        r = re.compile(r'(?<=&&sg_muc=)[\w|\s]*(?=\+\+\+&)')
+        self.title = r.findall(content)[0].strip()
     
     def currenttrack(self):
         return self.artist + ' - ' + self.title
