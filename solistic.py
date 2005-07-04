@@ -46,10 +46,10 @@ class SOHOWindow(object):
         
         vbox = gtk.VBox()
         hbox = gtk.HBox()
+        vbox.pack_start(hbox, True)
         
         download = gtk.Button('Download')
         download.connect('clicked', self.download)
-        hbox.pack_start(download, True, True)
         
         sw = gtk.ScrolledWindow()
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
@@ -59,8 +59,13 @@ class SOHOWindow(object):
         sw.add_with_viewport(self.shot)
         self.shot.set_from_file('soho-noimage.png')
         
-        vbox.pack_start(sw, True)
-        vbox.pack_start(hbox, False)
+        hbox.pack_start(sw, True)
+        
+        # menu of the right
+        rmenu = gtk.VBox()
+        rmenu.pack_start(download, False)
+        hbox.pack_start(rmenu, False)
+        
         
         
         self.statusbar = gtk.Statusbar()
@@ -81,7 +86,7 @@ class SOHOWindow(object):
         pbloader = gtk.gdk.PixbufLoader()
         
         #uf = urllib.urlopen(path)
-        uf = file('soho1024.gif', 'rb')
+        uf = file('soho256.gif', 'rb')
         self.set_statusbar(u'Laden von %s...' % path)
         
         # how many data have we got?
