@@ -39,7 +39,7 @@ class SOHOWindow(object):
         # add a callback for exiting
         self.window.connect('delete_event', gtk.main_quit)
         # resize window
-        self.window.set_size_request(500, 510)
+        self.window.set_size_request(650, 510)
         # an icon
         pb = gtk.gdk.pixbuf_new_from_file('soho.ico') 
         self.window.set_icon(pb)
@@ -47,9 +47,6 @@ class SOHOWindow(object):
         vbox = gtk.VBox()
         hbox = gtk.HBox()
         vbox.pack_start(hbox, True)
-        
-        download = gtk.Button('Download')
-        download.connect('clicked', self.download)
         
         sw = gtk.ScrolledWindow()
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
@@ -63,10 +60,45 @@ class SOHOWindow(object):
         
         # menu of the right
         rmenu = gtk.VBox()
+        
+        # the hosts
+        rmenu.pack_start(gtk.Label('Host:'), False)
+        self.hosts = gtk.combo_box_new_text()
+        self.hosts.append_text('soho.esac.esa.int')
+        self.hosts.append_text('sohowww.estec.esa.nl')
+        self.hosts.append_text('plop.nascom.nasa.gov')
+        self.hosts.append_text('sohowww.nascom.nasa.gov')
+        self.hosts.set_active(0)
+        rmenu.pack_start(self.hosts, False)
+        
+        # the variation
+        rmenu.pack_start(gtk.Label('Variation:'), False)
+        self.variation = gtk.combo_box_new_text()
+        self.variation.append_text('eit_171')
+        self.variation.append_text('eit_195')
+        self.variation.append_text('eit_284')
+        self.variation.append_text('eit_304')
+        self.variation.append_text('mdi_igr')
+        self.variation.append_text('mdi_mag')
+        self.variation.append_text('c2')
+        self.variation.append_text('c3')
+        self.variation.set_active(3)
+        rmenu.pack_start(self.variation, False)
+        
+        # the variation
+        rmenu.pack_start(gtk.Label('Size:'), False)
+        self.size = gtk.combo_box_new_text()
+        self.size.append_text('256')
+        self.size.append_text('512')
+        self.size.append_text('1024')
+        self.size.set_active(1)
+        rmenu.pack_start(self.size, False)
+        
+        download = gtk.Button('Download')
+        download.connect('clicked', self.download)
+        
         rmenu.pack_start(download, False)
         hbox.pack_start(rmenu, False)
-        
-        
         
         self.statusbar = gtk.Statusbar()
         self.context_id = self.statusbar.get_context_id('SOHOStatus')
@@ -79,7 +111,7 @@ class SOHOWindow(object):
     def download(self, widget):
         # bufzize in bytes
         bufsize = 4 * 2 ** 10
-        path = buildpath()
+        path = self.buildpath()
         self.set_statusbar(u'Öffnen von %s...' % path)
         
         # get a progressive loader (so we can feed the bytes)
@@ -118,14 +150,18 @@ class SOHOWindow(object):
     
     def set_statusbar(self, text):
         self.statusbar.push(self.context_id, text) 
+    
+    def buildpath(self):
+        settings = {
+            'host' : self.hosts.get_model()[self.hosts.get_active()][0],
+            'variation' : self.variation.get_model()[self.variation.get_active()][0],
+            'size' : self.size.get_model()[self.size.get_active()][0]
+                }
+        return "http://%(host)s/data/realtime/%(variation)s/%(size)s/latest.gif" % settings
         
 def main():
-    buildpath()
     sw = SOHOWindow()
     gtk.main()
-
-def buildpath():
-    return "http://%(host)s/data/realtime/%(variation)s/%(size)s/latest.gif" % config
 
 if __name__ == '__main__':
     main()
