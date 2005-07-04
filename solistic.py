@@ -39,7 +39,7 @@ class SOHOWindow(object):
         # add a callback for exiting
         self.window.connect('delete_event', gtk.main_quit)
         # resize window
-        self.window.set_size_request(450, 500)
+        self.window.set_size_request(500, 510)
         # an icon
         pb = gtk.gdk.pixbuf_new_from_file('soho.ico') 
         self.window.set_icon(pb)
@@ -50,9 +50,16 @@ class SOHOWindow(object):
         download = gtk.Button('Download')
         download.connect('clicked', self.download)
         hbox.pack_start(download, True, True)
+        
+        sw = gtk.ScrolledWindow()
+        sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        
         self.shot = gtk.Image()
+        sw.add_with_viewport(self.shot)
         self.shot.set_from_file('soho-noimage.png')
-        vbox.pack_start(self.shot, True)
+        
+        vbox.pack_start(sw, True)
         vbox.pack_start(hbox, False)
         
         
@@ -65,6 +72,8 @@ class SOHOWindow(object):
         self.window.show_all()
     
     def download(self, widget):
+        # bufzize in bytes
+        bufsize = 4 * 2 ** 10
         path = buildpath()
         self.set_statusbar(u'Öffnen von %s...' % path)
         
@@ -72,14 +81,14 @@ class SOHOWindow(object):
         pbloader = gtk.gdk.PixbufLoader()
         
         #uf = urllib.urlopen(path)
-        uf = file('soho256.gif', 'rb')
+        uf = file('soho1024.gif', 'rb')
         self.set_statusbar(u'Laden von %s...' % path)
         
         # how many data have we got?
         recv = 0
         while True:
             # read one kilobyte at once
-            data = uf.read(2 ** 10)
+            data = uf.read(bufsize)
             # was that all data? If len = 0: yes, so break out
             if len(data) == 0: 
                 break
