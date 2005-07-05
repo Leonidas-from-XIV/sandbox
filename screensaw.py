@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.6'
+__version__ = '0.1.7'
 
 class Application(object):
     screenwidth = 680
@@ -143,7 +143,6 @@ class Application(object):
     
     def ant(self):
         """This demo shows a kind of snake"""
-        global lastcoords
         # Where should the snake start?
         lastcoords = [100, 100]
         # how big should a snakesquare be?
@@ -708,6 +707,52 @@ class Application(object):
             self.screen.fill((0, 0, 0))
             self.screen.blit(hs.surface, hs.rect)
             pygame.display.update()
+    
+    def textraise(self, step=10):
+        color = [0, 0, 0]
+        
+        raising  = True
+        
+        while True:
+            # limit to 10 fps
+            self.clock.tick(30)
+            
+            self.screen.fill((0, 0, 0))
+            
+            # config color
+            if raising:
+                color[0] += step
+                color[1] += step
+                color[2] += step
+                if color[0] >= 255:
+                    color = [255, 255, 255]
+                    raising = False
+            else:
+                color[0] -= step
+                color[1] -= step
+                color[2] -= step
+                if color[0] <= 0:
+                    color = [0, 0, 0]
+                    raising = True
+                    
+            # fonts
+            text_font = pygame.font.Font(None, 50)
+            
+            cpt = text_font.render("Demo", True, color)
+            x, y = text_font.size("Demo")
+            xdeviation = x / 2
+            ydeviation = y / 2
+            
+            position = ((self.screenwidth / 2) - xdeviation, (self.screenheight / 2) - ydeviation)
+            self.screen.blit(cpt, position)
+            
+            pygame.display.flip()
+            
+
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -782,6 +827,11 @@ def main():
         default=False,
         action="store_true",
         help="fun with laser emulation")
+    parser.add_option("--textraise",
+        dest="textraise",
+        default=False,
+        action="store_true",
+        help="a text effect")
     options, args = parser.parse_args()
     
     # We have to prepare display
@@ -796,7 +846,7 @@ def main():
     
     if (options.critter or options.ant or options.popsquares or options.magnets
         or options.prime or options.wave or options.alaska or options.cube
-        or options.laser):
+        or options.laser or options.textraise):
         options.all = False
     
     if options.all or options.critter:
@@ -852,6 +902,13 @@ def main():
             app.info("Laser", "Work in progress")
         #app.laser(noblank=True, speed=5)
         app.multilaser(speed=1)
+        #reblank(options.frameskip)
+    
+    if options.all or options.textraise:
+        if options.intro:
+            app.info("Textraise", "Work in progress")
+        #app.laser(noblank=True, speed=5)
+        app.textraise()
         #reblank(options.frameskip)
 
 class HexaSprite(pygame.sprite.Sprite):
@@ -942,8 +999,6 @@ class HexaSprite(pygame.sprite.Sprite):
         self.surface.set_alpha(self.alpha)
         self.rect = self.surface.get_rect()
         self.rect.center = center
-        
-        
 
 class UnsharpHexaSprite(HexaSprite):
     """This child class represents a fuzzy hexagon"""
