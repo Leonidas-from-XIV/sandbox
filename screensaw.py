@@ -708,17 +708,22 @@ class Application(object):
             self.screen.blit(hs.surface, hs.rect)
             pygame.display.update()
     
-    def textraise(self, step=10):
+    def textraise(self, text, step=10):
+        # starting color - black
         color = [0, 0, 0]
+        # starting fontsize (minimal size)
         size = 5
-        text = ['abc', 'def']
         
+        # the text, each line as list entry
+        text = [line.strip() for line in text.splitlines()]
+        
+        # counter of iterations (a full increase and decrease)
         fulliterations = 0
-        
+        # is the text getting lighter and bigger?
         raising  = True
         
         while True:
-            # limit to 10 fps
+            # limit to 30 fps
             self.clock.tick(30)
             
             self.screen.fill((0, 0, 0))
@@ -731,6 +736,7 @@ class Application(object):
                 if color[0] >= 255:
                     color = [255, 255, 255]
                     raising = False
+                    
             else:
                 color[0] -= step
                 color[1] -= step
@@ -738,6 +744,7 @@ class Application(object):
                 if color[0] <= 0:
                     color = [0, 0, 0]
                     raising = True
+                    fulliterations += 1
                     
             # fonts
             # size control
@@ -748,8 +755,16 @@ class Application(object):
             
             text_font = pygame.font.Font(None, size)
             
-            cpt = text_font.render("Demo", True, color)
-            x, y = text_font.size("Demo")
+            try:
+                cpt = text_font.render(text[fulliterations], True, color)
+                x, y = text_font.size(text[fulliterations])
+            except IndexError:
+                # there is no such text for this iteration
+                fulliterations = 0
+                cpt = text_font.render(text[fulliterations], True, color)
+                x, y = text_font.size(text[fulliterations])
+            
+            # calculate how many pixels the font-text-instance should be moved
             xdeviation = x / 2
             ydeviation = y / 2
             
@@ -758,7 +773,6 @@ class Application(object):
             
             pygame.display.flip()
             
-
             # handle events
             for event in pygame.event.get():
                 if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
@@ -912,14 +926,17 @@ def main():
             app.info("Laser", "Work in progress")
         #app.laser(noblank=True, speed=5)
         app.multilaser(speed=1)
-        #reblank(options.frameskip)
+        #app.reblank(options.frameskip)
     
     if options.all or options.textraise:
         if options.intro:
-            app.info("Textraise", "Work in progress")
-        #app.laser(noblank=True, speed=5)
-        app.textraise()
-        #reblank(options.frameskip)
+            app.info("Textraise", "A text gets bigger and smaller")
+        app.textraise("""Powered by
+        pygame
+        Python
+        libSDL
+        Enjoy!""")
+        app.reblank(options.frameskip)
 
 class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
