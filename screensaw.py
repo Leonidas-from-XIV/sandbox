@@ -710,6 +710,10 @@ class Application(object):
     
     def textraise(self, step=10):
         color = [0, 0, 0]
+        size = 5
+        text = ['abc', 'def']
+        
+        fulliterations = 0
         
         raising  = True
         
@@ -736,7 +740,13 @@ class Application(object):
                     raising = True
                     
             # fonts
-            text_font = pygame.font.Font(None, 50)
+            # size control
+            if raising:
+                size += step / 2
+            else:
+                size -= step /2
+            
+            text_font = pygame.font.Font(None, size)
             
             cpt = text_font.render("Demo", True, color)
             x, y = text_font.size("Demo")
