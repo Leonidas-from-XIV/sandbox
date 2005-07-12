@@ -26,12 +26,11 @@ class LayerServer(GenericLayer):
         return params[0]
     
 
-class ConnectionManager(asyncore.dispatcher):
+class ConnectionFactory(asyncore.dispatcher):
     def __init__(self):
         print 'Booting:'
         self.port = 5888
         print ' - Creating server instance'
-        #self.server = SQLator()
         self.server = LayerServer()
         print ' - Calling dispatcher'
         asyncore.dispatcher.__init__(self)
@@ -45,10 +44,10 @@ class ConnectionManager(asyncore.dispatcher):
     def handle_accept(self):
         newSocket, address = self.accept()
         print 'Connected by %s:%d' % address
-        ClientHandler(socket=newSocket, server=self.server)
+        ClientProtocol(socket=newSocket, server=self.server)
 
 
-class ClientHandler(asynchat.async_chat):
+class ClientProtocol(asynchat.async_chat):
     def __init__(self, socket, server):
         print 'Connection delegated'
         self.server = server
@@ -69,7 +68,7 @@ class ClientHandler(asynchat.async_chat):
 
 
 def main():
-    ConnectionManager()
+    ConnectionFactory()
     asyncore.loop()
 
 if __name__ == '__main__':

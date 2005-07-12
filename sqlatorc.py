@@ -67,5 +67,5 @@ class SQLClient(object):
 
 
 if __name__ == '__main__':
-    method = 'xmlrpc' # or async
-    SQLClient(method=method, 'localhost').main()
+    method = 'async' # or xmlrpc
+    SQLClient(method=method, host='localhost').main()
