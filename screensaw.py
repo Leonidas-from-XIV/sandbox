@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.7'
+__version__ = '0.1.8'
 
 class Application(object):
     screenwidth = 680
@@ -777,6 +777,51 @@ class Application(object):
             for event in pygame.event.get():
                 if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                     return
+    
+    def grail(self):
+        """grail.sf.net"""
+        
+        color = (140, 8, 33)
+        # dots in a row
+        dots = 13
+        dot_spacing = 20
+        dot_size = 5
+        dot_width = 0
+        
+        positions = []
+        
+        outer = []
+        
+        startpos = (10, 10)
+        for i in range(dots):
+            xpos = i * dot_spacing + startpos[0]
+            outer.append((xpos, startpos[1]))
+        for i in range(dots):
+            xpos = i * dot_spacing + startpos[0]
+            outer.append((xpos, startpos[1] + dots * dot_spacing))
+        
+        #outer = [(10, 10), (10, 20)]
+        #inner = [(150, 150)]
+        inner = []
+        
+        positions.extend([outer, inner])
+        for stage in positions:
+            for dot in stage:
+                pygame.draw.circle(self.screen, color, dot, dot_size, dot_width)
+            dot_size *= 2
+        
+        #self.screen.fill(color)
+        pygame.display.flip()
+        
+        while True:
+            # limit to 30 fps
+            self.clock.tick(30)
+            
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
+
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -856,6 +901,11 @@ def main():
         default=False,
         action="store_true",
         help="a text effect")
+    parser.add_option("--grail",
+        dest="grail",
+        default=False,
+        action="store_true",
+        help="the grail logo")
     options, args = parser.parse_args()
     
     # We have to prepare display
@@ -870,7 +920,7 @@ def main():
     
     if (options.critter or options.ant or options.popsquares or options.magnets
         or options.prime or options.wave or options.alaska or options.cube
-        or options.laser or options.textraise):
+        or options.laser or options.textraise or options.grail):
         options.all = False
     
     if options.all or options.critter:
@@ -937,6 +987,12 @@ def main():
         libSDL
         Enjoy!""")
         app.reblank(options.frameskip)
+    
+    if options.all or options.grail:
+        if options.intro:
+            app.info("Grail", "Grail logo")
+        app.grail()
+        #app.reblank(options.frameskip)
 
 class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
