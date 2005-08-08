@@ -15,7 +15,7 @@ require 'cgi'
 require 'net/http'
 require 'uri'
 
-Version = '0.0.8'
+Version = '0.0.9'
 
 Header = %q(<!DOCTYPE html PUBLIC 
 	"-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -77,8 +77,9 @@ class FeedConverter
     # Output HTML from the internal data structure
     def to_html
         # header
-        print Header % [convert_entity(@feed_name), convert_entity(@feed_description)]
-    
+        puts Header % [convert_entity(@feed_name), convert_entity(@feed_description)]
+        
+        # the entries
         @feed_data.each do |item|
             puts Entry % [item['link'], convert_entity(item['title'])]
         end
@@ -89,6 +90,7 @@ class FeedConverter
 end
 
 # Converts entities
+# uses code by murphy extended with iconv conversion
 def convert_entity(text)
     text = Iconv.new('iso-8859-15', 'utf-8').iconv(text) 
     
@@ -110,21 +112,34 @@ end
 # Starter
 def main
     fc = FeedConverter.new
-    #cgi = CGI.new
-    #if cgi.has_key? 'uri'
-    #    fc.from_url(cgi['uri'])
-    #    fc.parse
-    #    puts 'Content-Type: text/html'
-    #    puts
-    #    fc.to_html
-    #else
-    #    puts 'Content-Type: text/plain'
-    #    puts
-    #    puts 'You must specify uri=http://your.url/feed.xml'
-    #end
-    fc.from_file('sd.xml')
-    fc.parse
-    fc.to_html
+    cgi = CGI.new
+    if cgi.has_key? 'url'
+        # yeah, the user pointed us to an URL
+        fc.from_url(cgi['url'])
+        #fc.from_file('sd.xml')
+        #fc.from_file('sbarize_design.html')
+        
+        begin
+            # try to parse it and to generate HTML
+            fc.parse
+            
+            puts 'Content-Type: text/html'
+            puts
+            fc.to_html
+        rescue
+            # parsing failed so show an error message
+            puts 'Content-Type: text/html'
+            puts
+            puts Header % ['No', 'The specified feed is not valid.']
+            puts Footer % Version
+        end
+    else
+        # no, we've got no URL, generate error message
+        puts 'Content-Type: text/plain'
+        puts
+        puts Header % ['No', 'You have to set the url=http://domain.tld/path/feed.xml to your feed.']
+        puts Footer % Version
+    end
 end
 
 main if __FILE__ == $0
