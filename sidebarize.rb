@@ -15,7 +15,7 @@ require 'cgi'
 require 'net/http'
 require 'uri'
 
-Version = '0.1.0'
+Version = '0.1.1'
 
 Header = %q(<!DOCTYPE html PUBLIC 
 	"-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -115,15 +115,30 @@ def convert_link(url)
     url.gsub('&', '&amp;')
 end
 
+# Called when errors happen
+def show_error(text)
+    puts Header % ['No', text]
+    puts Footer % Version
+end
+
 # Starter
 def main
     fc = FeedConverter.new
     cgi = CGI.new
     if cgi.has_key? 'url'
         # yeah, the user pointed us to an URL
-        fc.from_url(cgi['url'])
+        
+        begin
+            # try to load from it
+            fc.from_url(cgi['url'])
+        rescue => e
+            # something failed
+            puts 'Content-Type: text/html'
+            puts
+            show_error('The file could not be loaded.')
+            #puts "<!-- #{e} -->"
+        end
         #fc.from_file('sd.xml')
-        #fc.from_file('sbarize_design.html')
         
         begin
             # try to parse it and to generate HTML
@@ -132,19 +147,17 @@ def main
             puts 'Content-Type: text/html'
             puts
             fc.to_html
-        rescue
+        rescue RSS::NotWellFormedError => e
             # parsing failed so show an error message
             puts 'Content-Type: text/html'
             puts
-            puts Header % ['No', 'The specified feed is not valid.']
-            puts Footer % Version
+            show_error('The specified feed is not valid.')
         end
     else
         # no, we've got no URL, generate error message
         puts 'Content-Type: text/html'
         puts
-        puts Header % ['No', 'You have to set the url=http://domain.tld/path/feed.xml to your feed.']
-        puts Footer % Version
+        show_error('You have to set the url=http://domain.tld/path/feed.xml to your feed.')
     end
 end
 
