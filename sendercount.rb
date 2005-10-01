@@ -75,12 +75,13 @@ class Worker
             f.each_line do |line| 
                 if line.match(/^From: /)
                     line.gsub!(/From: /, '')
-                    sender = MailParser.get_mail_address(line)[0]
+                    # only set sender if sender wasn't defined before (if it was nil before)
+                    sender = MailParser.get_mail_address(line)[0] if sender.nil?
                 elsif line.match(/^Date: /)
                     line.gsub!(/Date: /, '')
-                    date = Date.parse(line)
+                    date = Date.parse(line) if date.nil?
                 elsif line.match(/^X-Mailer: /)
-                    mailer = line.gsub(/X-Mailer: /, '')
+                    mailer = line.gsub(/X-Mailer: /, '') if mailer.nil?
                 end
             end
             
