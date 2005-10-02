@@ -3,7 +3,7 @@
 """A program for listing the songs currently on air
 This program is under GPL"""
 
-import urllib, HTMLParser, htmlentitydefs, re, sys, os, optparse
+import sys, os, os.path, optparse
 
 __version__ = '0.8.6'
 
@@ -62,8 +62,11 @@ class PluginController(object):
     def __iter__(self):
         """An iterator"""
         for module in self.pluginlist:
-            if not module.Parser == None:
-                yield module.Parser
+            try:
+                if module.Parser != None:
+                    yield module.Parser
+            except AttributeError:
+                pass
 
 def parser_chosen(option, opt, value, parser):
     station = opt[2:]
