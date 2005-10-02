@@ -62,16 +62,25 @@ class PluginController(object):
                 pass
 
 def parser_chosen(option, opt, value, parser):
-    station = opt[2:]
-    try:
-        parser.values.stations[station] = True
-    except AttributeError:
-        parser.values.stations = {}
-        parser.values.stations[station] = True
+    """Called when a commandline options for a
+    radio station was set. Disables the 'all' mode
+    and sets the chosen station as 'to crawl'"""
+    # disable crawling of all stations
     parser.values.all = False
+    
+    # get the name of the station
+    station = opt[2:]
+    
+    try:
+        parser.values.stations.append(station)
+    except AttributeError:
+        parser.values.stations = []
+        parser.values.stations.append(station)
     
 
 def main():
+    """The main program"""
+    # Create the plugin controller
     plugcontrol = PluginController()
     
     opts = optparse.OptionParser()
@@ -99,20 +108,16 @@ def main():
         sys.exit(0)
     
     if options.all:
+        # go through all stations
         options.descriptive = True
         for parser in allparsers.values():
-            #try:
             printcurrent(parser, options.descriptive)
-            #except:
-                # failed, so ignore silently
-            #    pass
     else:
+        # go just through selected stations
         for name, parser in allparsers.iteritems():
-            try:
-                if options.stations[name]:
-                    printcurrent(parser, options.descriptive)
-            except KeyError:
-                pass
+            # check whether to parse this particular station
+            if name in options.stations:
+                printcurrent(parser, options.descriptive)
         
 def printcurrent(parser, descriptive):
     """Prints the current title playing on a station
