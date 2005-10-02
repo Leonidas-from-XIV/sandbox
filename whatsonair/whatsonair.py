@@ -22,22 +22,33 @@ class IncompatibleParser(Exception):
         Exception.__init__(self, 'Incompatible %s parser, look for a newer version' % parser)
 
 class PluginController(object):
+    """Heavily modified 2bock code"""
     pluginlist = []
 
     def __init__(self):
+        """The constructor"""
         # add the plugindir to the pythonpath
         sys.path.append(self.parserdir())
         self.import_plugins()
         # remove the plugindir from the pythonpath
         sys.path.pop()
-        
+
+    def __iter__(self):
+        """An iterator"""
+        for module in self.pluginlist:
+            try:
+                if module.Parser != None:
+                    yield module.Parser
+            except AttributeError:
+                pass
     
     def parserdir(self):
+        """Gets the path of the directory where the parsers can be found"""
         appdir = os.path.dirname(__file__)
         pdir = os.path.join(appdir, 'parsers')
         return pdir
        
-    def import_plugins(self):  
+    def import_plugins(self):
         path = self.parserdir()
        
         for file in os.listdir(path):
@@ -52,14 +63,7 @@ class PluginController(object):
                 instance = module.Parser()
                 print instance.__station__
     
-    def __iter__(self):
-        """An iterator"""
-        for module in self.pluginlist:
-            try:
-                if module.Parser != None:
-                    yield module.Parser
-            except AttributeError:
-                pass
+
 
 def parser_chosen(option, opt, value, parser):
     """Called when a commandline options for a

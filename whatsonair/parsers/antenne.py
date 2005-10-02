@@ -1,4 +1,7 @@
-import urllib, re
+#!/usr/bin/env python
+# -*- encoding: latin-1 -*-
+
+import re
 import base
 
 class AntenneParser(base.StationBase):
@@ -22,14 +25,18 @@ class AntenneParser(base.StationBase):
         self.title = titles[0]
     
     def current_track(self):
-        print "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))
+        if self.title != '':
+            print "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))
+        else:
+            # no title - means "News" or things like this
+            print self.artist
 
 Parser = AntenneParser
 
 if __name__ == '__main__':
     p = Parser()
     #p.feed()
-    p.pagecontent = file('ant_infos.php.htm', 'r').read()
+    p.pagecontent = file('news.htm', 'r').read()
     #print p.pagecontent
     p.parse()
     p.current_track()

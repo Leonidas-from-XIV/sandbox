@@ -1,4 +1,7 @@
-import urllib, re
+#!/usr/bin/env python
+# -*- encoding: latin-1 -*-
+
+import re
 import base
 
 class FM4Parser(base.StationBase):
@@ -12,7 +15,6 @@ class FM4Parser(base.StationBase):
     
     def __init__(self, url='http://fm4.orf.at/trackservicepopup/stream'):
         base.StationBase.__init__(self, url)
-        #print self.crawlerurl
     
     def parse(self):
         """Call feed first"""

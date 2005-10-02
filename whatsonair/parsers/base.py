@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- encoding: latin-1 -*-
+
 import urllib
 
 def splitver(version):
