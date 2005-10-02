@@ -13,13 +13,6 @@ def splitver(version):
     return tuple(version.split('.'))
 
 __versiontuple__ = splitver(__version__)
-def openoffline(filename):
-    """Reads a local file and returns the raw contents.
-    Useful in 'offline' mode, to pass it manually too parsers feed()"""
-    f = file(filename, 'r')
-    content = f.read()
-    f.close()
-    return content
 
 class IncompatibleParser(Exception):
     """An exception thrown when the parser is incompatible,
@@ -115,8 +108,11 @@ def main():
             #    pass
     else:
         for name, parser in allparsers.iteritems():
-            if options.stations[name]:
-                printcurrent(parser, options.descriptive)
+            try:
+                if options.stations[name]:
+                    printcurrent(parser, options.descriptive)
+            except KeyError:
+                pass
         
 def printcurrent(parser, descriptive):
     """Prints the current title playing on a station

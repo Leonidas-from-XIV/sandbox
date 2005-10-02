@@ -30,7 +30,7 @@ class FM4Parser(base.StationBase):
 Parser = FM4Parser
 
 if __name__ == '__main__':
-    p = FM4Parser()
+    p = Parser()
     #p.feed()
     p.pagecontent = file('stream.htm', 'r').read()
     #print p.pagecontent
