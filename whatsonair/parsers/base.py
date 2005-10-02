@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
 
-import urllib
+import urllib, re
 
 def splitver(version):
     """Splits the string representation of the version into a tuple form,
@@ -28,11 +28,11 @@ class StationBase(object):
     pagecontent = None
     
     def __init__(self, url):
-        """Initialize some values.
-        This method should be always called, to initalize the HTMLParser."""
+        """Initialize some values."""
         self.crawlerurl = url
     
     def feed(self):
+        """Loads"""
         timeout = urllib.socket.getdefaulttimeout()
         urllib.socket.setdefaulttimeout(10.0)
         parsepage = urllib.urlopen(self.crawlerurl)
@@ -40,14 +40,9 @@ class StationBase(object):
         parsepage.close()
         urllib.socket.setdefaulttimeout(timeout)
     
-    def currenttrack(self):
+    def current_track(self):
         """Return the current track in the format
         ARTIST - TITLE as string, unicode is also ok"""
-        raise NotImplementedError("Abstract class")
-    
-    def alltitles():
-        """Return all parsed titles..
-        format unknown, as nowhere used"""
         raise NotImplementedError("Abstract class")
     
     def capstext(self, text):
@@ -59,5 +54,10 @@ class StationBase(object):
             return reduce(lambda x, y: x.capitalize() + ' ' + y.capitalize(), chunks)
         else:
             return text.capitalize()
+    
+    def create_regexp(self, start, stop):
+        reg_exp_code = r'(?<=%s).*(?=%s)' % (start, stop)
+        compiled = re.compile(reg_exp_code)
+        return compiled
 
 Parser = None

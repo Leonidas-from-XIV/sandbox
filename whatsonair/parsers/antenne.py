@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
 
-import re
 import base
 
 class AntenneParser(base.StationBase):
@@ -16,11 +15,11 @@ class AntenneParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        artists_rex = re.compile(r'(?<=<b>).*(?=</b>)')
+        artists_rex = self.create_regexp('<b>', '</b>')
         artists = artists_rex.findall(self.pagecontent)
         self.artist = artists[1]
         
-        title_rex = re.compile(r'(?<=</b>, ).*(?=</a>)')
+        title_rex = self.create_regexp('</b>, ', '</a>')
         titles = title_rex.findall(self.pagecontent)
         self.title = titles[0]
     

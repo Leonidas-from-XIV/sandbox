@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
 
-import re
 import base
 
 class FM4Parser(base.StationBase):
@@ -18,11 +17,11 @@ class FM4Parser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        artists_rex = re.compile(r'(?<=<span class="artist">).*(?=</span><br/>)')
+        artists_rex = self.create_regexp('<span class="artist">', '</span><br/>')
         artists = artists_rex.findall(self.pagecontent)
         self.artist = artists[-1]
         
-        title_rex = re.compile(r'(?<=class="tracktitle">).*(?=</span> <span class="separator">)')
+        title_rex = self.create_regexp('class="tracktitle">', '</span> <span class="separator">')
         titles = title_rex.findall(self.pagecontent)
         self.title = titles[-1]
     
