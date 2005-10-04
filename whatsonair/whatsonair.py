@@ -134,7 +134,7 @@ def printcurrent(parser, descriptive):
     
     if descriptive:
         print current.__station__,
-    current.current_track()
+    print current.current_track()
 
 if __name__ == '__main__':
     main()

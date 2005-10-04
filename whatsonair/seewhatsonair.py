@@ -48,6 +48,8 @@ class UserInterface(object):
                 column = gtk.TreeViewColumn('Title', renderer, text=i)
             self.treeview.append_column(column)
         
+        self.plugcon = whatsonair.PluginController()
+        
         # load
         try:
             f = file(picklefile, 'r')
@@ -57,11 +59,11 @@ class UserInterface(object):
             # file not found
             # so make a dictionary where all values are False
             states = {}
-            for st in whatsonair.allparsers:
+            for st in self.plugcon:
                 states[st.__station__] = False
         
         
-        for st in whatsonair.allparsers:
+        for st in self.plugcon:
             iterator = self.model.append()
             self.model.set_value(iterator, 1, st.__station__)
             
@@ -136,7 +138,7 @@ class UserInterface(object):
     
     def cyclic_update(self):
         print 'Timeout #%s' % str(self.sid)
-        gobject.idle_add(self.updatestations)
+        gobject.idle_add(self.update_stations)
         
         # True - wait until the next timeout, False - break
         return True
@@ -154,7 +156,7 @@ class UserInterface(object):
         # and the station name
         selectedstation = model.get_value(iterator, 1)
         
-        for station in whatsonair.allparsers:
+        for station in self.plugcon:
             if station.__station__ == selectedstation:
                 #self.update_track(station)
                 self.update.set_sensitive(False)
@@ -166,8 +168,9 @@ class UserInterface(object):
         """Universal caption updater"""
         try:
             station = parser()
-            station.feed(station.pagecontent)
-            tr = station.currenttrack().split(' - ', 1)
+            station.feed()
+            station.parse()
+            tr = station.current_track().split(' - ', 1)
             self.model.set_value(iterator, 2, tr[0])
             self.model.set_value(iterator, 3, tr[1])
         except whatsonair.IncompatibleParser:
@@ -181,7 +184,7 @@ class UserInterface(object):
         # do not start periodically
         return False
     
-    def updatestations(self):
+    def update_stations(self):
         """Updates the selected stations"""
         for row in self.model:
             # go though all rows
@@ -189,23 +192,15 @@ class UserInterface(object):
             update = row[0]
             if update:
                 parser = None
-                for station in whatsonair.allparsers:
+                for station in self.plugcon:
                     if station.__station__ == statname:
                         parser = station
                 station = parser()
-                try:
-                    station.feed(station.pagecontent)
-                    tr = station.currenttrack().split(' - ', 1)
-                    row[2] = tr[0]
-                    row[3] = tr[1]
-                except whatsonair.IncompatibleParser:
-                    row[2] = 'Incompatible'
-                    row[3] = 'Parser'
-                    row[0] = False
-                except IOError:
-                    row[2] = 'Network'
-                    row[3] = 'Error'
-                    row[0] = False
+                station.feed()
+                station.parse()
+                tr = station.current_track().split(' - ', 1)
+                row[2] = tr[0]
+                row[3] = tr[1]
                 
 
 def main():

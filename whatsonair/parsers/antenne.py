@@ -25,10 +25,10 @@ class AntenneParser(base.StationBase):
     
     def current_track(self):
         if self.title != '':
-            print "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))
+            return "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))
         else:
             # no title - means "News" or things like this
-            print self.artist
+            return self.artist
 
 Parser = AntenneParser
 

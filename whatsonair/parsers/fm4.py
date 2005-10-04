@@ -26,7 +26,7 @@ class FM4Parser(base.StationBase):
         self.title = titles[-1]
     
     def current_track(self):
-        print "%s - %s" % (self.artist, self.title)
+        return "%s - %s" % (self.artist, self.title)
 
 Parser = FM4Parser
 
