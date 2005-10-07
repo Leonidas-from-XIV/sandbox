@@ -31,10 +31,5 @@ class FM4Parser(base.StationBase):
 Parser = FM4Parser
 
 if __name__ == '__main__':
-    p = Parser()
-    #p.feed()
-    p.pagecontent = file('stream.htm', 'r').read()
-    #print p.pagecontent
-    p.parse()
-    p.current_track()
+    base.test_parser(Parser, 'stream.html')
     

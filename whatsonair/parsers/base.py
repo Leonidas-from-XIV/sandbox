@@ -61,3 +61,20 @@ class StationBase(object):
         return compiled
 
 Parser = None
+
+def test_parser(parser, filename):
+    """This is used to test newly written parsers.
+    Import this module from a plugin using
+    import base
+    and then call base.test_parser(parser, filename).
+    It starts the parser, sets it up and tries to get the current title.
+    
+    Your parsers should pass this test, means they should print the 
+    correct data.
+    """
+    p = parser()
+    f = file(filename, 'r')
+    p.pagecontent = f.read()
+    f.close()
+    p.parse()
+    print p.current_track()

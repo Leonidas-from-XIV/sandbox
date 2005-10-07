@@ -33,9 +33,4 @@ class AntenneParser(base.StationBase):
 Parser = AntenneParser
 
 if __name__ == '__main__':
-    p = Parser()
-    #p.feed()
-    p.pagecontent = file('news.htm', 'r').read()
-    #print p.pagecontent
-    p.parse()
-    p.current_track()
+    base.test_parser(Parser, 'news.html')
