@@ -17,13 +17,22 @@ class GongParser(base.StationBase):
         """Call feed first"""
         track_rex = self.create_regexp('<td class="liedertext">', '</td>')
         track = track_rex.findall(self.pagecontent)[1]
-        self.artist, self.title = track.split(': ')
+        try:
+            self.artist, self.title = track.split(': ')
+        except ValueError, e:
+            # sometimes the site does not provide the tracks' title,
+            #+so set it to None
+            self.artist = track
+            self.title = None
     
     def current_track(self):
-        return "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))
+        if self.title != None:
+            return "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))
+        else:
+            return self.capstext(self.artist)
 
 Parser = GongParser
 
 if __name__ == '__main__':
-    base.test_parser(Parser, 'gong.html')
+    base.test_parser(Parser, 'justone.html')
     

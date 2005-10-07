@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- encoding: latin-1 -*-
-"""A program for listing the songs currently on air
-This program is under GPL"""
+"""A program for listing the songs currently on air.
+
+Created by the What's On Air team, led by Marek Kubica.
+
+This program is under GPL."""
 
 import sys, os, os.path, optparse
 
-__version__ = '0.8.6'
+__version__ = '0.8.7'
 
 def splitver(version):
     """Splits the string representation of the version into a tuple form,
@@ -22,48 +25,48 @@ class IncompatibleParser(Exception):
         Exception.__init__(self, 'Incompatible %s parser, look for a newer version' % parser)
 
 class PluginController(object):
-    """Heavily modified 2bock code"""
+    """This is the controller for all plugins.
+    It imports the plugins from parser/ subdirectory and implements
+    the Iterator-API so you can use it simply in for-loops.
+    
+    It was inspired by 2bock's plugin code, but nearly completely rewritten."""
     pluginlist = []
 
     def __init__(self):
-        """The constructor"""
+        """The constructor, initializes the complete Controller, 
+        does everything that is needed to be done."""
         # add the plugindir to the pythonpath
-        sys.path.append(self.parserdir())
+        sys.path.append(self.parser_dir())
         self.import_plugins()
         # remove the plugindir from the pythonpath
         sys.path.pop()
 
     def __iter__(self):
-        """An iterator"""
+        """Iterates through the list of available plugins."""
         for module in self.pluginlist:
             try:
                 if module.Parser != None:
                     yield module.Parser
             except AttributeError:
+                # it is not really a valid plugin, it has no Parser attribute
                 pass
     
-    def parserdir(self):
-        """Gets the path of the directory where the parsers can be found"""
+    def parser_dir(self):
+        """Gets the path of the directory where the parsers can be found."""
         appdir = os.path.dirname(__file__)
         pdir = os.path.join(appdir, 'parsers')
         return pdir
        
     def import_plugins(self):
-        path = self.parserdir()
+        """The actual plugin importer. It is called automatically
+        by the constructor, you should not call it by yourself."""
+        path = self.parser_dir()
        
         for file in os.listdir(path):
             if file.endswith('.py') or file.endswith('.pyc'):
                 plug = __import__(file.split('.')[0],globals(),locals(),[])
                 if not plug in self.pluginlist:
                     self.pluginlist.append(plug)
-   
-    def get_plugins(self):
-        for module in self.pluginlist:
-            if not module.Parser == None:
-                instance = module.Parser()
-                print instance.__station__
-    
-
 
 def parser_chosen(option, opt, value, parser):
     """Called when a commandline options for a
@@ -76,18 +79,25 @@ def parser_chosen(option, opt, value, parser):
     station = opt[2:]
     
     try:
+        # try to append the station to the list of stations to be crawled
         parser.values.stations.append(station)
     except AttributeError:
+        # the list 'stations' was not found: create it
         parser.values.stations = []
+        # and now append the station to that list
         parser.values.stations.append(station)
-    
 
 def main():
-    """The main program"""
-    # Create the plugin controller
+    """The main program. Initializes the Plugin-Controller,
+    adds commandline options, binds them to callbacks,
+    parses them and finally executes the actions that were
+    requested by the user."""
+    # create the plugin controller
     plugcontrol = PluginController()
     
+    # create the option parser
     opts = optparse.OptionParser()
+    # add some options
     opts.add_option("-v", "--version", dest="version", default=False,
         action="store_true", help="print program & parsers' versions and exit")
     opts.add_option("-d", "--descriptive", dest="descriptive", default=False,
@@ -105,35 +115,41 @@ def main():
     options, args = opts.parse_args()
     
     if options.version:
-        print "WhatsOnAir \t%s" % __version__
+        print "What's On Air \t%s" % __version__
         print 
         for parser in allparsers.values():
             print "%s Parser\t%s" % (parser.__station__, parser.__version__)
+        
         sys.exit(0)
     
     if options.all:
         # go through all stations
         options.descriptive = True
         for parser in allparsers.values():
-            printcurrent(parser, options.descriptive)
+            print_current(parser, options.descriptive)
     else:
         # go just through selected stations
         for name, parser in allparsers.iteritems():
             # check whether to parse this particular station
             if name in options.stations:
-                printcurrent(parser, options.descriptive)
+                print_current(parser, options.descriptive)
         
-def printcurrent(parser, descriptive):
+def print_current(parser, descriptive):
     """Prints the current title playing on a station
     parser is a BaseParser derived class and descriptive
     tells whether it should be chatty. If chatty we also display
     the stations' name"""
+    # initialize the parser (it does not matter what parser)
     current = parser()
+    # feed the parser - it gets the needed informations from the internet
     current.feed()
+    # let the parser parse the gotten inforamtions
     current.parse()
     
     if descriptive:
+        # add the station title if requested
         print current.__station__,
+    # print the station informations
     print current.current_track()
 
 if __name__ == '__main__':
