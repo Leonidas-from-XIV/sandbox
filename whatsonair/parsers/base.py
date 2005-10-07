@@ -56,7 +56,9 @@ class StationBase(object):
             return text.capitalize()
     
     def create_regexp(self, start, stop):
-        reg_exp_code = r'(?<=%s).*(?=%s)' % (start, stop)
+        """Creates regexp"""
+        # this expression is non-greedy: it uses .*? instead of .*
+        reg_exp_code = r'(?<=%s).*?(?=%s)' % (start, stop)
         compiled = re.compile(reg_exp_code)
         return compiled
 
