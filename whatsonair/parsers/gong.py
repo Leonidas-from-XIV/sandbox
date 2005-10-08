@@ -15,8 +15,7 @@ class GongParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        track_rex = self.create_regexp('<td class="liedertext">', '</td>')
-        track = track_rex.findall(self.pagecontent)[1]
+        track = self.cut_content('<td class="liedertext">', '</td>')[1]
         try:
             self.artist, self.title = track.split(': ')
         except ValueError, e:

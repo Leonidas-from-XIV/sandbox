@@ -15,12 +15,10 @@ class AntenneParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        artists_rex = self.create_regexp('<b>', '</b>')
-        artists = artists_rex.findall(self.pagecontent)
+        artists = self.cut_content('<b>', '</b>')
         self.artist = artists[1]
         
-        title_rex = self.create_regexp('</b>, ', '</a>')
-        titles = title_rex.findall(self.pagecontent)
+        titles = self.cut_content('</b>, ', '</a>')
         self.title = titles[0]
     
     def current_track(self):
@@ -33,4 +31,4 @@ class AntenneParser(base.StationBase):
 Parser = AntenneParser
 
 if __name__ == '__main__':
-    base.test_parser(Parser, 'news.html')
+    base.test_parser(Parser, 'ant_infos.html')

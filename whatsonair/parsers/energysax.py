@@ -15,11 +15,9 @@ class EnergySaxParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        title_rex = self.create_regexp('&song_sac=', '&&artist_sac=')
-        self.title = title_rex.findall(self.pagecontent)[0]
+        self.title = self.cut_content('&song_sac=', '&&artist_sac=')[0]
         
-        artist_rex = self.create_regexp('&&artist_sac=', '&')
-        self.artist = artist_rex.findall(self.pagecontent)[0]
+        self.artist = self.cut_content('&&artist_sac=', '&')[0]
     
     def current_track(self):
         return "%s - %s" % (self.capstext(self.artist), self.capstext(self.title))

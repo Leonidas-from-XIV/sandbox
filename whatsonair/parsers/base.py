@@ -61,6 +61,16 @@ class StationBase(object):
         reg_exp_code = r'(?<=%s).*?(?=%s)' % (start, stop)
         compiled = re.compile(reg_exp_code)
         return compiled
+    
+    def cut_content(self, start, stop, content=True):
+        """This is to be called by the plugins
+        Content is the content to be searched."""
+        rex = self.create_regexp(start, stop)
+        if content:
+            return rex.findall(self.pagecontent)
+        else:
+            # else match the provided content
+            return rex.findall(content)
 
 Parser = None
 

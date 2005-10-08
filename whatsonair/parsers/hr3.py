@@ -15,8 +15,7 @@ class HR3Parser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        both_rex = self.create_regexp('<td bgcolor="#ffffff">', '</td>')
-        both = both_rex.findall(self.pagecontent)
+        both = self.cut_content('<td bgcolor="#ffffff">', '</td>')
         # every second hit is an artist
         artists = both[::2]
         # te reast are titles

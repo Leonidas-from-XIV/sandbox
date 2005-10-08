@@ -15,12 +15,10 @@ class FFHParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        artists_rex = self.create_regexp('<h5>', '</h5>')
-        artists = artists_rex.findall(self.pagecontent)
+        artists = self.cut_content('<h5>', '</h5>')
         self.artist = artists[0]
         
-        title_rex = self.create_regexp('<h6>', '</h6>')
-        titles = title_rex.findall(self.pagecontent)
+        titles = self.cut_content('<h6>', '</h6>')
         self.title = titles[0]
     
     def current_track(self):

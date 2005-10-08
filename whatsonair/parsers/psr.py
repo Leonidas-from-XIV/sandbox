@@ -16,8 +16,7 @@ class PSRParser(base.StationBase):
     def parse(self):
         """Call feed first"""
         
-        track_rex = self.create_regexp('<td>', '</td>')
-        chunks = track_rex.findall(self.pagecontent)
+        chunks = self.cut_content('<td>', '</td>')
         tracks = [track for track in chunks if not track.startswith('<')]
         current = tracks[0]
         

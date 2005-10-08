@@ -17,12 +17,10 @@ class FM4Parser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        artists_rex = self.create_regexp('<span class="artist">', '</span><br/>')
-        artists = artists_rex.findall(self.pagecontent)
+        artists = self.cut_content('<span class="artist">', '</span><br/>')
         self.artist = artists[-1]
         
-        title_rex = self.create_regexp('class="tracktitle">', '</span> <span class="separator">')
-        titles = title_rex.findall(self.pagecontent)
+        titles = self.cut_content('class="tracktitle">', '</span> <span class="separator">')
         self.title = titles[-1]
     
     def current_track(self):

@@ -16,8 +16,8 @@ class Bayern3Parser(base.StationBase):
     def parse(self):
         """Call feed first"""
         
-        title_rex = self.create_regexp('&#8222;', '&#8220;')
-        self.title = title_rex.findall(self.pagecontent)[0]
+        titles = self.cut_content('&#8222;', '&#8220;')
+        self.title = titles[0]
         
         artists_rex = re.compile(r'(?<=<br/>).*(?=\t</div>)', re.DOTALL)
         artist = artists_rex.findall(self.pagecontent)[0]
@@ -39,4 +39,4 @@ class Bayern3Parser(base.StationBase):
 Parser = Bayern3Parser
 
 if __name__ == '__main__':
-    base.test_parser(Parser, 'b3mod.html')
+    base.test_parser(Parser, 'b3now.html')

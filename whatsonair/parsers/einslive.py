@@ -15,12 +15,10 @@ class EinsLiveParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
-        titles_rex = self.create_regexp('<TD valign="top" class="cont">', '&nbsp;</TD>')
-        titles = titles_rex.findall(self.pagecontent)
+        titles = self.cut_content('<TD valign="top" class="cont">', '&nbsp;</TD>')
         titles = titles[1::2]
         
-        artists_rex = self.create_regexp('<TD valign="top" class="contbold">', '</TD>')
-        artists = artists_rex.findall(self.pagecontent)
+        artists = self.cut_content('<TD valign="top" class="contbold">', '</TD>')
         
         both = zip(artists, titles)
         self.artist, self.title = both[0]
