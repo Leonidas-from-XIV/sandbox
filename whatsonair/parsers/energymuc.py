@@ -12,6 +12,7 @@ class EnergyMucParser(base.StationBase):
     __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www.energy.de/static/ticker/write_titel.phtml'):
+        # how about this url? http://www.energy.de/static/ticker/ticker.php?sender=muenchen
         base.StationBase.__init__(self, url)
     
     def parse(self):
