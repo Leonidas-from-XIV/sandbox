@@ -10,7 +10,6 @@ class FM4Parser(base.StationBase):
     
     __station__ = 'FM4'
     __version__ = '0.9.1'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://fm4.orf.at/trackservicepopup/stream'):
         base.StationBase.__init__(self, url)

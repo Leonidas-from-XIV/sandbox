@@ -10,13 +10,6 @@ import sys, os, os.path, optparse
 
 __version__ = '0.8.7'
 
-def splitver(version):
-    """Splits the string representation of the version into a tuple form,
-    so it's easier to parse"""
-    return tuple(version.split('.'))
-
-__versiontuple__ = splitver(__version__)
-
 class IncompatibleParser(Exception):
     """An exception thrown when the parser is incompatible,
     i.e. causes an exception during parsing"""

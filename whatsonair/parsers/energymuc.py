@@ -9,7 +9,7 @@ class EnergyMucParser(base.StationBase):
     
     __station__ = 'EnergyMunich'
     __version__ = '0.7.2'
-    __versiontuple__ = base.splitver(__version__)
+
     def __init__(self, url='http://www.energy.de/static/ticker/ticker.php?sender=muenchen'):    
         base.StationBase.__init__(self, url)
     

@@ -9,7 +9,6 @@ class YouFmParser(hr3.HR3Parser):
     
     __station__ = 'YouFM'
     __version__ = '0.1.2'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www3.admin.hr-online.de/playlist/playlist.php?tpl=youfm'):
         hr3.HR3Parser.__init__(self, url)

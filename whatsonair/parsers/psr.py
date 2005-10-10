@@ -8,7 +8,6 @@ class PSRParser(base.StationBase):
     
     __station__ = 'PSR'
     __version__ = '0.3.1'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www.radiopsr.de/www/webradio/e98cb037f376fa53b314c166766ef55e.php'):
         base.StationBase.__init__(self, url)

@@ -8,7 +8,6 @@ class FFHParser(base.StationBase):
     
     __station__ = 'FFH'
     __version__ = '0.2.1'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www.ffh.de/api/webradio.php'):
         base.StationBase.__init__(self, url)

@@ -8,7 +8,6 @@ class EnergySaxParser(base.StationBase):
     
     __station__ = 'EnergySaxonia'
     __version__ = '0.3.1'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www.energy.de/static/ticker/ticker.php?sender=sachsen'):
         base.StationBase.__init__(self, url)

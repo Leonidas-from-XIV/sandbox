@@ -3,11 +3,6 @@
 
 import urllib, re
 
-def splitver(version):
-    """Splits the string representation of the version into a tuple form,
-    so it's easier to parse"""
-    return tuple(version.split('.'))
-
 class StationBase(object):
     """The base class for each radio station parser
     provides already some rough tools like the HTMLParser.
@@ -19,11 +14,10 @@ class StationBase(object):
     you need to call StationBase.__init__ for doing the most work.
     
     All child classes also have a feed() method, where the page content
-    is parsed and all values initialized. After that, curenttrack() can
+    is parsed and all values initialized. After that, curent_track() can
     be called to get the currently playing track."""
     __station__ = 'StationBase'
     __version__ = '1.0.0'
-    __versiontuple__ = splitver(__version__)
     
     pagecontent = None
     

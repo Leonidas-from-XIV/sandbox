@@ -8,7 +8,6 @@ class GongParser(base.StationBase):
     
     __station__ = 'Gong'
     __version__ = '0.9.2'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://web1.beamgate.com/Gong/getPlaylist.jsp'):
         base.StationBase.__init__(self, url)

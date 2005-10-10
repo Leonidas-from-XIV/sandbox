@@ -8,7 +8,6 @@ class AntenneParser(base.StationBase):
     
     __station__ = 'AntenneBayern'
     __version__ = '0.6.1'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://webradio.antenne.de/antenne/webradio/new_channels/ant_infos.php'):
         base.StationBase.__init__(self, url)

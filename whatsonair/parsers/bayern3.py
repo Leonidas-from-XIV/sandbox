@@ -8,7 +8,6 @@ class Bayern3Parser(base.StationBase):
     
     __station__ = 'Bayern3'
     __version__ = '0.6.6'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www.br-online.de/bayern3/global/utils/homepage/nowonair.jsp'):
         base.StationBase.__init__(self, url)

@@ -8,7 +8,6 @@ class HR3Parser(base.StationBase):
     
     __station__ = 'HR3'
     __version__ = '0.1.2'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www3.admin.hr-online.de/playlist/playlist.php?tpl=hr3neu'):
         base.StationBase.__init__(self, url)

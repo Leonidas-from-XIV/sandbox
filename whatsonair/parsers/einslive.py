@@ -8,7 +8,6 @@ class EinsLiveParser(base.StationBase):
     
     __station__ = 'EinsLive'
     __version__ = '0.1.0'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www.einslive.de/diemusik/dieplaylists/die_letzten_12_titel/index.phtml'):
         base.StationBase.__init__(self, url)

@@ -8,7 +8,6 @@ class NJoyParser(base.StationBase):
     
     __station__ = 'NJoy'
     __version__ = '0.1.1'
-    __versiontuple__ = base.splitver(__version__)
     
     def __init__(self, url='http://www1.n-joy.de/pages_special/0,,SPM2156,00.html'):
         base.StationBase.__init__(self, url)
@@ -18,6 +17,7 @@ class NJoyParser(base.StationBase):
         artists = self.cut_content('<td headers="headerB">', '\n</td>')
         titles = self.cut_content('<td headers="headerC">', '</td>')
         both = zip(artists, titles)
+        print both
         
         self.artist, self.title = both[-1]
     
@@ -27,5 +27,5 @@ class NJoyParser(base.StationBase):
 Parser = NJoyParser
 
 if __name__ == '__main__':
-    base.test_parser(Parser, 'njoy.html')
+    base.test_parser(Parser, 'nhack.html')
     
