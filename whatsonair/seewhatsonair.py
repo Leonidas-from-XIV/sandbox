@@ -19,7 +19,8 @@ class UserInterface(object):
     def __init__(self):
         self.window = gtk.Window()
         self.window.set_title("What's on Air?")
-        self.window.connect('delete_event', self.delete_event) 
+        self.window.connect('delete_event', self.delete_event)
+        self.window.set_size_request(500, 400)
         
         self.box = gtk.Table()
         
@@ -121,7 +122,7 @@ class UserInterface(object):
         model.set(iterator, 0, quest) 
         
         # update the values of this station
-        gobject.idle_add(self.updatestations)
+        gobject.idle_add(self.update_stations)
     
     def interval_changed(self, widget):
         """The interval in the widget was changed.
@@ -170,16 +171,25 @@ class UserInterface(object):
             station = parser()
             station.feed()
             station.parse()
-            tr = station.current_track().split(' - ', 1)
-            self.model.set_value(iterator, 2, tr[0])
-            self.model.set_value(iterator, 3, tr[1])
-        except whatsonair.IncompatibleParser:
-            self.update.set_label('Update failed')
+            track = station.current_track()
+            
+            if track == None:
+                self.update.set_label('No song currently')
+                self.update.set_sensitive(True)
+                return
+            
+            # the splitted track: may be just one part
+            tr = track.split(' - ', 1)
+            try:
+                self.model.set_value(iterator, 2, tr[0])
+                self.model.set_value(iterator, 3, tr[1])
+                self.update.set_label('Update')
+            except IndexError:
+                pass
+            
         except IOError:
             self.update.set_label('Network error')
-        except IndexError:
-            pass
-            
+        
         self.update.set_sensitive(True)
         # do not start periodically
         return False
