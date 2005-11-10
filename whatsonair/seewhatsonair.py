@@ -14,25 +14,44 @@ import gtk, gobject
 import whatsonair
 
 picklefile = 'seewhatsonair.pickle'
-    
+
 class UserInterface(object):
+    """The graphical user interface.
+    This class represents the main window"""
+    
     def __init__(self):
+        """Constructor of main window.
+        Builds the UI elements"""
+        # create a window
         self.window = gtk.Window()
+        # set the title
         self.window.set_title("What's on Air?")
+        # add an event, when clicking on the close-button
         self.window.connect('delete_event', self.delete_event)
+        # set a default size for the window
         self.window.set_size_request(500, 400)
         
+        # create a layout manager: Table
         self.box = gtk.Table()
         
+        # create a scrolled window - so users can scroll the display
+        #+when the text is too long. 
         sw = gtk.ScrolledWindow()
+        # set the shadow type
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+        # and when to display the scrollbars: when needed
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         
+        # create a liststore
         self.model = gtk.ListStore(bool, str, str, str)
-        self.treeview = gtk.TreeView(self.model) 
+        # and generate a treeview aut of that liststore
+        self.treeview = gtk.TreeView(self.model)
+        # enable autosizing for the columns, very nice
         self.treeview.columns_autosize()
+        # add the treeview to the scrolled window
         sw.add(self.treeview)
         
+        # add the columns to the treeview
         for i in range(4):
             if i == 0:
                 renderer = gtk.CellRendererToggle()
@@ -49,39 +68,44 @@ class UserInterface(object):
                 column = gtk.TreeViewColumn('Title', renderer, text=i)
             self.treeview.append_column(column)
         
+        # initialize the plugin controller - for accessing the plugins
         self.plugcon = whatsonair.PluginController()
         
-        # load
+        # load the configfile
         try:
+            # open the file
             f = file(picklefile, 'r')
+            # restore the settings
             states = pickle.load(f)
+            # close the file
             f.close()
         except IOError:
             # file not found
-            # so make a dictionary where all values are False
+            #+so make a dictionary where all values are set to False
             states = {}
-            for st in self.plugcon:
-                states[st.__station__] = False
+            for plugin in self.plugcon:
+                # plugin.__station__
+                states[plugin.__station__] = False
         
-        
-        for st in self.plugcon:
+        # add the stations to the tree view
+        for plugin in self.plugcon:
+            # append the station at the end of the treeview
             iterator = self.model.append()
-            self.model.set_value(iterator, 1, st.__station__)
+            # set the name of the station
+            self.model.set_value(iterator, 1, plugin.__station__)
             
-            #load
-            self.model.set_value(iterator, 0, states[st.__station__])
+            # set the question state of the station
+            self.model.set_value(iterator, 0, states[plugin.__station__])
         
-        
-        self.track = gtk.Label('Click on Update')
+        # add update button and bind a clicked callback
         self.update = gtk.Button('Manual Update')
+        self.update.connect('clicked', self.update_click)
         
-        adj = gtk.Adjustment(value=10, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0) 
+        adj = gtk.Adjustment(value=10, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0)
         self.interval = gtk.SpinButton(adj, 0, 0)
         self.interval.set_numeric(True)
         adj.connect('value_changed', self.interval_changed) 
         self.sid = gobject.timeout_add(10 * 1000, self.cyclic_update)
-        
-        self.update.connect('clicked', self.update_click)
         
         self.box.attach(sw, 0, 2, 0, 1)
         self.box.attach(self.interval, 0, 1, 1, 2, yoptions=gtk.SHRINK)
@@ -161,7 +185,6 @@ class UserInterface(object):
             if station.__station__ == selectedstation:
                 #self.update_track(station)
                 self.update.set_sensitive(False)
-                self.track.set_text('Updating...')
                 # use GTK pseudo threads
                 gobject.idle_add(self.update_track, station, iterator)
     
