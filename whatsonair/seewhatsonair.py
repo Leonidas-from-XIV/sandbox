@@ -54,18 +54,29 @@ class UserInterface(object):
         # add the columns to the treeview
         for i in range(4):
             if i == 0:
+                # add a toggle cell
                 renderer = gtk.CellRendererToggle()
+                # connect it to a callback
                 renderer.connect('toggled', self.quest_toggled, self.model)
+                # create the column
                 column = gtk.TreeViewColumn('Question', renderer, active=i)
             elif i == 1:
+                # add a text cell
                 renderer = gtk.CellRendererText()
+                # create the column
                 column = gtk.TreeViewColumn('Station', renderer, text=i)
             elif i == 2:
+                # add a text cell
                 renderer = gtk.CellRendererText()
+                # create the column
                 column = gtk.TreeViewColumn('Artist', renderer, text=i)
             elif i == 3:
+                # add a text cell
                 renderer = gtk.CellRendererText()
+                # create the column
                 column = gtk.TreeViewColumn('Title', renderer, text=i)
+            
+            # append the created column to the treeview
             self.treeview.append_column(column)
         
         # initialize the plugin controller - for accessing the plugins
@@ -98,22 +109,34 @@ class UserInterface(object):
             self.model.set_value(iterator, 0, states[plugin.__station__])
         
         # add update button and bind a clicked callback
-        self.update = gtk.Button('Manual Update')
+        self.update = gtk.Button('Manual update')
         self.update.connect('clicked', self.update_click)
         
-        adj = gtk.Adjustment(value=10, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0)
+        # defualt interval for updating is ten seconds
+        default_interval = 10
+        # create an anjustment - with some default values
+        adj = gtk.Adjustment(value=default_interval, lower=1, upper=3600, step_incr=1, page_incr=5, page_size=0)
+        # create a spinbutton widget
         self.interval = gtk.SpinButton(adj, 0, 0)
+        # set the widget to numeric input only
         self.interval.set_numeric(True)
+        # add a callback: called when the interval was changed
         adj.connect('value_changed', self.interval_changed) 
-        self.sid = gobject.timeout_add(10 * 1000, self.cyclic_update)
+        # create a pseudothread
+        self.sid = gobject.timeout_add(default_interval * 1000, self.cyclic_update)
         
+        # add the scrolledwindow to the layout manager
         self.box.attach(sw, 0, 2, 0, 1)
+        # add the spinbutton
         self.box.attach(self.interval, 0, 1, 1, 2, yoptions=gtk.SHRINK)
+        # add the button
         self.box.attach(self.update, 1, 2, 1, 2, yoptions=gtk.SHRINK)
+        # set spacings for rows and columns
         self.box.set_row_spacings(5)
         self.box.set_col_spacings(5)
+        # add the layout manager to the window
         self.window.add(self.box)
-        
+        # show all widgets on the window
         self.window.show_all()
     
     def delete_event(self, widget, event, data=None):
@@ -122,10 +145,15 @@ class UserInterface(object):
         states = {}
         for station in self.model:
             states[station[1]] = station[0]
+        
+        # open the configfile
         f = file(picklefile, 'w')
+        # dump the variables into the configfile
         pickle.dump(states, f, pickle.HIGHEST_PROTOCOL)
+        # close the configfile
         f.close()
         
+        # exit the main loop
         gtk.main_quit()
         return False
     
@@ -136,8 +164,6 @@ class UserInterface(object):
         
         quest = model.get_value(iterator, 0)
         station = model.get_value(iterator, 1)
-        #print station
-        #print "Currently ", quest, " changed to ",
     
         # swich the value to the negative
         quest = not quest
@@ -152,7 +178,6 @@ class UserInterface(object):
         """The interval in the widget was changed.
         So stop the current timeout-job and start a new with
         the new timeout interval"""
-        #print widget
         new_value = int(self.interval.get_value())
         interval = new_value * 1000
         
@@ -162,7 +187,11 @@ class UserInterface(object):
         self.sid = gobject.timeout_add(interval, self.cyclic_update)
     
     def cyclic_update(self):
-        print 'Timeout #%s' % str(self.sid)
+        """Called cyclic to update the stations"""
+        # display the current pseudo-thread ID
+        #print 'Timeout #%d' % self.sid
+        
+        # update the stations
         gobject.idle_add(self.update_stations)
         
         # True - wait until the next timeout, False - break
@@ -206,8 +235,9 @@ class UserInterface(object):
             try:
                 self.model.set_value(iterator, 2, tr[0])
                 self.model.set_value(iterator, 3, tr[1])
-                self.update.set_label('Update')
+                self.update.set_label('Manual update')
             except IndexError:
+                # Ignore index-errors
                 pass
             
         except IOError:
@@ -231,14 +261,23 @@ class UserInterface(object):
                 station = parser()
                 station.feed()
                 station.parse()
-                tr = station.current_track().split(' - ', 1)
-                row[2] = tr[0]
-                row[3] = tr[1]
-                
+                try:
+                    tr = station.current_track().split(' - ', 1)
+                    row[2] = tr[0]
+                    row[3] = tr[1]
+                    self.update.set_label('Manual update')
+                except AttributeError:
+                    # ignore errors when station information cannot be collected
+                    pass
+                except IndexError:
+                    # ignore errors when just one field is filled
+                    pass
 
 def main():
     """The main method - just opens the window"""
+    # create the interface
     sw = UserInterface()
+    # enter mainloop
     gtk.main()
 
 if __name__ == '__main__':

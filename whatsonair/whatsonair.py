@@ -46,7 +46,14 @@ class PluginController(object):
     
     def parser_dir(self):
         """Gets the path of the directory where the parsers can be found."""
-        appdir = os.path.dirname(__file__)
+        try:
+            appdir = os.path.dirname(__file__)
+            if '.zip' in appdir:
+                # frozen exe
+                appdir = os.path.dirname(sys.argv[0])
+        except NameError:
+            # frozen exe, so no __file__
+            appdir = os.path.dirname(sys.argv[0])
         pdir = os.path.join(appdir, 'parsers')
         return pdir
        
