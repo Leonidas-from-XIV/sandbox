@@ -9,9 +9,9 @@ class FM4Parser(base.StationBase):
     Look at it's homepage http://fm4.orf.at"""
     
     __station__ = 'FM4'
-    __version__ = '0.9.1'
+    __version__ = '0.9.2'
     
-    def __init__(self, url='http://fm4.orf.at/trackservicepopup/stream'):
+    def __init__(self, url='http://hop.orf.at/img-trackservice/fm4.html'):
         base.StationBase.__init__(self, url)
     
     def parse(self):
@@ -28,5 +28,5 @@ class FM4Parser(base.StationBase):
 Parser = FM4Parser
 
 if __name__ == '__main__':
-    base.test_parser(Parser, 'stream.html')
+    base.test_parser(Parser, 'fm4.html')
     
