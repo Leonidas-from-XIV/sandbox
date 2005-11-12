@@ -8,7 +8,7 @@ This program is under GPL."""
 
 import sys, os, os.path, optparse
 
-__version__ = '0.8.7'
+__version__ = '0.8.8'
 
 class IncompatibleParser(Exception):
     """An exception thrown when the parser is incompatible,
