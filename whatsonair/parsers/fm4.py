@@ -6,7 +6,11 @@ import base
 class FM4Parser(base.StationBase):
     """The Parser for the austrian sidestream radio station
     FM4, which is part of ORF.
-    Look at it's homepage http://fm4.orf.at"""
+    Look at it's homepage http://fm4.orf.at
+    
+    Maybe besser use this songlist?
+    http://fm4.orf.at/trackservicepopup/main
+    But then we loose the ability to parse OE3 as well"""
     
     __station__ = 'FM4'
     __version__ = '0.9.2'
