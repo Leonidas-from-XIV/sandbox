@@ -14,6 +14,9 @@ class NJoyParser(base.StationBase):
     
     def parse(self):
         """Call feed first"""
+        # get rid of annoying linebreaks
+        self.pagecontent = self.pagecontent.replace('\n', '')
+        
         artists = self.cut_content('<td headers="headerB">', '</td>')
         titles = self.cut_content('<td headers="headerC">', '</td>')
         both = zip(artists, titles)
