@@ -7,7 +7,7 @@ class GoTvParser(base.StationBase):
     """GoTv"""
     
     __station__ = 'GoTv'
-    __version__ = '0.1.0'
+    __version__ = '0.1.1'
     
     def __init__(self, url='http://www.gotv.at/titel_main.php'):
         base.StationBase.__init__(self, url)
@@ -16,6 +16,8 @@ class GoTvParser(base.StationBase):
         """Call feed first"""
         
         track = self.cut_content("\('VideoJetzt'\).innerHTML != '", "'\)")[0]
+        # remove eventually contained excape backslashes
+        track = track.replace('\\', '')
         
         # remove eventual html tags
         rex = re.compile("<.*?>")
