@@ -16,7 +16,7 @@ import os, sys, random, time, math, optparse
 import pygame
 import pygame.locals as pyl
 
-__version__ = '0.1.8'
+__version__ = '0.1.9'
 
 class Application(object):
     screenwidth = 680
@@ -781,6 +781,29 @@ class Application(object):
     def grail(self):
         """grail.sf.net"""
         
+        def createpositions():
+            positions = []
+        
+            outer = []
+        
+            startpos = (10, 10)
+            for i in range(dots):
+                xpos = i * dot_spacing + startpos[0]
+                outer.append((xpos, startpos[1]))
+            for i in range(dots):
+                xpos = i * dot_spacing + startpos[0]
+                outer.append((xpos, startpos[1] + dots * dot_spacing))
+            for i in range(dots):
+                ypos = i * dot_spacing + startpos[0]
+                outer.append((startpos[0], ypos))
+            for i in range(dots):
+                ypos = i * dot_spacing + startpos[0]
+                outer.append((startpos[0] + (dots - 1) * dot_spacing, ypos))
+            
+            inner = []
+            positions.extend([outer, inner])
+            return positions
+        
         color = (140, 8, 33)
         # dots in a row
         dots = 13
@@ -788,24 +811,8 @@ class Application(object):
         dot_size = 5
         dot_width = 0
         
-        positions = []
         
-        outer = []
-        
-        startpos = (10, 10)
-        for i in range(dots):
-            xpos = i * dot_spacing + startpos[0]
-            outer.append((xpos, startpos[1]))
-        for i in range(dots):
-            xpos = i * dot_spacing + startpos[0]
-            outer.append((xpos, startpos[1] + dots * dot_spacing))
-        
-        #outer = [(10, 10), (10, 20)]
-        #inner = [(150, 150)]
-        inner = []
-        
-        positions.extend([outer, inner])
-        for stage in positions:
+        for stage in createpositions():
             for dot in stage:
                 pygame.draw.circle(self.screen, color, dot, dot_size, dot_width)
             dot_size *= 2
@@ -821,7 +828,37 @@ class Application(object):
             for event in pygame.event.get():
                 if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
                     return
-
+    
+    def freefall(self):
+        white = (255, 255, 255)
+        black = (0, 0, 0)
+        x_cord = 100
+        y_cord = 20
+        velocity = 0
+        demotime = 0.0
+        # earth speedup = 9.81
+        speedup = 1.0
+        
+        while True:
+            # limit to 30 fps
+            self.clock.tick(30)
+            demotime += 0.1
+            
+            self.screen.fill(black)
+            drect = pygame.draw.line(self.screen, white, (x_cord, y_cord), (x_cord, y_cord), 1)
+            #pygame.display.update(drect)
+            pygame.display.flip()
+            
+            movement = (speedup/2) * demotime ** 2 + y_cord
+            #print s
+            #y_cord += 1
+            y_cord = movement
+            
+            
+            # handle events
+            for event in pygame.event.get():
+                if event.type == pyl.QUIT or event.type == pyl.KEYDOWN:
+                    return
 
 # Does the demos die on small problems?
 deathtrap = False
@@ -906,6 +943,11 @@ def main():
         default=False,
         action="store_true",
         help="the grail logo")
+    parser.add_option("--freefall",
+        dest="freefall",
+        default=False,
+        action="store_true",
+        help="free falling simulation")
     options, args = parser.parse_args()
     
     # We have to prepare display
@@ -920,7 +962,7 @@ def main():
     
     if (options.critter or options.ant or options.popsquares or options.magnets
         or options.prime or options.wave or options.alaska or options.cube
-        or options.laser or options.textraise or options.grail):
+        or options.laser or options.textraise or options.grail or options.freefall):
         options.all = False
     
     if options.all or options.critter:
@@ -993,6 +1035,10 @@ def main():
             app.info("Grail", "Grail logo")
         app.grail()
         #app.reblank(options.frameskip)
+    if options.all or options.freefall:
+        if options.intro:
+            app.info("Freefall", "Freefalling simulation")
+        app.freefall()
 
 class HexaSprite(pygame.sprite.Sprite):
     """A sprite representing a hexagon"""
