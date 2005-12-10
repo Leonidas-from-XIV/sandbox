@@ -832,28 +832,33 @@ class Application(object):
     def freefall(self):
         white = (255, 255, 255)
         black = (0, 0, 0)
-        x_cord = 100
-        y_cord = 20
-        velocity = 0
+        block_size = 10
+        fps_limit = 20
+        timestep = 1.0/fps_limit
+        
         demotime = 0.0
         # earth speedup = 9.81
         speedup = 1.0
         
+        # x, y, w, h
+        block = pygame.Rect(100, 20, block_size, block_size)
+        
         while True:
-            # limit to 30 fps
-            self.clock.tick(30)
-            demotime += 0.1
+            # limit to 20 fps
+            self.clock.tick(fps_limit)
+            # let the time progress
+            demotime += timestep
             
-            self.screen.fill(black)
-            drect = pygame.draw.line(self.screen, white, (x_cord, y_cord), (x_cord, y_cord), 1)
-            #pygame.display.update(drect)
-            pygame.display.flip()
+            #self.screen.fill(black)
+            drect_wipe = pygame.draw.rect(self.screen, black, block, 0)
             
-            movement = (speedup/2) * demotime ** 2 + y_cord
-            #print s
-            #y_cord += 1
-            y_cord = movement
+            movement = (speedup/2) * demotime ** 2
+            print movement
+            block.move_ip(0, movement)
+            block = block.clamp(self.clamp_window)
             
+            drect_draw = pygame.draw.rect(self.screen, white, block, 0)
+            pygame.display.update([drect_wipe, drect_draw])
             
             # handle events
             for event in pygame.event.get():
