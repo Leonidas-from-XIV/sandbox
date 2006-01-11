@@ -10,7 +10,7 @@
 function modify() {
     // get all forms on the page
     var forms = document.getElementsByTagName('form');
-    // iterate from last to first
+    // iterate from first to last
     for (var i = 0; i < forms.length; i++) {
         // give the form a name
         var form = forms[i];
@@ -21,9 +21,6 @@ function modify() {
                 // it is the first form: delete it
                 parent = form.parentNode;
                 parent.removeChild(form);
-            } else {
-                // just give it an ID
-                form.id = 'form' + (i - 1).toString();
             }
         }
     }
@@ -36,16 +33,37 @@ function modify() {
         // give the form a name
         var form = forms[i];
         
-        // get the previous div-element
-        var previous_div = form.parentNode.previousSibling.previousSibling;
-        // now get the previous heading
-        var previous_heading = previous_div.previousSibling.previousSibling;
-        //alert(previous_heading.nodeValue);
+        // look for the previous heading
+        var heading_found = false;
+        var last_element = form.parentNode;
+        // begin saerching
+        while (heading_found == false) {
+            // get the previous DOM node
+            last_element = last_element.previousSibling;
+            // set a shortcut variable
+            var tag_name = last_element.tagName
+            // is the element a heading?
+            if (tag_name == 'H1' || tag_name == 'H2' ||
+                tag_name == 'H3' || tag_name == 'H4' || 
+                tag_name == 'H5' || tag_name == 'H6') {
+                // yes, it *is* a heading.. found it. quit the loop
+                heading_found = true;
+            }
+        }
+        // set the previous heading to the last_element (hope it was found)
+        var previous_heading = last_element;
         
         // get all input elements of the form
         var inputs = form.getElementsByTagName('input');
-        // get the submit button
-        var submit = inputs[2];
+        
+        // find the submit button element
+        var submit = false;
+        for (var j = 0; j < inputs.length; j++) {
+            if (inputs[j].type == 'submit') {
+                // found the submit button, set the variable
+                submit = inputs[j];
+            }
+        }
         
         // set the style: small text, invisible border
         submit.style.fontSize = 'x-small';
