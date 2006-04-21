@@ -94,4 +94,9 @@ def solve_exp_rpn(exp)
     stack.pop()
 end
 
+# APL
+def solve_exp_apl(exp)
+    puts exp
+end
+
 main() if __FILE__ == $0

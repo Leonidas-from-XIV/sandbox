@@ -507,7 +507,7 @@ class Application(object):
                     degree = 0
             
                 # calculate the exact sine value of that radian 
-                sinval = math.sin(torad(degree))
+                sinval = math.sin(math.radians(degree))
                 # maximize the value, and round it
                 drawval = int(round(sinval * 100))
             
@@ -841,7 +841,7 @@ class Application(object):
         speedup = 1.0
         
         # x, y, w, h
-        block = pygame.Rect(100, 20, block_size, block_size)
+        block = pygame.Rect(10, 0, block_size, block_size)
         
         while True:
             # limit to 20 fps
@@ -853,7 +853,6 @@ class Application(object):
             drect_wipe = pygame.draw.rect(self.screen, black, block, 0)
             
             movement = (speedup/2) * demotime ** 2
-            print movement
             block.move_ip(0, movement)
             block = block.clamp(self.clamp_window)
             
@@ -869,9 +868,6 @@ class Application(object):
 deathtrap = False
 # verbose output?
 verbose = False
-
-# convert deg values to rad values
-torad = lambda deg: (deg * math.pi) / 180.0
 
 def main():
     """Starts the demos""" 

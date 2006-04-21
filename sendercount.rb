@@ -3,7 +3,9 @@ require 'yaml'
 require 'date'
 require 'mailparser'
 
+=begin
 # The main method. This one controls the execution of all commands.
+=end
 def main()
     # create the worker
     w = Worker.new

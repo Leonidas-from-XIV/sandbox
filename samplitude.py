@@ -3,9 +3,6 @@
 """A small sampler"""
 
 import ConfigParser, logging, textwrap, sys
-# need pySonic for sound output
-# get it from http://pysonic.sourceforge.net/
-import pySonic
 # need PyGTK for GUI
 # get it from http://www.pygtk.org/
 import gtk, gobject
@@ -53,9 +50,7 @@ class Configuration(object):
 class SoundDriver(object):
     """A simple sound driver"""
     def __init__(self):
-        """Initializes pySonic"""
-        self.world = pySonic.World()
-        self.src = pySonic.Source()
+        raise NotImplementedError('Virtual Class')
     
     def play(self, url):
         """Parse file:/// und freq:// and silence:// URLs"""
@@ -67,17 +62,34 @@ class SoundDriver(object):
     
     def play_sample(self, samplefile):
         """Plays a sample loaded from disk"""
+        raise NotImplementedError('Virtual class')
+    
+    def play_freq(self, frequency, lenght):
+        """Plays a frequency at a time"""
+        raise NotImplementedError('The author does not know how to play these')
+
+class SonicDriver(SoundDriver):
+    def __init__(self):
+        """Initializes pySonic"""
+        # need pySonic for sound output
+        # get it from http://pysonic.sourceforge.net/
+        import pySonic
+        self.pySonic = pySonic
+        
+        self.world = pySonic.World()
+        self.src = pySonic.Source()
+    
+    def play_sample(self, samplefile):
+        """Plays a sample loaded from disk"""
         try:
-            self.src.Sound = pySonic.FileSample(samplefile)
+            self.src.Sound = self.pySonic.FileSample(samplefile)
             self.src.Play()
-        except pySonic.FMODError:
+        except self.pySonic.FMODError:
             # maybe the file was not found.. do nothing
             pass
     
-    def play_freq(self, frequency, lenght):
-        """Plays a frequency fo a time"""
-        #self.src.Sound = pySonic.MemorySample("""Zats""" * 800, 1, 8, 800)
-        raise NotImplementedError('The author does not know how to play these')
+    #play_freq:
+    #self.src.Sound = pySonic.MemorySample("""Zats""" * 800, 1, 8, 800)
 
 class NumpadWindow(object):
     """The window displaying the numpad buttons on the screen.
@@ -168,10 +180,8 @@ def main():
     
     logging.info('Program started')
     
-    
-    
     conf = Configuration('samplitude.ini')
-    sd = SoundDriver()
+    sd = SonicDriver()
     numwin = NumpadWindow(sdriver=sd, conf=conf)
     # call the GTK mainloop
     gtk.main()

@@ -3,32 +3,25 @@
 import time, urllib
 import gtk
 
-config = {
-    # choose a host - available hosts are:
-    # soho.esac.esa.int (the ESA server)
-    # sohowww.estec.esa.nl (an alias for the ESA' one)
-    # plop.nascom.nasa.gov (the NASA server)
-    # sohowww.nascom.nasa.gov (an alias for the NASA' one)
-    'host' : 'soho.esac.esa.int',
-    # choose a version
-    # eit_171 - blue
-    # eit_195 - green
-    # eit_284 - yellow
-    # eit_304 - normal
-    # mdi_igr - MDI Continuum
-    # mdi_mag - MDI Magnetogram
-    # c2 - LASCO C2
-    # c3 - LASCO C3
-    'variation' : 'eit_304',
-    # size
-    # 256
-    # 512
-    # 1024
-    'size' : '256',
-    'file' : time.strftime('%Y-%m-%d_%H-%M.gif',
-                                    time.gmtime())
-}
-#http://soho.esac.esa.int/data/realtime/eit_304/1024/latest.gif
+# choose a host - available hosts are:
+# soho.esac.esa.int (the ESA server)
+# sohowww.estec.esa.nl (an alias for the ESA' one)
+# plop.nascom.nasa.gov (the NASA server)
+# sohowww.nascom.nasa.gov (an alias for the NASA' one)
+# choose a version
+# eit_171 - blue
+# eit_195 - green
+# eit_284 - yellow
+# eit_304 - normal
+# mdi_igr - MDI Continuum
+# mdi_mag - MDI Magnetogram
+# c2 - LASCO C2
+# c3 - LASCO C3
+# size
+# 256
+# 512
+# 1024
+
 
 class SOHOWindow(object):
     def __init__(self):
@@ -117,8 +110,8 @@ class SOHOWindow(object):
         # get a progressive loader (so we can feed the bytes)
         pbloader = gtk.gdk.PixbufLoader()
         
-        #uf = urllib.urlopen(path)
-        uf = file('soho256.gif', 'rb')
+        uf = urllib.urlopen(path)
+        #uf = file('soho256.gif', 'rb')
         self.set_statusbar(u'Laden von %s...' % path)
         
         # how many data have we got?
