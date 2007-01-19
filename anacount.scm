@@ -33,6 +33,9 @@
       (* (fak (- number 1)) number)))
 
 (define (get-divisor hash)
-  (sum 
-    (hash-table-map hash (lambda (key value) value))))
+  (let ((divisor (sum (hash-table-map frequency (lambda (key value) value)))))
+    (if (= divisor 0)
+        1
+	((lambda (n) n) divisor)
+      )))
 
