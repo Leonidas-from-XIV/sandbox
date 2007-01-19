@@ -17,7 +17,22 @@
        )
   )
 
+;(hash-table-map frequency (lambda (key value) value))
+
+(define (sum-worker lst s)
+   (if (null? lst)
+       s
+       (sum-worker (cdr lst) (+ s (car lst)))))
+
+(define (sum lst)
+  (sum-worker lst 0))
+
 (define (fak number)
   (if (= number 0)
          1
       (* (fak (- number 1)) number)))
+
+(define (get-divisor hash)
+  (sum 
+    (hash-table-map hash (lambda (key value) value))))
+
