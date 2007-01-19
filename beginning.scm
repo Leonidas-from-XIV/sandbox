@@ -14,7 +14,8 @@
 
 (define (quadrat x) (* x x))
 
-; a recursive way to net the n-th power of a number
+; a recursive way to get the n-th power of a number
 (define (pow number power)
   (if (= power 2) (* number number)
       (* (pow number (- power 1)) number)))
+
