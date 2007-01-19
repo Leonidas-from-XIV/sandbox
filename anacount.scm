@@ -16,3 +16,8 @@
   (map analyze-frequency (string->list str)
        )
   )
+
+(define (fak number)
+  (if (= number 0)
+         1
+      (* (fak (- number 1)) number)))
