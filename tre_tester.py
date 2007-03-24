@@ -1,0 +1,35 @@
+from tre import *
+
+preg = byref(regex_t())
+
+print 'reg compile result:', libtre.regcomp(preg, r'a[0-9]a', 1)
+
+pmatch = (regmatch_t*5)()
+nmatch = c_size_t(5)
+test_st = tmp_str = 'fgfga7afdfa7ad'
+offset = 0
+
+matches = []
+while True:
+    res = libtre.regexec(preg, tmp_str, nmatch, byref(pmatch), 0)
+    if res != 0:
+        print 'Error in regexec', res
+        break
+
+    m = []
+    for match in pmatch:
+        if match.rm_so != -1:
+            m.append((match.rm_so, match.rm_eo))
+    matches.append(m)
+
+    #Nach dem Match weitersuchen
+    print match.rm_eo
+    tmp_str = tmp_str[match.rm_eo:]
+    print tmp_str
+    offset += match.rm_eo
+
+print matches
+libtre.regfree(preg)
+for match in matches:
+    for start, end in match:
+        print test_st[start:end]
