@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+"""
+Testing module for TRE
+"""
+
 from tre import *
 
 preg = byref(regex_t())
@@ -22,10 +28,8 @@ while True:
             m.append((match.rm_so, match.rm_eo))
     matches.append(m)
 
-    #Nach dem Match weitersuchen
-    print match.rm_eo
+    # search on after the match
     tmp_str = tmp_str[match.rm_eo:]
-    print tmp_str
     offset += match.rm_eo
 
 print matches
