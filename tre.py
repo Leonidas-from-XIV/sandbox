@@ -2,11 +2,12 @@
 # -*- coding: UTF-8 -*-
 """
 A module which creates a binding for the TRE regular expression engine.
+You can find the home page of TRE at http://laurikari.net/tre/
 
 Don't be surprised about many very easy and obvious documentation comments
 as this module is also intended as a documentation on how to wrap C 
 libraries with ctypes. ctypes was put into the stdlib for Python 2.5 so it
-does not count as external dependency anymore
+does not count as external dependency anymore.
 """
 
 # import important ctypes functions
@@ -16,6 +17,7 @@ from ctypes import c_int, c_size_t, c_void_p, c_char_p, c_wchar_p
 
 # constants
 REG_NOMATCH = 1
+REG_EXTENDED = 1
 
 try:
     # first try to import the library by it's unixish name
@@ -76,10 +78,49 @@ libtre.regexec.argtypes = [regex_p, c_char_p, c_size_t, c_void_p, c_int]
 libtre.tre_version.argtypes = []
 libtre.tre_version.restype = c_char_p
 
-class CompiledRegex(object):
-    """This class represents a compiled regular expression"""
-    def __init__(self, pattern, flags):
-        pass
+class TREPattern(object):
+    """
+    This class represents a compiled regular expression
+    """
+    def __init__(self, pattern, flags=0):
+        """
+        Constructor - see, the signature is the same as of re.compile
+        that can be very useful to retain API compatibility.
+        Note, the flags aren't yet implemented - REG_EXTENDED is used
+        for everything instead.
+        """
+        # the real compiled regex - a regex_t instance
+        self.preg = byref(regex_t())
+        # memeory to use
+        self.subgroups = pattern.count(r'(') - pattern.count(r'\(') + 1
+        
+        result = libtre.regcomp(self.preg, pattern, REG_EXTENDED)
+        if result != 0:
+            raise Exception('Parse error, code %s' % result)
+
+    def findall(self, string, pos=None, endpos=None):
+        """
+        Finds all non overlapping matches of...
+        pos and endpos are not implemented yet, just
+        provided to be compatible with sre
+        """
+        pmatch = (regmatch_t * self.subgroups)()
+        nmatch = c_size_t(self.subgroups)
+        
+        result = libtre.regexec(self.preg, string, nmatch, byref(pmatch), 0)
+        if result != 0:
+            raise Exception('Exec error, status %s' % result)
+        
+        matches = list()
+        for match in pmatch:
+            match_offsets = (match.rm_so, match.rm_eo)
+            chunk = string[match.rm_so:match.rm_eo]
+            matches.append(chunk)
+        return matches
+            
+
+# convenient, isn't it?
+compile = TREPattern
 
 if __name__ == '__main__':
     # this module is not meant to run stand-alone, so just display

@@ -37,3 +37,6 @@ libtre.regfree(preg)
 for match in matches:
     for start, end in match:
         print test_st[start:end]
+
+pattern = compile('a([0-9])a')
+print pattern.findall('dasda7afdfda8at')
