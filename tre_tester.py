@@ -12,7 +12,7 @@ print 'reg compile result:', libtre.regcomp(preg, r'a[0-9]a', 1)
 
 pmatch = (regmatch_t*5)()
 nmatch = c_size_t(5)
-test_st = tmp_str = 'fgfga7afdfa7ad'
+test_st = tmp_str = 'bcda7aefga8ah'
 offset = 0
 
 matches = []
@@ -38,5 +38,7 @@ for match in matches:
     for start, end in match:
         print test_st[start:end]
 
+# new API
+print 'Using high level API'
 pattern = compile('a([0-9])a')
-print pattern.findall('dasda7afdfda8at')
+print pattern.findall('bcda7aefga8ah')

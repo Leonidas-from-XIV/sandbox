@@ -91,12 +91,15 @@ class TREPattern(object):
         """
         # the real compiled regex - a regex_t instance
         self.preg = byref(regex_t())
-        # memeory to use
-        self.subgroups = pattern.count(r'(') - pattern.count(r'\(') + 1
         
         result = libtre.regcomp(self.preg, pattern, REG_EXTENDED)
         if result != 0:
             raise Exception('Parse error, code %s' % result)
+        
+        # how much memory to reserve
+        # refer to the re_nsub field of the regex_t
+        self.subgroups = self.preg._obj.re_nsub
+        print self.subgroups
 
     def findall(self, string, pos=None, endpos=None):
         """
