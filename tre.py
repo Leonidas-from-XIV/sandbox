@@ -22,7 +22,7 @@ REG_EXTENDED = 1
 try:
     # first try to import the library by it's unixish name
     libtre = cdll.LoadLibrary('libtre.so.4')
-except WindowsError, OSError:
+except (WindowsError, OSError):
     # the unix lib is not available,
     # try the windows one
     libtre = cdll.LoadLibrary('tre4.dll')
@@ -98,8 +98,7 @@ class TREPattern(object):
         
         # how much memory to reserve
         # refer to the re_nsub field of the regex_t
-        self.subgroups = self.preg._obj.re_nsub
-        print self.subgroups
+        self.match_buffers = self.preg._obj.re_nsub + 1
 
     def findall(self, string, pos=None, endpos=None):
         """
@@ -107,8 +106,8 @@ class TREPattern(object):
         pos and endpos are not implemented yet, just
         provided to be compatible with sre
         """
-        pmatch = (regmatch_t * self.subgroups)()
-        nmatch = c_size_t(self.subgroups)
+        pmatch = (regmatch_t * self.match_buffers)()
+        nmatch = c_size_t(self.match_buffers)
         
         result = libtre.regexec(self.preg, string, nmatch, byref(pmatch), 0)
         if result != 0:
