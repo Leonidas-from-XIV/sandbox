@@ -24,66 +24,95 @@ class GraphNode(object):
     """The representation of a node"""
     def __init__(self, value):
         self.value = value
-        self.forerunner = list()
+        self.dependents = list()
 
     def __repr__(self):
-        return '<GraphNode value=%s forerunner=%d>' % (self.value, len(self.forerunner))
+        """A nice representation for programmers"""
+        return '<GraphNode value=%s dependents=%d>' % (
+                    self.value, len(self.dependents)
+                )
 
     def __str__(self):
+        """A nice representation for output to users"""
         return self.value
 
     def __eq__(self, other):
+        """Are two GraphNodes equal?"""
+        # they are equal as long as their 'value' is equal
         result = True if self.value == other.value else False
         return result
 
 def get_from_cache(cache, element):
+    """Gets a node from a list (cache) if there is already the same node in 
+    this list. If not, give back the original node"""
     try:
         return cache[cache.index(element)]
     except ValueError:
         return element
 
 def create_nodes(depends):
+    """Create from the single string dictionary a structured list with
+    dependencies."""
     nodes = list()
-    for key, values in depends.iteritems():
-        node = GraphNode(key)
+
+    # iterate through all items of the dict
+    for node_name, dependency_names in depends.iteritems():
+        # create a node by this name
+        node = GraphNode(node_name)
+        # check whether there already exists one by this name
         node = get_from_cache(nodes, node)
 
-        for value in values:
-            subnode = GraphNode(value)
+        # now, let's check the dependencies
+        for dependency_name in dependency_names:
+            # create and check dependent nodes - again
+            subnode = GraphNode(dependency_name)
             subnode = get_from_cache(nodes, subnode)
 
-            node.forerunner.append(subnode)
+            # add this node as 'dependent' to the node it belongs to
+            node.dependents.append(subnode)
+            # add this subnode to the list of all nodes
             if subnode not in nodes:
                 nodes.append(subnode)
 
+        # add the node to the list of all nodes
         if node not in nodes:
             nodes.append(node)
     return nodes
 
 def chunk_in_order(nodes):
-    starting_nodes = [node for node in nodes if len(node.forerunner) == 0]
+    """Returns a list of items which come first in the topological sorted
+    items - that is, these items that do not depend on anything."""
+    # get all nodes which do not depend on anything
+    starting_nodes = [node for node in nodes if len(node.dependents) == 0]
+
+    # delete all dependencies on these nodes
     for delete_candidate in starting_nodes:
         for node in nodes:
-            if delete_candidate in node.forerunner:
-                node.forerunner.remove(delete_candidate)
+            if delete_candidate in node.dependents:
+                node.dependents.remove(delete_candidate)
+        # remove these nodes from the list of all nodes
         nodes.remove(delete_candidate)
 
+    # return the nodes
     return starting_nodes
 
-def has_zero_forerunners(nodes):
-    number = len([node for node in nodes if len(node.forerunner) == 0])
+def has_zero_dependents(nodes):
+    """Check whether there are any nodes which do notdepend on anything"""
+    number = len([node for node in nodes if len(node.dependents) == 0])
     result = True if number > 0 else False
     return result
 
 def all_in_order(nodes):
+    """Returns all nodes topologically sorted"""
     order = list()
-    while has_zero_forerunners(nodes):
+    while has_zero_dependents(nodes):
         chunk = chunk_in_order(nodes)
         order.extend(chunk)
     return order
 
 def main():
-    depends = {}
+    """Get the input from the user"""
+    depends = dict()
 
     try:
         while True:
@@ -95,9 +124,12 @@ def main():
                 continue
             depends[node] = depends.get(node, []) + [dependency]
     except EOFError:
-        pass
-
+        # add a new line
+        print
+    
+    # create the proper dependency structure
     node_structure = create_nodes(depends)
+    # display it in a sorted way
     for element in all_in_order(node_structure):
         print element
 
