@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#! -*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 """tsort.py - Topological sort in Python.
 This program should behave like 'tsort' from the coreutils.
 
@@ -17,8 +17,15 @@ depends = {
 }
 
 This example is taken from Wikipedia,
-http://de.wikipedia.org/wiki/Topologische_Sortierung
-because it is non-cyclic."""
+http://de.wikipedia.org/wiki/Topologische_Sortierung because it is simple and
+non-cyclic.
+
+To sort these elements topological you need to create node structure first:
+>>> nodes = create_nodes(depends)
+>>> print all_in_order(nodes)
+
+That's all. If you have any comments or improvements, feel free to contact
+the author."""
 
 class GraphNode(object):
     """The representation of a node"""
