@@ -89,11 +89,11 @@ def main():
         while True:
             line = raw_input('> ')
             try:
-                node, dependencies = line.split(None, 1)
+                dependency, node = line.split(None, 1)
             except ValueError:
                 # empty line
                 continue
-            depends[node] = depends.get(node, []) + dependencies.split()
+            depends[node] = depends.get(node, []) + [dependency]
     except EOFError:
         pass
 
