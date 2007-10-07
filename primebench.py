@@ -172,7 +172,7 @@ def main():
 def longxrange(start,stop=None,step=1):
     """myxrange([start=0],stop,[step=1]) --> iterator object like xrange for longs
     coded by Milan:
-    http://python.sandtner.org/viewtopic.php?t=1366"""
+    http://www.python-forum.de/viewtopic.php?t=1366"""
     if stop == None:
         stop = start
         start = 0
