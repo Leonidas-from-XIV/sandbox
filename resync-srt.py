@@ -1,7 +1,11 @@
 #!/usr/bin/env python
+"""Subtitle resyncronizer which works with the popular SRT (SubRip) format
+
+Requires Python 2.5"""
 from __future__ import with_statement
 from datetime import datetime, timedelta
 
+# the offset that the subtitles should be moved (supports currently only whole seconds)
 offset = +9
 delta = timedelta(seconds=offset)
 
