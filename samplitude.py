@@ -134,27 +134,22 @@ class NumpadWindow(object):
         self.window.set_size_request(200, 200)
 
         sample_menu_dropdown = gtk.Menu()
-        quit_item = gtk.ImageMenuItem(gtk.STOCK_QUIT, 'Quit')
+        quit_item = gtk.ImageMenuItem(gtk.STOCK_QUIT)
         quit_item.connect('activate', gtk.main_quit)
         sample_menu_dropdown.append(quit_item)
-        quit_item.show()
 
         sample_menu = gtk.MenuItem('Samples')
-        sample_menu.show()
         sample_menu.set_submenu(sample_menu_dropdown)
 
         help_menu_dropdown = gtk.Menu()
-        about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT, 'About')
+        about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
         about_item.connect('activate', self.show_about)
         help_menu_dropdown.append(about_item)
-        about_item.show()
 
         help_menu = gtk.MenuItem('Help')
-        help_menu.show()
         help_menu.set_submenu(help_menu_dropdown)
 
         menu_bar = gtk.MenuBar()
-        menu_bar.show()
         menu_bar.append(sample_menu)
         menu_bar.append(help_menu)
 
@@ -184,8 +179,18 @@ class NumpadWindow(object):
         self.window.show_all()
 
     def button_pressed(self, widget, event):
-        if event.button == 3:
-            print 'Right clicked on', widget
+        """Handler for button press. Only used for right click on sampler
+        buttons"""
+        if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
+            logging.debug('Right clicked on %s' % widget)
+
+            context_menu = gtk.Menu()
+            enabled_item = gtk.CheckMenuItem('Enabled')
+            configure_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
+            context_menu.append(enabled_item)
+            context_menu.append(configure_item)
+            context_menu.show_all()
+            context_menu.popup(None, None, None, event.button, event.time)
 
 
     def show_about(self, widget):
