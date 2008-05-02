@@ -133,7 +133,32 @@ class NumpadWindow(object):
         self.window.set_title('Samplitude')
         self.window.set_size_request(200, 200)
 
-        self.layout = gtk.Table()
+        sample_menu_dropdown = gtk.Menu()
+        quit_item = gtk.MenuItem('Quit')
+        sample_menu_dropdown.append(quit_item)
+        quit_item.show()
+
+        sample_menu = gtk.MenuItem('Samples')
+        sample_menu.show()
+        sample_menu.set_submenu(sample_menu_dropdown)
+
+        help_menu_dropdown = gtk.Menu()
+        about_item = gtk.MenuItem('About')
+        help_menu_dropdown.append(about_item)
+        about_item.show()
+
+        help_menu = gtk.MenuItem('Help')
+        help_menu.show()
+        help_menu.set_submenu(help_menu_dropdown)
+
+        menu_bar = gtk.MenuBar()
+        menu_bar.show()
+        menu_bar.append(sample_menu)
+        menu_bar.append(help_menu)
+
+        self.layout = gtk.VBox()
+        self.layout.pack_start(menu_bar, expand=False, fill=False, padding=2)
+        self.button_layout = gtk.Table()
 
         # create the buttons
         self.samplerbuttons = {}
@@ -144,13 +169,14 @@ class NumpadWindow(object):
             cmd.connect('clicked', self.button_activated)
             self.samplerbuttons[i] = cmd
 
-            self.layout.attach(cmd, inrow, inrow + 1, row, row + 1)
+            self.button_layout.attach(cmd, inrow, inrow + 1, row, row + 1)
 
             inrow += 1
             if inrow > 2:
                 row += 1
                 inrow = 0
 
+        self.layout.add(self.button_layout)
         self.window.add(self.layout)
         self.window.show_all()
 
