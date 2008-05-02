@@ -134,7 +134,8 @@ class NumpadWindow(object):
         self.window.set_size_request(200, 200)
 
         sample_menu_dropdown = gtk.Menu()
-        quit_item = gtk.MenuItem('Quit')
+        quit_item = gtk.ImageMenuItem(gtk.STOCK_QUIT, 'Quit')
+        quit_item.connect('activate', gtk.main_quit)
         sample_menu_dropdown.append(quit_item)
         quit_item.show()
 
@@ -143,9 +144,11 @@ class NumpadWindow(object):
         sample_menu.set_submenu(sample_menu_dropdown)
 
         help_menu_dropdown = gtk.Menu()
-        about_item = gtk.MenuItem('About')
+        about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT, 'About')
+        about_item.connect('activate', self.show_about)
         help_menu_dropdown.append(about_item)
         about_item.show()
+        #print dir(about_item)
 
         help_menu = gtk.MenuItem('Help')
         help_menu.show()
@@ -179,6 +182,16 @@ class NumpadWindow(object):
         self.layout.add(self.button_layout)
         self.window.add(self.layout)
         self.window.show_all()
+
+    def show_about(self, widget):
+        dialog = gtk.AboutDialog()
+        dialog.set_name('Samplitude')
+        dialog.set_version('0.1.0')
+        dialog.set_comments('A simple sampler for the free desktop')
+        dialog.set_copyright('Copyright © 2005, 2006, 2008 Marek Kubica')
+        dialog.show()
+        dialog.run()
+        dialog.destroy()
 
     def button_activated(self, widget):
         """Is called when a button was activated:
