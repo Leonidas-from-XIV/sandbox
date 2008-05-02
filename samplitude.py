@@ -148,7 +148,6 @@ class NumpadWindow(object):
         about_item.connect('activate', self.show_about)
         help_menu_dropdown.append(about_item)
         about_item.show()
-        #print dir(about_item)
 
         help_menu = gtk.MenuItem('Help')
         help_menu.show()
@@ -170,6 +169,7 @@ class NumpadWindow(object):
         for i in self.keypad:
             cmd = gtk.Button(i)
             cmd.connect('clicked', self.button_activated)
+            cmd.connect('button_press_event', self.button_pressed)
             self.samplerbuttons[i] = cmd
 
             self.button_layout.attach(cmd, inrow, inrow + 1, row, row + 1)
@@ -182,6 +182,11 @@ class NumpadWindow(object):
         self.layout.add(self.button_layout)
         self.window.add(self.layout)
         self.window.show_all()
+
+    def button_pressed(self, widget, event):
+        if event.button == 3:
+            print 'Right clicked on', widget
+
 
     def show_about(self, widget):
         dialog = gtk.AboutDialog()
