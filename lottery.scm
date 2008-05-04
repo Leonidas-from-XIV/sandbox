@@ -24,17 +24,13 @@
 
 (define find-item-rec
   (lambda (lat item index)
-    (cond
-      ((equal? item (car lat)) index)
-      (#t (find-item-rec (cdr lat) item (+ index 1))))))
-
+    (if (equal? item (car lat)) index
+        (find-item-rec (cdr lat) item (+ index 1)))))
 
 (define find-item
   (lambda (lat item)
     "Finds the index of a specific item in the list"
     (find-item-rec lat item 0)))
-
-(find-item '(3 2 9 4) 9)
 
 (define remove-from-list
   (lambda (lat atom)
