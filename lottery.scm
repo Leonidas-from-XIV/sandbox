@@ -9,9 +9,8 @@
 
 (define range-rec
   (lambda (start stop lat)
-    (cond
-      ((= start stop) '())
-      (#t (cons start (range-rec (+ start 1) stop lat))))))
+    (if (= start stop) '()
+        (cons start (range-rec (+ start 1) stop lat)))))
 
 ;(range-rec 0 10 '())
 
