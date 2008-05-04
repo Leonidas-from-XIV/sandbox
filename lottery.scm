@@ -31,19 +31,20 @@
     "Finds the index of a specific item in the list"
     (find-item-rec lat item 0)))
 
+; funnily enough, The Litte Schemer defines a nearly identical function like
+; this one - called `rember` (p. 41)
 (define remove-from-list
   (lambda (lat atom)
-    (if (eq? lat '()) '()
+    (if (null? lat) '()
         (if (= (car lat) atom) (remove-from-list (cdr lat) atom)
             (cons (car lat) (remove-from-list (cdr lat) atom))))))
 
 (define lottery-numbers
   (lambda (choices to-find)
-    (cond
-      ((= to-find 0) '())
-      (#t (let ((chosen (list-choice choices)))
-            (cons chosen 
-                  (lottery-numbers (remove-from-list choices chosen)
-                                 (- to-find 1))))))))
+    (if (= to-find 0) '()
+        (let ((chosen (list-choice choices)))
+          (cons chosen
+                (lottery-numbers (remove-from-list choices chosen)
+                                 (- to-find 1)))))))
 
 (lottery-numbers (range 1 (+ 49 1)) 6)
