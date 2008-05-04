@@ -3,7 +3,9 @@
 """A small sampler using PyGTK for the user interface.
 
 In case you don't have PyGTK already get it from http://www.pygtk.org/
-or - even better - let your package manager install it."""
+or - even better - let your package manager install it.
+
+Many thanks go to Trundle for help with GTK+ oddities."""
 
 import ConfigParser, logging, textwrap, sys, os
 import gtk, gobject
@@ -163,11 +165,15 @@ class NumpadWindow(object):
         row = 0
         for i in self.keypad:
             cmd = gtk.Button(i)
+            event_box = gtk.EventBox()
+            event_box.add(cmd)
+            event_box.set_above_child(False)
+            event_box.connect('button-press-event', self.button_pressed, cmd)
+            cmd.connect('button-press-event', self.button_pressed, event_box)
             cmd.connect('clicked', self.button_activated)
-            cmd.connect('button_press_event', self.button_pressed)
             self.samplerbuttons[i] = cmd
 
-            self.button_layout.attach(cmd, inrow, inrow + 1, row, row + 1)
+            self.button_layout.attach(event_box, inrow, inrow + 1, row, row + 1)
 
             inrow += 1
             if inrow > 2:
@@ -178,26 +184,39 @@ class NumpadWindow(object):
         self.window.add(self.layout)
         self.window.show_all()
 
-    def button_pressed(self, widget, event):
+    def button_pressed(self, widget, event, other_widget):
         """Handler for button press. Only used for right click on sampler
         buttons"""
         if event.type == gtk.gdk.BUTTON_PRESS and event.button == 3:
             logging.debug('Right clicked on %s' % widget)
 
+            # set the z-axis for events
+            if isinstance(widget, gtk.EventBox):
+                widget.set_above_child(False)
+                widget = other_widget
+            else:
+                other_widget.set_above_child(True)
+
             context_menu = gtk.Menu()
             enabled_item = gtk.CheckMenuItem('Enabled')
+            enabled_item.set_active(widget.props.sensitive)
+            enabled_item.connect('activate', self.switch_button, widget)
             configure_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
             context_menu.append(enabled_item)
             context_menu.append(configure_item)
             context_menu.show_all()
             context_menu.popup(None, None, None, event.button, event.time)
 
+    def switch_button(self, menuitem, button):
+        button.set_sensitive(not button.props.sensitive)
 
     def show_about(self, widget):
+        """Something for the developer ego. A nice about screen"""
         dialog = gtk.AboutDialog()
         dialog.set_name('Samplitude')
         dialog.set_version('0.1.0')
         dialog.set_comments('A simple sampler for the free desktop')
+        # it's already this old, really
         dialog.set_copyright('Copyright © 2005, 2006, 2008 Marek Kubica')
         dialog.show()
         dialog.run()
