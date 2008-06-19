@@ -17,7 +17,7 @@
 ;; get n middle letters
 (define middle-letters
   (lambda (string n)
-    (letrec ((len (string-length string))
+    (let* ((len (string-length string))
              (start (floor (- (/ len 2) (/ n 2)))))
       (substring string start (+ start n)))))
 
