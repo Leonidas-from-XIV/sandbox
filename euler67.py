@@ -147,28 +147,18 @@ class Triangle(object):
     def __repr__(self):
         return "Triangle(%d)" % self.number
 
-def parse_to_list(string):
-    """This is step 1."""
-    data = []
-    for line in string.splitlines():
-        data_line = []
-        for number in line.split():
-            data_line.append(int(number, 10))
-        data.append(data_line)
-
-    return data
-
-def parse_to_triangles(lists):
-    """Converts the list into a nested Triangle structure.
-    This is step 2."""
+def parse(string):
+    """Converts the string into a nested Triangle structure."""
     triangles = []
     # create triangles
-    for row in lists:
+    for row in string.splitlines():
         triangle_row = []
-        for item in row:
-            triangle_row.append(Triangle(number=item))
+        for item in row.split():
+            triangle = Triangle(number=int(item, 10))
+            triangle_row.append(triangle)
         triangles.append(triangle_row)
 
+    # connect with references to other triangles
     for i in xrange(len(triangles)):
         for j in xrange(len(triangles[i])):
             current = triangles[i][j]
@@ -177,23 +167,13 @@ def parse_to_triangles(lists):
                 current.left = triangles[i+1][j]
                 current.right = triangles[i+1][j+1]
 
+    # return the topmost triangle
     return triangles[0][0]
 
 def main():
-    # just some testing
-    left = Triangle(3)
-    right = Triangle(5)
-    top = Triangle(4, left, right)
-    print 'Sum is', top.sum
-
-small = """1
-2 3
-4 5 6
-7 8 9 10"""
-data = parse_to_list(triangle)
-root = parse_to_triangles(data)
-print root
-print root.sum
+    root = parse(triangle)
+    print root
+    print root.sum
 
 if __name__ == '__main__':
     main()
