@@ -170,10 +170,36 @@ def parse(string):
     # return the topmost triangle
     return triangles[0][0]
 
+def traverse(node):
+    """Finds the biggest possible path by evaluating
+    sizes of the sub-triangles and always choosing the larger one."""
+    path = [node.number]
+
+    try:
+        if node.left.sum > node.right.sum:
+            path.extend(traverse(node.left))
+        else:
+            path.extend(traverse(node.right))
+    except AttributeError:
+        # no further useful subnodes, we finished traversing
+        # here, so just return with the path
+        pass
+
+    return path
+
 def main():
+    """Calls all neccessary stuff and displays results"""
+    # this is only for testing
+    simple = """1
+    2 3
+    4 5 6
+    7 8 9 10"""
+    # get the root-node
     root = parse(triangle)
-    print root
-    print root.sum
+    print "Sum of whole pyramid: %d" % root.sum
+    way = traverse(root)
+    print "Path to take: %s" % '-'.join(map(str, way))
+    print "Sum of path: %d" % sum(way)
 
 if __name__ == '__main__':
     main()
