@@ -116,6 +116,9 @@ class Triangle(object):
         right_sum = 0 if self.right is None else self.right.sum
         return self.number + left_sum + right_sum
 
+    def __repr__(self):
+        return "Triangle(%d)" % self.number
+
     sum = property(_calc_sum)
 
 def parse_to_list(string):
@@ -132,25 +135,36 @@ def parse_to_list(string):
 def parse_to_triangles(lists):
     """Converts the list into a nested Triangle structure.
     This is step 2."""
-    for i in xrange(len(lists)):
+    triangles = []
+    for i in reversed(xrange(len(lists))):
+        row = []
         for j in xrange(len(lists[i])):
-            current_item = lists[i][j]
+            triangle = Triangle(number=lists[i][j])
             try:
-                left_item = lists[i+1][j]
-                right_item = lists[i+1][j+1]
+                left_item = triangles[i-1][j]
+                right_item = triangles[i-1][j+1]
             except IndexError:
                 left_item, right_item = None, None
+            finally:
+                triangle.left = left_item
+                triangle.right = right_item
+            row.append(triangle)
+        triangles.append(row)
 
-            Triangle(current_item, left_item, right_item)
+    # return the root triangle
+    return triangles[-1][0]
 
 def main():
-    data = parse_to_list(triangle)
-    triangles = parse_to_triangles(data)
     # just some testing
     left = Triangle(3)
     right = Triangle(5)
     top = Triangle(4, left, right)
-    print top.sum
+    print 'Sum is', top.sum
+
+data = parse_to_list(triangle)
+root = parse_to_triangles(data)
+print root
+print root.sum
 
 if __name__ == '__main__':
     main()
