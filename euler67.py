@@ -119,6 +119,7 @@ class Triangle(object):
     sum = property(_calc_sum)
 
 def parse_to_list(string):
+    """This is step 1."""
     data = []
     for line in triangle.splitlines():
         data_line = []
@@ -128,11 +129,28 @@ def parse_to_list(string):
 
     return data
 
+def parse_to_triangles(lists):
+    """Converts the list into a nested Triangle structure.
+    This is step 2."""
+    for i in xrange(len(lists)):
+        for j in xrange(len(lists[i])):
+            current_item = lists[i][j]
+            try:
+                left_item = lists[i+1][j]
+                right_item = lists[i+1][j+1]
+            except IndexError:
+                left_item, right_item = None, None
+
+            Triangle(current_item, left_item, right_item)
+
 def main():
     data = parse_to_list(triangle)
-    t1 = Triangle(3)
-    t2 = Triangle(4, t1)
-    print t2.sum
+    triangles = parse_to_triangles(data)
+    # just some testing
+    left = Triangle(3)
+    right = Triangle(5)
+    top = Triangle(4, left, right)
+    print top.sum
 
 if __name__ == '__main__':
     main()
