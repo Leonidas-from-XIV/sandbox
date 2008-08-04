@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Project Euler, problem 62"""
 
+# the triangle data which was provided
 triangle = """59
 73 41
 52 40 09
@@ -111,20 +113,44 @@ class Triangle(object):
         self.right = right
 
     def _calc_sum(self):
-        """Calculates the num of the whole triangle"""
-        left_sum = 0 if self.left is None else self.left.sum
-        right_sum = 0 if self.right is None else self.right.sum
-        return self.number + left_sum + right_sum
+        """Calculates the sum of the whole triangle with all sub-
+        triangles. The result is cached."""
+        if self._sum is None:
+            # refresh cache
+            left_sum = 0 if self.left is None else self.left.sum
+            right_sum = 0 if self.right is None else self.right.sum
+            self._sum = self.number + left_sum + right_sum
+
+        # answer from cache
+        return self._sum
+
+    def _set_leftnode(self, value):
+        self._left = value
+        # flush cache
+        self._sum = None
+
+    def _set_rightnode(self, value):
+        self._right = value
+        self._sum = None
+
+    def _get_leftnode(self):
+        return self._left
+
+    def _get_rightnode(self):
+        return self._right
+
+    # add properties
+    left = property(_get_leftnode, _set_leftnode)
+    right = property(_get_rightnode, _set_rightnode)
+    sum = property(_calc_sum)
 
     def __repr__(self):
         return "Triangle(%d)" % self.number
 
-    sum = property(_calc_sum)
-
 def parse_to_list(string):
     """This is step 1."""
     data = []
-    for line in triangle.splitlines():
+    for line in string.splitlines():
         data_line = []
         for number in line.split():
             data_line.append(int(number, 10))
@@ -136,23 +162,22 @@ def parse_to_triangles(lists):
     """Converts the list into a nested Triangle structure.
     This is step 2."""
     triangles = []
-    for i in reversed(xrange(len(lists))):
-        row = []
-        for j in xrange(len(lists[i])):
-            triangle = Triangle(number=lists[i][j])
-            try:
-                left_item = triangles[i-1][j]
-                right_item = triangles[i-1][j+1]
-            except IndexError:
-                left_item, right_item = None, None
-            finally:
-                triangle.left = left_item
-                triangle.right = right_item
-            row.append(triangle)
-        triangles.append(row)
+    # create triangles
+    for row in lists:
+        triangle_row = []
+        for item in row:
+            triangle_row.append(Triangle(number=item))
+        triangles.append(triangle_row)
 
-    # return the root triangle
-    return triangles[-1][0]
+    for i in xrange(len(triangles)):
+        for j in xrange(len(triangles[i])):
+            current = triangles[i][j]
+            # test bounds
+            if i + 1 < len(triangles):
+                current.left = triangles[i+1][j]
+                current.right = triangles[i+1][j+1]
+
+    return triangles[0][0]
 
 def main():
     # just some testing
@@ -161,6 +186,10 @@ def main():
     top = Triangle(4, left, right)
     print 'Sum is', top.sum
 
+small = """1
+2 3
+4 5 6
+7 8 9 10"""
 data = parse_to_list(triangle)
 root = parse_to_triangles(data)
 print root
