@@ -166,13 +166,13 @@ def parse(string):
         triangles.append(triangle_row)
 
     # connect with references to other triangles
-    for i in xrange(len(triangles)):
+    # iterate over the row except for the last row, which holds by definition
+    # no speciic .left and .right subnodes
+    for i in xrange(len(triangles) - 1):
         for j in xrange(len(triangles[i])):
             current = triangles[i][j]
-            # test bounds
-            if i + 1 < len(triangles):
-                current.left = triangles[i+1][j]
-                current.right = triangles[i+1][j+1]
+            current.left = triangles[i+1][j]
+            current.right = triangles[i+1][j+1]
 
     # return the topmost triangle
     return triangles[0][0]
