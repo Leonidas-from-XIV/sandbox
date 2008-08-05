@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Project Euler, problem 62"""
+"""Project Euler, problem 67.
+This program uses the divide and conquer method. It creates a Triangle
+structure and then divides it into a number of sub-Triangles. Each Triangle
+knows it's sum (including triangles) so to find the biggest path, the
+Triangle with the largest is chosen and its top-node value added to the path.
+
+This has not been stress-tested but after applying sum caching to prevent
+unneccessary node-traversals it solves the problem 67 in 0.087 seconds."""
 
 # the triangle data which was provided
 triangle = """59
