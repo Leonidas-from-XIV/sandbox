@@ -118,6 +118,7 @@ class Triangle(object):
         self.number = number
         self.left = left
         self.right = right
+        self._sum = None
 
     def _calc_sum(self):
         """Calculates the sum of the whole triangle with all sub-
@@ -131,24 +132,7 @@ class Triangle(object):
         # answer from cache
         return self._sum
 
-    def _set_leftnode(self, value):
-        self._left = value
-        # flush cache
-        self._sum = None
-
-    def _set_rightnode(self, value):
-        self._right = value
-        self._sum = None
-
-    def _get_leftnode(self):
-        return self._left
-
-    def _get_rightnode(self):
-        return self._right
-
     # add properties
-    left = property(_get_leftnode, _set_leftnode)
-    right = property(_get_rightnode, _set_rightnode)
     sum = property(_calc_sum)
 
     def __repr__(self):
@@ -167,7 +151,7 @@ def parse(string):
 
     # connect with references to other triangles
     # iterate over the row except for the last row, which holds by definition
-    # no speciic .left and .right subnodes
+    # no specific .left and .right subnodes
     for i in xrange(len(triangles) - 1):
         for j in xrange(len(triangles[i])):
             current = triangles[i][j]
