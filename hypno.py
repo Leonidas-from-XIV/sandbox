@@ -7,6 +7,7 @@ import gnomecanvas
 class HypnoticWindow(object):
     def __init__(self, width, height):
         self.window = gtk.Window()
+        self.window.set_title('Spiral')
         self.window.connect('delete_event', gtk.main_quit)
         self.width, self.height = width, height
         self.orientation = 0
@@ -29,12 +30,18 @@ class HypnoticWindow(object):
             (self.width / 2, self.height / 2)
         ]
         a = 0.03
-        for t in frange(0, 10 * math.pi, 0.1):
+        t = 0.0
+        while True:
             r = a * t
             angle = t + self.orientation
             x = r * math.cos(angle) * 200
             y = r * math.sin(angle) * 200
+            # are we still inside the canvas size?
+            if x > self.width / 2 and y > self.height / 2:
+                break
             self.path.append((x + 200, y + 200))
+
+            t += 0.1
 
         self.render_path(self.path)
 
@@ -48,11 +55,6 @@ class HypnoticWindow(object):
         self.orientation += angle
         self.create_spiral()
         return True
-
-def frange(start, stop, step):
-    while start < stop:
-        yield start
-        start += step
 
 def main():
     win = HypnoticWindow(400, 400)
