@@ -17,14 +17,13 @@ class HypnoticWindow(object):
         self.window.add(self.canvas)
 
         back = self.canvas.root().add(gnomecanvas.CanvasRect,
-                    outline_color="black", fill_color="white",
-                    x1=0, y1=0, x2=width, y2=height)
+                fill_color='white', x1=0, y1=0, x2=width, y2=height)
         self.bpath = self.canvas.root().add(gnomecanvas.CanvasBpath,
                 outline_color='black', width_pixels=3)
 
         self.window.show_all()
 
-    def create_spiral(self, x, y, rotate=0):
+    def create_spiral(self):
         """rotate takes an angle in radian."""
         self.path = [
             (self.width / 2, self.height / 2)
@@ -32,7 +31,7 @@ class HypnoticWindow(object):
         a = 0.03
         for t in frange(0, 10 * math.pi, 0.1):
             r = a * t
-            angle = t + rotate
+            angle = t + self.orientation
             x = r * math.cos(angle) * 200
             y = r * math.sin(angle) * 200
             self.path.append((x + 200, y + 200))
@@ -45,9 +44,9 @@ class HypnoticWindow(object):
         path_def = gnomecanvas.path_def_new(commands)
         self.bpath.set_bpath(path_def)
 
-    def rotate(self, x0, y0, d):
-        self.orientation += d
-        self.create_spiral(0, 0, self.orientation)
+    def rotate(self, angle):
+        self.orientation += angle
+        self.create_spiral()
         return True
 
 def frange(start, stop, step):
@@ -57,8 +56,8 @@ def frange(start, stop, step):
 
 def main():
     win = HypnoticWindow(400, 400)
-    win.create_spiral(0, 0)
-    gobject.timeout_add(10, win.rotate, 0, 0, 0.1)
+    win.create_spiral()
+    gobject.timeout_add(10, win.rotate, 0.1)
     gtk.main()
 
 if __name__ == '__main__':
