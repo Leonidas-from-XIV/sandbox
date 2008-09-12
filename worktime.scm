@@ -25,23 +25,24 @@
 ; string-tokenize SRFI 13
 
 ;(regexp-split (regexp " ") (car dates-list))
+
+(define generic-split
+  (lambda (line first-delimiter first-index second-delimiter second-index)
+    (let* ((first-chunk (list-ref (regexp-split (regexp first-delimiter) line) first-index))
+           (element (list-ref (regexp-split (regexp second-delimiter) first-chunk) second-index)))
+      (string->number element))))
+
 (define line->day
   (lambda (line)
-    (let* ((date (car (regexp-split (regexp " ") line)))
-           (day (list-ref (regexp-split (regexp "\\.") date) 0)))
-      (string->number day))))
+    (generic-split line " " 0 "\\." 0)))
 
 (define line->month
   (lambda (line)
-    (let* ((date (car (regexp-split (regexp " ") line)))
-           (day (list-ref (regexp-split (regexp "\\.") date) 1)))
-      (string->number day))))
+    (generic-split line " " 0 "\\." 1)))
 
 (define line->year
   (lambda (line)
-    (let* ((date (car (regexp-split (regexp " ") line)))
-           (day (list-ref (regexp-split (regexp "\\.") date) 2)))
-      (string->number day))))
+    (generic-split line " " 0 "\\." 2)))
 
 (line->day (car dates-list))
 (line->month (car dates-list))
