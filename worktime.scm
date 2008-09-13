@@ -42,8 +42,28 @@
 
 (define line->year
   (lambda (line)
-    (generic-split line " " 0 "\\." 2)))
+    (+ 2000 (generic-split line " " 0 "\\." 2))))
+
+(define line->start-hour
+  (lambda (line)
+    (generic-split line " " 1 ":" 0)))
+
+(define line->start-minute
+  (lambda (line)
+    (generic-split line " " 1 ":" 1)))
+
+(define line->end-hour
+  (lambda (line)
+    (generic-split line " " 3 ":" 0)))
+
+(define line->end-minute
+  (lambda (line)
+    (generic-split line " " 3 ":" 1)))
 
 (line->day (car dates-list))
 (line->month (car dates-list))
 (line->year (car dates-list))
+(line->start-hour (car dates-list))
+(line->start-minute (car dates-list))
+(line->end-hour (car dates-list))
+(line->end-minute (car dates-list))
