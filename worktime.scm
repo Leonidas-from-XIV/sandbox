@@ -9,12 +9,13 @@
 ; charset for the tokenizer
 (require srfi/14)
 
-;(define file-to-parse
-;  (command-line
-;   #:program "worktime"
-;   #:args (filename)
-;   filename))
-(define file-to-parse "workdata.txt")
+(define file-to-parse
+  (if (not (equal? (current-command-line-arguments) #()))
+      (command-line
+       #:program "worktime"
+       #:args (filename)
+       filename)
+      "workdata.txt"))
 
 (define data-source (open-input-file file-to-parse))
 
