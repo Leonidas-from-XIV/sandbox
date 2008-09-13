@@ -1,8 +1,13 @@
 #lang scheme
+;; Program which calculates working hours
+; command line parser
 (require scheme/cmdline)
+; datetime handling
 (require srfi/19)
-;(require rnrs/files-6)
-;(require rnrs/io-simple-6)
+; string-tokenize
+(require srfi/13)
+; charset for the tokenizer
+(require srfi/14)
 
 ;(define file-to-parse
 ;  (command-line
@@ -21,44 +26,43 @@
           (cons line (port->list port))))))
 
 (define dates-list (port->list data-source))
-; (make-date) from SRFI 19
-; string-tokenize SRFI 13
 
-;(regexp-split (regexp " ") (car dates-list))
-
-(define generic-split
-  (lambda (line first-delimiter first-index second-delimiter second-index)
-    (let* ((first-chunk (list-ref (regexp-split (regexp first-delimiter) line) first-index))
-           (element (list-ref (regexp-split (regexp second-delimiter) first-chunk) second-index)))
-      (string->number element))))
+(define generic-split-ref
+  (lambda (line ref)
+    (string->number 
+     (list-ref 
+      (string-tokenize line
+                       ; split by :-. and space
+                       (char-set-delete char-set:full #\: #\ #\- #\.))
+      ref))))
 
 (define line->day
   (lambda (line)
-    (generic-split line " " 0 "\\." 0)))
+    (generic-split-ref line 0)))
 
 (define line->month
   (lambda (line)
-    (generic-split line " " 0 "\\." 1)))
+    (generic-split-ref line 1)))
 
 (define line->year
   (lambda (line)
-    (+ 2000 (generic-split line " " 0 "\\." 2))))
+    (+ 2000 (generic-split-ref line 2))))
 
 (define line->start-hour
   (lambda (line)
-    (generic-split line " " 1 ":" 0)))
+    (generic-split-ref line 3)))
 
 (define line->start-minute
   (lambda (line)
-    (generic-split line " " 1 ":" 1)))
+    (generic-split-ref line 4)))
 
 (define line->end-hour
   (lambda (line)
-    (generic-split line " " 3 ":" 0)))
+    (generic-split-ref line 5)))
 
 (define line->end-minute
   (lambda (line)
-    (generic-split line " " 3 ":" 1)))
+    (generic-split-ref line 6)))
 
 (define line->date
   (lambda (line hour-accessor minute-accessor)
