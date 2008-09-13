@@ -60,33 +60,23 @@
   (lambda (line)
     (generic-split line " " 3 ":" 1)))
 
-(line->day (car dates-list))
-(line->month (car dates-list))
-(line->year (car dates-list))
-(line->start-hour (car dates-list))
-(line->start-minute (car dates-list))
-(line->end-hour (car dates-list))
-(line->end-minute (car dates-list))
+(define line->date
+  (lambda (line hour-accessor minute-accessor)
+    (make-date 0 0
+               (minute-accessor line)
+               (hour-accessor line)
+               (line->day line)
+               (line->month line)
+               (line->year line)
+               0)))
 
 (define line->start-date
   (lambda (line)
-    (make-date 0 0
-               (line->start-minute line)
-               (line->start-hour line)
-               (line->day line)
-               (line->month line)
-               (line->year line)
-               0)))
+    (line->date line line->start-hour line->start-minute)))
 
 (define line->end-date
   (lambda (line)
-    (make-date 0 0
-               (line->end-minute line)
-               (line->end-hour line)
-               (line->day line)
-               (line->month line)
-               (line->year line)
-               0)))
+    (line->date line line->end-hour line->end-minute)))
 
 (define time-hours
   (lambda (time)
