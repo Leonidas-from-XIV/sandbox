@@ -67,3 +67,32 @@
 (line->start-minute (car dates-list))
 (line->end-hour (car dates-list))
 (line->end-minute (car dates-list))
+
+(define line->start-date
+  (lambda (line)
+    (make-date 0 0
+               (line->start-minute line)
+               (line->start-hour line)
+               (line->day line)
+               (line->month line)
+               (line->year line)
+               0)))
+
+(define line->end-date
+  (lambda (line)
+    (make-date 0 0
+               (line->end-minute line)
+               (line->end-hour line)
+               (line->day line)
+               (line->month line)
+               (line->year line)
+               0)))
+
+(define time-hours
+  (lambda (time)
+    (/ (time-second time) 3600)))
+
+(define start (date->time-utc (line->start-date (car dates-list))))
+(define stop (date->time-utc (line->end-date (car dates-list))))
+(define diff (time-difference stop start))
+(time-hours diff)
