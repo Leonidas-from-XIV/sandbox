@@ -9,17 +9,26 @@
 ; charset for the tokenizer
 (require srfi/14)
 
-(define file-to-parse
-  (if (not (equal? (current-command-line-arguments) #()))
-      (command-line
-       #:program "worktime"
-       #:args (filename)
-       filename)
-      "workdata.txt"))
+; start-date has to be some very early date, epoch 0 at best
+(define start-date (make-parameter #f))
+; end-date has to be the maximum date
+(define end-date (make-parameter #f))
+; default filename
+(define file-to-parse (make-parameter "workdata.txt"))
 
-(define data-source (open-input-file file-to-parse))
+(command-line
+ #:program "worktime"
+ #:once-each
+ (("-s" "--start") startdate "Date to start calculation"
+                   (start-date startdate))
+ (("-e" "--end") enddate "Date to end calculation"
+                 (end-date enddate))
+ (("-f" "--file") file "File to use for calculation"
+                  (file-to-parse file)))
 
-; get the number of lines
+(define data-source (open-input-file (file-to-parse)))
+
+; reads lines until eof and returns a list
 (define port->list
   (lambda (port)
     (let ((line (read-line port)))
