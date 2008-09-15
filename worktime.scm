@@ -19,12 +19,12 @@
 (command-line
  #:program "worktime"
  #:once-each
- (("-s" "--start") startdate "Date to start calculation"
-                   (start-date startdate))
- (("-e" "--end") enddate "Date to end calculation"
-                 (end-date enddate))
- (("-f" "--file") file "File to use for calculation"
-                  (file-to-parse file)))
+ [("-s" "--start") startdate "Date to start calculation"
+                   (start-date startdate)]
+ [("-e" "--end") enddate "Date to end calculation"
+                 (end-date enddate)]
+ [("-f" "--file") file "File to use for calculation"
+                  (file-to-parse file)])
 
 (define data-source (open-input-file (file-to-parse)))
 
