@@ -16,8 +16,6 @@
 ; default filename
 (define file-to-parse (make-parameter "workdata.txt"))
 
-
-
 ; reads lines until eof and returns a list
 (define port->list
   (lambda (port)
@@ -118,9 +116,13 @@
                    (time<=? current (end-time)))))
           input-data))
 
-applicable-data
+; subtract each start from end date
+(define hours-worked
+  (map (lambda (line)
+         (let ((start (date->time-utc (line->start-date line)))
+               (stop (date->time-utc (line->end-date line))))
+           (time-hours (time-difference stop start))))
+       applicable-data))
 
-;(define start (date->time-utc (line->start-date (car dates-list))))
-;(define stop (date->time-utc (line->end-date (car dates-list))))
-;(define diff (time-difference stop start))
-;(time-hours diff)
+; add them all together
+(apply + hours-worked)
