@@ -11,12 +11,12 @@
 
 ; start-time has to be some very early date, epoch 0 at best
 (define start-time (make-parameter (make-time time-utc 0 0)))
-; end-time has to be the maximum date
-(define end-time (make-parameter #f))
+; end-time has is the current-time
+(define end-time (make-parameter (current-time)))
 ; default filename
 (define file-to-parse (make-parameter "workdata.txt"))
 
-(define data-source (open-input-file (file-to-parse)))
+
 
 ; reads lines until eof and returns a list
 (define port->list
@@ -24,8 +24,6 @@
     (let ((line (read-line port)))
       (if (eof-object? line) '()
           (cons line (port->list port))))))
-
-(define dates-list (port->list data-source))
 
 (define generic-split-ref
   (lambda (line ref)
@@ -97,11 +95,21 @@
                                            (line->year startdate)
                                            0)))]
  [("-e" "--end") enddate "Date to end calculation"
-                 (end-time enddate)]
+                 (end-time (date->time-utc 
+                            (make-date 0 0 0 0
+                                       (line->day enddate)
+                                       (line->month enddate)
+                                       (line->year enddate)
+                                       0)))]
  [("-f" "--file") file "File to use for calculation"
                   (file-to-parse file)])
 
-(start-time)
+; open the file
+(define input-data (port->list (open-input-file (file-to-parse))))
+
+(filter (lambda (line)
+          #t)
+          input-data)
 
 ;(define start (date->time-utc (line->start-date (car dates-list))))
 ;(define stop (date->time-utc (line->end-date (car dates-list))))
