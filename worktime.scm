@@ -9,22 +9,12 @@
 ; charset for the tokenizer
 (require srfi/14)
 
-; start-date has to be some very early date, epoch 0 at best
-(define start-date (make-parameter #f))
-; end-date has to be the maximum date
-(define end-date (make-parameter #f))
+; start-time has to be some very early date, epoch 0 at best
+(define start-time (make-parameter (make-time time-utc 0 0)))
+; end-time has to be the maximum date
+(define end-time (make-parameter #f))
 ; default filename
 (define file-to-parse (make-parameter "workdata.txt"))
-
-(command-line
- #:program "worktime"
- #:once-each
- [("-s" "--start") startdate "Date to start calculation"
-                   (start-date startdate)]
- [("-e" "--end") enddate "Date to end calculation"
-                 (end-date enddate)]
- [("-f" "--file") file "File to use for calculation"
-                  (file-to-parse file)])
 
 (define data-source (open-input-file (file-to-parse)))
 
@@ -96,7 +86,24 @@
   (lambda (time)
     (/ (time-second time) 3600)))
 
-(define start (date->time-utc (line->start-date (car dates-list))))
-(define stop (date->time-utc (line->end-date (car dates-list))))
-(define diff (time-difference stop start))
-(time-hours diff)
+(command-line
+ #:program "worktime"
+ #:once-each
+ [("-s" "--start") startdate "Date to start calculation"
+                   (start-time (date->time-utc 
+                                (make-date 0 0 0 0
+                                           (line->day startdate)
+                                           (line->month startdate)
+                                           (line->year startdate)
+                                           0)))]
+ [("-e" "--end") enddate "Date to end calculation"
+                 (end-time enddate)]
+ [("-f" "--file") file "File to use for calculation"
+                  (file-to-parse file)])
+
+(start-time)
+
+;(define start (date->time-utc (line->start-date (car dates-list))))
+;(define stop (date->time-utc (line->end-date (car dates-list))))
+;(define diff (time-difference stop start))
+;(time-hours diff)
