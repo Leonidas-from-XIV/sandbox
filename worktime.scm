@@ -86,7 +86,7 @@
  #:program "worktime"
  #:once-each
  [("-s" "--start") startdate "Date to start calculation"
-                   (start-time (date->time-utc 
+                   (start-time (date->time-utc
                                 (make-date 0 0 0 0
                                            (line->day startdate)
                                            (line->month startdate)
@@ -94,8 +94,8 @@
                                            0)))]
  [("-e" "--end") enddate "Date to end calculation"
                  (end-time (date->time-utc
-                            ; actually, it should be more than zero
-                            (make-date 0 0 0 0
+                            ; last second of the last hour of the last day
+                            (make-date 0 59 59 23
                                        (line->day enddate)
                                        (line->month enddate)
                                        (line->year enddate)
@@ -110,7 +110,7 @@
 (define applicable-data
   (filter (lambda (line)
             (let ((current (date->time-utc 
-                            (line->date line line->start-hour line->start-minute))))
+                            (line->start-date line))))
               ; start-time <= current <= end-time
               (and (time>=? current (start-time))
                    (time<=? current (end-time)))))
