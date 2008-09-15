@@ -95,7 +95,8 @@
                                            (line->year startdate)
                                            0)))]
  [("-e" "--end") enddate "Date to end calculation"
-                 (end-time (date->time-utc 
+                 (end-time (date->time-utc
+                            ; actually, it should be more than zero
                             (make-date 0 0 0 0
                                        (line->day enddate)
                                        (line->month enddate)
@@ -107,9 +108,17 @@
 ; open the file
 (define input-data (port->list (open-input-file (file-to-parse))))
 
-(filter (lambda (line)
-          #t)
-          input-data)
+; filter out all lines which are excluded by the boundaries
+(define applicable-data
+  (filter (lambda (line)
+            (let ((current (date->time-utc 
+                            (line->date line line->start-hour line->start-minute))))
+              ; start-time <= current <= end-time
+              (and (time>=? current (start-time))
+                   (time<=? current (end-time)))))
+          input-data))
+
+applicable-data
 
 ;(define start (date->time-utc (line->start-date (car dates-list))))
 ;(define stop (date->time-utc (line->end-date (car dates-list))))
