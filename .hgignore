@@ -1,4 +1,7 @@
-.*\.pyc
+.*\.py[c|o]
 .*\.swp
 .*\.ini
+.*\.html
 .*~
+scribble\.css
+scribble-common\.js
