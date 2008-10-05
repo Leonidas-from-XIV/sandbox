@@ -2,6 +2,7 @@
 .*\.swp
 .*\.ini
 .*\.html
+.*\.orig
 .*~
 scribble\.css
 scribble-common\.js
