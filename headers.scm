@@ -2,7 +2,9 @@
 (require web-server/private/request-structs)
 
 (define (display-header header)
-  `(li ,(bytes->string/utf-8 (header-field header))))
+  `(li ,(string-append (bytes->string/utf-8 (header-field header))
+                       ": "
+                       (bytes->string/utf-8 (header-value header)))))
 
 ;(define (display-header header)
 ;  "Header")
