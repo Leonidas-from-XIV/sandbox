@@ -42,7 +42,11 @@
 
 (define line->year
   (lambda (line)
-    (+ 2000 (generic-split-ref line 2))))
+    (let [(input-year (generic-split-ref line 2))]
+      ; only add 2000 if the year number is smaller than 100
+      (if (< input-year 100)
+          (+ 2000 input-year)
+          input-year))))
 
 (define line->start-hour
   (lambda (line)
@@ -85,20 +89,20 @@
 (command-line
  #:program "worktime"
  #:once-each
- [("-s" "--start") startdate "Date to start calculation"
+ [("-s" "--start") start-date "Date to start calculation"
                    (start-time (date->time-utc
                                 (make-date 0 0 0 0
-                                           (line->day startdate)
-                                           (line->month startdate)
-                                           (line->year startdate)
+                                           (line->day start-date)
+                                           (line->month start-date)
+                                           (line->year start-date)
                                            0)))]
- [("-e" "--end") enddate "Date to end calculation"
+ [("-e" "--end") end-date "Date to end calculation"
                  (end-time (date->time-utc
                             ; last second of the last hour of the last day
                             (make-date 0 59 59 23
-                                       (line->day enddate)
-                                       (line->month enddate)
-                                       (line->year enddate)
+                                       (line->day end-date)
+                                       (line->month end-date)
+                                       (line->year end-date)
                                        0)))]
  [("-f" "--file") file "File to use for calculation"
                   (file-to-parse file)])
@@ -109,8 +113,8 @@
 ; filter out all lines which are excluded by the boundaries
 (define applicable-data
   (filter (lambda (line)
-            (let ((current (date->time-utc 
-                            (line->start-date line))))
+            (let [(current (date->time-utc
+                            (line->start-date line)))]
               ; start-time <= current <= end-time
               (and (time>=? current (start-time))
                    (time<=? current (end-time)))))
