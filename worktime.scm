@@ -129,4 +129,12 @@
        applicable-data))
 
 ; add them all together
-(apply + hours-worked)
+(define all-hours (apply + hours-worked))
+
+; the number of whole hours
+(define full-hours (quotient (numerator all-hours) (denominator all-hours)))
+; parts of an hour
+(define part-hours (- all-hours full-hours))
+
+; display results
+(for-each display (list full-hours " " part-hours "\n"))
