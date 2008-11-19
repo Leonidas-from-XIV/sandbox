@@ -6,6 +6,7 @@ class Nat(val value: Int) extends Ordered[Nat] {
   override def compare(that: Nat): Int = this.value - that.value;
 
   def toInt() = this.value;
+  override def toString() = this.value.toString();
 }
 
 object QuickSort {
@@ -14,7 +15,7 @@ object QuickSort {
     val unsorted_ints = List(3, 5, 7, 2, 9, 8, 1, 6, 4);
     val unsorted = (for(item <- unsorted_ints) yield new Nat(item));
     val sorted = quicksort(unsorted);
-    println((for(item <- sorted) yield item.toInt()));
+    println(sorted);
   }
 
   def kls(s: List[Nat], p: Nat): List[Nat] =
