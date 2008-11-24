@@ -53,3 +53,16 @@ int length(Seq<Boolean> seq) {
 int bin2int(Seq<Boolean> seq) {
 	return bin2int_(seq, length(seq) - 1);
 }
+
+Seq<Boolean> int2bin(int i) {
+	if (i / 2 == 0) {
+		if (i % 2 == 1) return cons(true);
+		else return cons(false);
+	}
+	else {
+		final int div = i / 2;
+		final int mod = i % 2;
+		// append a true or false, depending on the modulo
+		return concat(int2bin(div), cons(mod == 1));
+	}
+}
