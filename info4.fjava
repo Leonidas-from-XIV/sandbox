@@ -22,3 +22,34 @@ int altSumSeq_(Seq<Integer> s, int factor) {
 		return factor * first(s) + altSumSeq_(rest(s), -factor);
 	}
 }
+
+int pow(int x, int y) {
+	if (y == 0) return 1;
+	else return x * pow(x, y - 1);
+}
+
+int bin2int_(Seq<Boolean> seq, int power) {
+	if (isEmpty(rest(seq))) {
+		final boolean var = first(seq);
+		if (var) return 1;
+		else return 0;
+	}
+	else {
+		final boolean var = first(seq);
+		if (var) {
+			return pow(2, power) + bin2int_(rest(seq), power - 1);
+		}
+		else {
+			return bin2int_(rest(seq), power - 1);
+		}
+	}
+}
+
+int length(Seq<Boolean> seq) {
+	if (isEmpty(seq)) return 0;
+	else return 1 + length(rest(seq));
+}
+
+int bin2int(Seq<Boolean> seq) {
+	return bin2int_(seq, length(seq) - 1);
+}
