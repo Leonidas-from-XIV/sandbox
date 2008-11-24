@@ -1,0 +1,24 @@
+int sumSeq(Seq<Integer> s) {
+	if (isEmpty(rest(s))) return first(s);
+	else {
+		return first(s) + sumSeq(rest(s));
+	}
+}
+
+int length(Seq<Integer> s) {
+	if (isEmpty(s)) return 0;
+	else {
+		return 1 + length(rest(s));
+	}
+}
+
+int altSumSeq(Seq<Integer> s) {
+	return altSumSeq_(s, 1);
+}
+
+int altSumSeq_(Seq<Integer> s, int factor) {
+	if (isEmpty(rest(s))) return first(s);
+	else {
+		return factor * first(s) + altSumSeq_(rest(s), -factor);
+	}
+}
