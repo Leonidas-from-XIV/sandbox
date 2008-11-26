@@ -1,3 +1,4 @@
+/* straightforward, sums items */
 int sumSeq(Seq<Integer> s) {
 	if (isEmpty(rest(s))) return first(s);
 	else {
@@ -5,33 +6,32 @@ int sumSeq(Seq<Integer> s) {
 	}
 }
 
-int length(Seq<Integer> s) {
-	if (isEmpty(s)) return 0;
-	else {
-		return 1 + length(rest(s));
-	}
-}
-
+/* alternating sequence sum */
 int altSumSeq(Seq<Integer> s) {
+	// the first item is positive, we start with 1
 	return altSumSeq_(s, 1);
 }
 
+/* helper that actually calculates the sum */
 int altSumSeq_(Seq<Integer> s, int factor) {
-	if (isEmpty(rest(s))) return first(s);
+	// if it is the last element, return it
+	if (isEmpty(rest(s))) return first(s) * factor;
 	else {
+		// recurse by changing the sign and add to this sum
 		return factor * first(s) + altSumSeq_(rest(s), -factor);
 	}
 }
 
+/* the power of some number */
 int pow(int x, int y) {
 	if (y == 0) return 1;
 	else return x * pow(x, y - 1);
 }
 
+/* binary to integer, calling recursively, and decreasing power */
 int bin2int_(Seq<Boolean> seq, int power) {
 	if (isEmpty(rest(seq))) {
-		final boolean var = first(seq);
-		if (var) return 1;
+		if (first(seq)) return 1;
 		else return 0;
 	}
 	else {
@@ -45,12 +45,15 @@ int bin2int_(Seq<Boolean> seq, int power) {
 	}
 }
 
-int length(Seq<Boolean> seq) {
+/* length of sequence */
+int length(Seq<? extends Object> seq) {
 	if (isEmpty(seq)) return 0;
 	else return 1 + length(rest(seq));
 }
 
+/* binary to integer */
 int bin2int(Seq<Boolean> seq) {
+	// get the maximal power to which to raise the first number
 	return bin2int_(seq, length(seq) - 1);
 }
 
@@ -67,6 +70,7 @@ Seq<Boolean> int2bin(int i) {
 	}
 }
 
+/* prepends the sequence with 'false', used for padding */
 Seq<Boolean> prepend(Seq<Boolean> seq, int times) {
 	if (times == 0) return seq;
 	else {
@@ -74,6 +78,8 @@ Seq<Boolean> prepend(Seq<Boolean> seq, int times) {
 	}
 }
 
+/* recursive addition of binary numbers, takes an 'overflow' argument
+ * to add the overflow bit of the previous calculation */
 Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
 	final boolean afirst = first(a);
 	final boolean bfirst = first(b);
@@ -97,16 +103,25 @@ Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
 	}
 }
 
+/* helper function to reverse contents of the sequence */
+Seq<Boolean> reverse(Seq<Boolean> seq) {
+	if (isEmpty(rest(seq))) return seq;
+	else return concat(reverse(rest(seq)), cons(first(seq)));
+}
+
+/* binary addition. reverses the sequences for calculating so that the overflow bit
+ * can go from left to right */
 Seq<Boolean> binadd(Seq<Boolean> a, Seq<Boolean> b) {
 	final int alen = length(a);
 	final int blen = length(b);
+	// pad the sequences accordingly, so that they are of the same length
 	if (alen < blen) {
-		return binadd_(prepend(a, blen-alen), b, false);
+		return reverse(binadd_(reverse(prepend(a, blen-alen)), reverse(b), false));
 	}
 	else if (blen < alen) {
-		return binadd_(a, prepend(b, alen-blen), false);
+		return reverse(binadd_(reverse(a), reverse(prepend(b, alen-blen)), false));
 	}
 	else {
-		return binadd_(a, b, false);
+		return reverse(binadd_(reverse(a), reverse(b), false));
 	}
 }
