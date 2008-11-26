@@ -1,9 +1,7 @@
 /* straightforward, sums items */
 int sumSeq(Seq<Integer> s) {
 	if (isEmpty(rest(s))) return first(s);
-	else {
-		return first(s) + sumSeq(rest(s));
-	}
+	else return first(s) + sumSeq(rest(s));
 }
 
 /* alternating sequence sum */
@@ -35,13 +33,8 @@ int bin2int_(Seq<Boolean> seq, int power) {
 		else return 0;
 	}
 	else {
-		final boolean var = first(seq);
-		if (var) {
-			return pow(2, power) + bin2int_(rest(seq), power - 1);
-		}
-		else {
-			return bin2int_(rest(seq), power - 1);
-		}
+		if (first(seq)) return pow(2, power) + bin2int_(rest(seq), power - 1);
+		else return bin2int_(rest(seq), power - 1);
 	}
 }
 
@@ -73,9 +66,7 @@ Seq<Boolean> int2bin(int i) {
 /* prepends the sequence with 'false', used for padding */
 Seq<Boolean> prepend(Seq<Boolean> seq, int times) {
 	if (times == 0) return seq;
-	else {
-		return concat(cons(false), prepend(seq, times-1));
-	}
+	else return concat(cons(false), prepend(seq, times-1));
 }
 
 /* recursive addition of binary numbers, takes an 'overflow' argument
@@ -91,16 +82,10 @@ Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
 	final boolean finaloverflow = (afirst && bfirst) || ((afirst || bfirst) && overflow);
 
 	if (isEmpty(rest(a))) {
-		if (finaloverflow) {
-			return cons(finalresult, finaloverflow);
-		}
-		else {
-			return cons(finalresult);
-		}
+		if (finaloverflow) return cons(finalresult, finaloverflow);
+		else return cons(finalresult);
 	}
-	else {
-		return concat(cons(finalresult), binadd_(rest(a), rest(b), finaloverflow));
-	}
+	else return concat(cons(finalresult), binadd_(rest(a), rest(b), finaloverflow));
 }
 
 /* helper function to reverse contents of the sequence */
@@ -115,13 +100,10 @@ Seq<Boolean> binadd(Seq<Boolean> a, Seq<Boolean> b) {
 	final int alen = length(a);
 	final int blen = length(b);
 	// pad the sequences accordingly, so that they are of the same length
-	if (alen < blen) {
+	if (alen < blen)
 		return reverse(binadd_(reverse(prepend(a, blen-alen)), reverse(b), false));
-	}
-	else if (blen < alen) {
+	else if (blen < alen)
 		return reverse(binadd_(reverse(a), reverse(prepend(b, alen-blen)), false));
-	}
-	else {
+	else
 		return reverse(binadd_(reverse(a), reverse(b), false));
-	}
 }
