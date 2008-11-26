@@ -66,3 +66,27 @@ Seq<Boolean> int2bin(int i) {
 		return concat(int2bin(div), cons(mod == 1));
 	}
 }
+
+Seq<Boolean> reverse(Seq<Boolean> seq) {
+	if (isEmpty(rest(seq))) return seq;
+	else
+		return concat(reverse(rest(seq)), cons(first(seq)));
+}
+
+
+Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
+	final boolean afirst = first(a);
+	final boolean bfirst = first(b);
+	// adding the values directly together
+	final boolean result1 = afirst ^ bfirst;
+	// the number bit
+	final boolean finalresult = result1 ^ overflow;
+	// set if at least two of afirst bfirst and overflow are set
+	final boolean finaloverflow = (afirst && bfirst) || ((afirst || bfirst) && overflow);
+	
+	return cons(finaloverflow, finalresult);
+}
+
+Seq<Boolean> binadd(Seq<Boolean> a, Seq<Boolean> b) {
+	return binadd_(a, b, false);
+}
