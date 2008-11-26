@@ -83,10 +83,20 @@ Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
 	final boolean finalresult = result1 ^ overflow;
 	// set if at least two of afirst bfirst and overflow are set
 	final boolean finaloverflow = (afirst && bfirst) || ((afirst || bfirst) && overflow);
-	
-	return cons(finaloverflow, finalresult);
+
+	if (isEmpty(rest(a))) {
+		if (finaloverflow) {
+			return cons(finalresult, finaloverflow);
+		}
+		else {
+			return cons(finalresult);
+		}
+	}
+	else {
+		return concat(cons(finalresult), binadd_(rest(a), rest(b), finaloverflow));
+	}
 }
 
 Seq<Boolean> binadd(Seq<Boolean> a, Seq<Boolean> b) {
-	return binadd_(a, b, false);
+	return reverse(binadd_(a, b, false));
 }
