@@ -67,12 +67,12 @@ Seq<Boolean> int2bin(int i) {
 	}
 }
 
-Seq<Boolean> reverse(Seq<Boolean> seq) {
-	if (isEmpty(rest(seq))) return seq;
-	else
-		return concat(reverse(rest(seq)), cons(first(seq)));
+Seq<Boolean> prepend(Seq<Boolean> seq, int times) {
+	if (times == 0) return seq;
+	else {
+		return concat(cons(false), prepend(seq, times-1));
+	}
 }
-
 
 Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
 	final boolean afirst = first(a);
@@ -98,5 +98,15 @@ Seq<Boolean> binadd_(Seq<Boolean> a, Seq<Boolean> b, boolean overflow) {
 }
 
 Seq<Boolean> binadd(Seq<Boolean> a, Seq<Boolean> b) {
-	return reverse(binadd_(a, b, false));
+	final int alen = length(a);
+	final int blen = length(b);
+	if (alen < blen) {
+		return binadd_(prepend(a, blen-alen), b, false);
+	}
+	else if (blen < alen) {
+		return binadd_(a, prepend(b, alen-blen), false);
+	}
+	else {
+		return binadd_(a, b, false);
+	}
 }
