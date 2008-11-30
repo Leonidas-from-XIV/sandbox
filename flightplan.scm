@@ -30,7 +30,25 @@
            (cadr connection))
          (filter (lambda (connection)
                    (if (equal? source (car connection)) #t #f))
-                 flight-plan))))              
+                 flight-plan))))
+
+(define contains?
+  (lambda (lat item)
+    (if (empty? lat) #f
+        (if (equal? (car lat) item) #t
+            (contains? (cdr lat) item)))))
+
+(define add-hop-to-route
+  (lambda (route flight-plan)
+    ; get the current stop
+    (let* ((current-stop (car route))
+           (possible-targets (destinations-from current-stop flight-plan)))
+      ; add all possible stops to the routes
+      (map (lambda (target)
+             (if (not (contains? route target))
+                 (cons target route)
+                 route))
+           possible-targets))))
 
 (define find-route
   (lambda (flight-plan)
