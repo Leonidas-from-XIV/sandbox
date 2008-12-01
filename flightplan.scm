@@ -38,18 +38,21 @@
         (if (equal? (car lat) item) #t
             (contains? (cdr lat) item)))))
 
-; should return () if no possibilities found, not (())
 (define add-hop-to-route
   (lambda (route flight-plan)
     ; get the current stop
     (let* ((current-stop (car route))
-           (possible-targets (destinations-from current-stop flight-plan)))
-      ; add all possible stops to the routes
-      (map (lambda (target)
-             (if (not (contains? route target))
-                 (cons target route)
-                 '()))
-           possible-targets))))
+           (targets (destinations-from current-stop flight-plan))
+           (possible-targets (filter 
+                             (lambda (target) (not (contains? route target)))
+                             targets)))
+      (if (empty? possible-targets) '()
+          ; add all possible stops to the routes
+          (map (lambda (target)
+                 (if (not (contains? route target))
+                     (cons target route)
+                     '()))
+               possible-targets)))))
 
 (define find-routes
   (lambda (route flight-plan)
