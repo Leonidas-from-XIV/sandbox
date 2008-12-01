@@ -56,12 +56,12 @@
 
 (define find-routes
   (lambda (route flight-plan)
-    (let* ((found-routes (add-hop-to-route route flight-plan))
-           (routes-length (length (car found-routes)))
-           (desired-length (length (all-cities flight-plan))))
-      (cond [(empty? found-routes) '()]
-            [(= routes-length desired-length) found-routes]
-            ; call itself recursively on every route that was found
-            [else (display found-routes)
-                  (display "\n")
-                  (map (lambda (r) (find-routes r flight-plan)) found-routes)]))))
+    (let* ((found-routes (add-hop-to-route route flight-plan)))
+      (if (empty? found-routes) '()
+          (let* ((route-length (length (car found-routes)))
+                 (desired-length (length (all-cities flight-plan))))
+            (cond [(= route-length desired-length) found-routes]
+                  [else 
+                   (display found-routes)
+                   (display "\n")
+                   (map (lambda (r) (find-routes r flight-plan)) found-routes)]))))))
