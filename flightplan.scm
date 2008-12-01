@@ -29,7 +29,7 @@
     (map (lambda (connection)
            (cadr connection))
          (filter (lambda (connection)
-                   (if (equal? source (car connection)) #t #f))
+                   (equal? source (car connection)))
                  flight-plan))))
 
 (define contains?
@@ -47,9 +47,14 @@
       (map (lambda (target)
              (if (not (contains? route target))
                  (cons target route)
-                 route))
+                 '()))
            possible-targets))))
 
-(define find-route
-  (lambda (flight-plan)
-    #f))
+(define find-routes
+  (lambda (route flight-plan)
+    (cond [(= (length route) (length (all-cities flight-plan))) route]
+          [else (let ((next-routes (add-hop-to-route route flight-plan)))
+                  (display next-routes)
+                  (display "\n")
+                  (if (empty? (car next-routes)) '()
+                      (map (lambda (r) (find-routes r flight-plan)) next-routes)))])))
