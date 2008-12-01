@@ -53,8 +53,9 @@
 (define find-routes
   (lambda (route flight-plan)
     (cond [(= (length route) (length (all-cities flight-plan))) route]
-          [else (let ((next-routes (add-hop-to-route route flight-plan)))
+          [else (let ((next-routes (filter (lambda (e) (not (empty? e))) 
+                                           (add-hop-to-route route flight-plan))))
                   (display next-routes)
                   (display "\n")
-                  (if (empty? (car next-routes)) '()
+                  (if (empty? next-routes) '()
                       (map (lambda (r) (find-routes r flight-plan)) next-routes)))])))
