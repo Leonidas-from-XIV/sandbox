@@ -38,6 +38,7 @@
         (if (equal? (car lat) item) #t
             (contains? (cdr lat) item)))))
 
+; should return () if no possibilities found, not (())
 (define add-hop-to-route
   (lambda (route flight-plan)
     ; get the current stop
@@ -52,10 +53,12 @@
 
 (define find-routes
   (lambda (route flight-plan)
-    (cond [(= (length route) (length (all-cities flight-plan))) route]
-          [else (let ((next-routes (filter (lambda (e) (not (empty? e))) 
-                                           (add-hop-to-route route flight-plan))))
-                  (display next-routes)
+    (let* ((found-routes (add-hop-to-route route flight-plan))
+           (routes-length (length (car found-routes)))
+           (desired-length (length (all-cities flight-plan))))
+      (cond [(empty? found-routes) '()]
+            [(= routes-length desired-length) found-routes]
+            ; call itself recursively on every route that was found
+            [else (display found-routes)
                   (display "\n")
-                  (if (empty? next-routes) '()
-                      (map (lambda (r) (find-routes r flight-plan)) next-routes)))])))
+                  (map (lambda (r) (find-routes r flight-plan)) found-routes)]))))
