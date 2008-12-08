@@ -54,6 +54,11 @@
                      '()))
                possible-targets)))))
 
+(define filter-empty
+  (lambda (lat)
+    (filter (lambda (item)
+              (not (empty? item))) lat)))
+
 (define find-routes
   (lambda (route flight-plan)
     (let* ((found-routes (add-hop-to-route route flight-plan)))
@@ -62,6 +67,11 @@
                  (desired-length (length (all-cities flight-plan))))
             (cond [(= route-length desired-length) found-routes]
                   [else 
-                   (display found-routes)
-                   (display "\n")
-                   (map (lambda (r) (find-routes r flight-plan)) found-routes)]))))))
+                   ;(display found-routes)
+                   ;(display "\n")
+                   (let ([results (map (lambda (r)
+                                         (find-routes r flight-plan))
+                                       found-routes)])
+                     (display (filter-empty results))
+                     (display "\n")
+                     (filter-empty results))]))))))
