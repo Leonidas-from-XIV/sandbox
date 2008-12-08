@@ -13,9 +13,9 @@
                             (lambda (key value)
                               (list value key))))
 
-(define sorted-freq (reverse (sort freq-list
-                                   (lambda (first second)
-                                     (< (car first) (car second))))))
+(define sorted-freq (sort freq-list
+                          (lambda (first second)
+                            (> (car first) (car second)))))
 
 (for-each (lambda (item)
             (printf "~a ~a~n" (car item) (cadr item))) sorted-freq)
