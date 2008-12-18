@@ -1,5 +1,21 @@
 #lang scheme
 (require srfi/13)
+(require srfi/41)
+
+;; port->stream married with string-tokenize results in port->stream-of-tokens
+(define (port->stream-of-tokens . port)
+  (define port->stream-of-tokens
+    (stream-lambda (p)
+                   (let [(line (read-line p))]
+                     (if (eof-object? line)
+                         stream-null
+                         (stream-append
+                          (list->stream (string-tokenize line)) 
+                          (port->stream-of-tokens p))))))
+  (let [(p (if (null? port) (current-input-port) (car port)))]
+    (if (not (input-port? p))
+        (error 'port->stream "non-input-port argument")
+        (port->stream-of-tokens p))))
 
 ; returns a hashmap mapping words to their frequency
 (define frequencies
