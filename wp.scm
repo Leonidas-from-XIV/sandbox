@@ -1,13 +1,14 @@
 #lang scheme
+(require srfi/13)
 
-(define in (port->string (current-input-port)))
-
+; returns a hashmap mapping words to their frequency
 (define frequencies
   (foldl (lambda (word hash)
          (let [(current-value (hash-ref hash word 0))]
            (hash-set hash word (add1 current-value))))
        (make-immutable-hash '())
-       (regexp-split #px"\\s" in)))
+       ; feed in the separated words
+       (string-tokenize (port->string (current-input-port)))))
 
 (define freq-list (hash-map frequencies
                             (lambda (key value)
