@@ -1,22 +1,28 @@
 #lang scheme
-;; Program which calculates working hours
-; command line parser
-(require scheme/cmdline)
-; datetime handling
-(require srfi/19)
-; string-tokenize
-(require srfi/13)
-; charset for the tokenizer
-(require srfi/14)
+;;;; Program which calculates working hours defined in a simple
+;;;; line-based text format.
+;;;; Requires PLT Scheme to run as it depends on the command line
+;;;; parsing library.
+;;;;
+;;;; written in 2008, 2009 by Marek Kubica <marek@xivilization.net>
 
-; start-time has to be some very early date, epoch 0 at best
+;; command line parser for an enjoyable CLI experience
+(require scheme/cmdline)
+;; string-tokenize
+(require srfi/13)
+;; charset for the tokenizer
+(require srfi/14)
+;; datetime handling
+(require srfi/19)
+
+;; start-time has to be some very early date, epoch 0 at best
 (define start-time (make-parameter (make-time time-utc 0 0)))
-; end-time has is the current-time
+;; end-time has is the current-time
 (define end-time (make-parameter (current-time)))
-; default filename
+;; default filename
 (define file-to-parse (make-parameter "workdata.txt"))
 
-; reads lines until eof and returns a list
+;; reads lines until EOF and returns a list
 (define port->list
   (lambda (port)
     (let ((line (read-line port)))
@@ -28,7 +34,7 @@
     (string->number 
      (list-ref 
       (string-tokenize line
-                       ; split by :-. and space
+                       ;; split by :-. and space
                        (char-set-delete char-set:full #\: #\ #\- #\.))
       ref))))
 
@@ -43,7 +49,8 @@
 (define line->year
   (lambda (line)
     (let [(input-year (generic-split-ref line 2))]
-      ; only add 2000 if the year number is smaller than 100
+      ;; only add 2000 if the year number is smaller than 100
+      ;; to be a bit more tolerant on date entry
       (if (< input-year 100)
           (+ 2000 input-year)
           input-year))))
@@ -107,20 +114,20 @@
  [("-f" "--file") file "File to use for calculation"
                   (file-to-parse file)])
 
-; open the file
+;; open the file
 (define input-data (port->list (open-input-file (file-to-parse))))
 
-; filter out all lines which are excluded by the boundaries
+;; filter out all lines which are excluded by the boundaries
 (define applicable-data
   (filter (lambda (line)
             (let [(current (date->time-utc
                             (line->start-date line)))]
-              ; start-time <= current <= end-time
+              ;; start-time <= current <= end-time
               (and (time>=? current (start-time))
                    (time<=? current (end-time)))))
           input-data))
 
-; subtract each start from end date
+;; subtract each start from end date to find out how much work was done
 (define hours-worked
   (map (lambda (line)
          (let ((start (date->time-utc (line->start-date line)))
@@ -128,13 +135,18 @@
            (time-hours (time-difference stop start))))
        applicable-data))
 
-; add them all together
+;; add all hours together
 (define all-hours (apply + hours-worked))
 
-; the number of whole hours
+;; the number of whole hours
 (define full-hours (quotient (numerator all-hours) (denominator all-hours)))
-; parts of an hour
+;; parts of an hour
 (define part-hours (- all-hours full-hours))
 
-; display results
-(for-each display (list full-hours " " part-hours "\n"))
+;; display results
+(for-each display `(,full-hours
+                        ;; only display part hours if there are any
+                        ,@(if 
+                           (not (= part-hours 0)) `(" " ,part-hours)
+                           '())
+                        "\n"))
