@@ -73,8 +73,8 @@
 (define complete?
   (lambda (tree)
     (if (etree? tree) #t
-        (let ((l (left tree))
-              (r (right tree)))
+        (let [(l (left tree))
+              (r (right tree))]
           ;; the actual condition
           (and
            (= (height l) (height r))
@@ -107,3 +107,32 @@
         (= (root tree) (max (root (left tree)) (root (right tree))))
         (choice-tree? (left tree))
         (choice-tree? (right tree)))])))
+
+(define make-choice-tree
+  (lambda (seq)
+    (cond 
+      [(empty? seq) etree]
+      [(= (length seq) 1) (tree-cons etree (car seq) etree)]
+      [else 
+       (let [(h (quotient (length seq) 2))]
+         (concat-choice-tree
+          (make-choice-tree (part seq 1 h))
+          (make-choice-tree (part seq (+ h 1) (length seq)))))])))
+
+(define part
+  (lambda (seq a b)
+    (cond
+      [(> a 1) (part (cdr seq) (- a 1) (- b 1))]
+      [(= a b) (list (car seq))]
+      [else
+       (append
+        (list (car seq))
+        (part (cdr seq) a (- b 1)))])))
+
+(define concat-choice-tree
+  (lambda (l r)
+    (cond
+      [(etree? r) l]
+      [(etree? l) r]
+      [(> (root r) (root l)) (tree-cons l (root r) r)]
+      [else (tree-cons l (root l) r)])))
