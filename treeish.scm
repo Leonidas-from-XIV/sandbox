@@ -94,3 +94,16 @@
 (define gen
   (lambda (n)
     (h n 1)))
+
+;;; checks whether the tree is a choice tree
+(define choice-tree?
+  (lambda (tree)
+    (cond
+      [(etree? tree) #t]
+      [(etree? (left tree)) (etree? (right tree))]
+      [(etree? (right tree)) (etree? (left tree))]
+      [else
+       (and
+        (= (root tree) (max (root (left tree)) (root (right tree))))
+        (choice-tree? (left tree))
+        (choice-tree? (right tree)))])))
