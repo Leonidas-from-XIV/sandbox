@@ -4,6 +4,7 @@
 ;;;; Use them at your own risk
 
 (define etree '())
+(define empty '())
 
 (define etree? empty?)
 
@@ -108,6 +109,7 @@
         (choice-tree? (left tree))
         (choice-tree? (right tree)))])))
 
+;;; mctree
 (define make-choice-tree
   (lambda (seq)
     (cond 
@@ -129,6 +131,7 @@
         (list (car seq))
         (part (cdr seq) a (- b 1)))])))
 
+;;; cctree
 (define concat-choice-tree
   (lambda (l r)
     (cond
@@ -136,3 +139,28 @@
       [(etree? l) r]
       [(> (root r) (root l)) (tree-cons l (root r) r)]
       [else (tree-cons l (root l) r)])))
+
+;;; deletes the largest element from a choice tree
+(define del-tree
+  (lambda (tree)
+    (cond
+      [(etree? tree) etree]
+      [(etree? (right tree)) (del-tree (left tree))]
+      [(etree? (left tree)) (del-tree (right tree))]
+      [(= (root (right tree)) (root tree)) (concat-choice-tree 
+                                            (left tree)
+                                            (del-tree (right tree)))]
+      [else (concat-choice-tree (del-tree (left tree)) (right tree))])))
+
+;;; heapsort using choice trees
+(define heapsort
+  (lambda (seq)
+    (tree-in-sort empty (make-choice-tree seq))))
+
+;;; actual tree sorting function
+(define tree-in-sort
+  (lambda (seq tree)
+    (if (etree? tree) seq
+        (tree-in-sort
+         (append seq (list (root tree)))
+         (del-tree tree)))))
