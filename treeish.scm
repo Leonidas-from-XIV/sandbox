@@ -1,5 +1,6 @@
 #lang scheme
 ;;;; Implementations of tree operations from the Info1 slides by Prof. Broy
+;;;; The implementations are adapted mainly from slide set 13
 ;;;; Use them at your own risk
 
 (define etree '())
@@ -51,4 +52,34 @@
          (post-order (right tree))
          (list (root tree))))))
 
+;; a simple example of a non-complete binary tree
 (define simple (tree-cons (tree-cons etree 1 etree) 2 etree))
+
+;; slide 18 example 1
+(define example1 
+  (tree-cons 
+   (tree-cons etree 1 etree)
+   2
+   (tree-cons etree 3 etree)))
+
+;; example 2
+(define example2
+  (tree-cons
+   etree
+   1
+   (tree-cons
+    etree
+    2
+    (tree-cons etree 3 etree))))
+
+;; slide 23
+(define complete?
+  (lambda (tree)
+    (if (etree? tree) #t
+        (let ((l (left tree))
+              (r (right tree)))
+          ;; the actual condition
+          (and
+           (= (height l) (height r))
+           (complete? l)
+           (complete? r))))))
