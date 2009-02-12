@@ -52,17 +52,14 @@
          (post-order (right tree))
          (list (root tree))))))
 
-;; a simple example of a non-complete binary tree
-(define simple (tree-cons (tree-cons etree 1 etree) 2 etree))
-
-;; slide 18 example 1
+;;; slide 18 example 1, complete binary tree
 (define example1 
   (tree-cons 
    (tree-cons etree 1 etree)
    2
    (tree-cons etree 3 etree)))
 
-;; example 2
+;;; example 2, non-complete binary tree
 (define example2
   (tree-cons
    etree
@@ -72,7 +69,7 @@
     2
     (tree-cons etree 3 etree))))
 
-;; slide 23
+;;; slide 23
 (define complete?
   (lambda (tree)
     (if (etree? tree) #t
@@ -83,3 +80,17 @@
            (= (height l) (height r))
            (complete? l)
            (complete? r))))))
+
+;;; generator of fancy binary trees
+(define h
+  (lambda (n i)
+    (if (= n 0) etree
+        (tree-cons 
+         (h (- n 1) (* i 2))
+         i
+         (h (- n 1) (+ (* i 2) 1))))))
+
+;;; simplify call of h
+(define gen
+  (lambda (n)
+    (h n 1)))
