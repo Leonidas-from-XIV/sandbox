@@ -5,6 +5,7 @@
 
 (define etree '())
 (define empty '())
+(define elisp '())
 
 (define etree? empty?)
 
@@ -164,3 +165,37 @@
         (tree-in-sort
          (append seq (list (root tree)))
          (del-tree tree)))))
+
+;;; LISP trees
+;;; beware: this stuff is not really what the Broy slides demand
+(define broy-cons
+  (lambda (l r)
+    (list l r)))
+
+;; the accessors
+(define broy-car car)
+(define broy-cdr cadr)
+
+;; creates an atom, that is a list with only one item
+(define make-atom
+  (lambda (m)
+    (list m)))
+
+;; check whether the tree is what make-atom created
+;; (not really an atom in the Lisp sense)
+(define atom?
+  (lambda (tree)
+    (if (and
+         (list? tree)
+         (= (length tree) 1)
+         (not (list? (car tree))))
+        #t
+        #f)))
+
+(define proj
+  (lambda (tree)
+    (if (atom? tree) (car tree)
+        ; yep, this is U+22A5: bottom aka _|_
+        (error "⊥"))))
+    
+(define elisp? empty?)
