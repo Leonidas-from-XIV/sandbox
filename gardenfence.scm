@@ -19,5 +19,6 @@
           [else (cons (every-nth-item chars move)
                       (encode (cdr chars) (- times 1) move))])))
 
-(encode (string->list "diesisteinklartext") 12 10)
+;; 11 = (height * 2) - 1
+(encode (string->list "diesisteinklartext") 11 10)
 (every-nth-item '(1 2 3 4) 5)
