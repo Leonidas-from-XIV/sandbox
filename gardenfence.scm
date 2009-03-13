@@ -15,7 +15,7 @@
 
 (define encode
   (lambda (chars times move)
-    (cond [(= times 1) (every-nth-item chars move)]
+    (cond [(= times 1) '()]
           [else (cons (every-nth-item chars move)
                       (encode (cdr chars) (- times 1) move))])))
 
