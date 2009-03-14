@@ -24,9 +24,10 @@
   (lambda (lat)
     (let* ([len (length lat)]
            [head (car lat)]
-           ; last is wrong
-           [tail (last lat)])
-      `(,head ,@(merge-all-double lat 1 (- len 1)) ,tail))))
+           ; 5 = height - 1
+           [tail (list-ref lat 5)]
+           [grouped (merge-all-double lat 1 (- len 1))])
+      `(,head ,@grouped ,tail))))
 
 (define merge-double-phases
   (lambda (lat first second)
@@ -40,8 +41,16 @@
         (cons (merge-double-phases lat begin end)
               (merge-all-double lat (+ begin 1) (- end 1))))))
 
+;;; (a b c) (d e f) -> (a d b e c f)
+(define interweave
+  (lambda (head-lat tail-lat)
+    (cond [(null? head-lat) tail-lat]
+          [(null? tail-lat) head-lat]
+          [else ;; (first-of-head first-of-tail recursive-rest)
+           `(,(car head-lat) ,(car tail-lat) 
+                             ,@(interweave (cdr head-lat) (cdr tail-lat)))])))
+
 ;; 11 = (height * 2) - 1
 (define a (encode (string->list "diesisteinklartext") 11 10))
-a
 ;(every-nth-item '(1 2 3 4) 5)
 (merge-phases a)
