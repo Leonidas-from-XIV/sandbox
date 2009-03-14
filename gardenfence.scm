@@ -16,9 +16,17 @@
 ;;; bad name, this does not actually encode
 (define encode
   (lambda (chars times move)
-    (cond [(= times 1) '()]
+    (cond [(= times 0) (list (every-nth-item chars move))]
           [else (cons (every-nth-item chars move)
                       (encode (cdr chars) (- times 1) move))])))
+
+(define encode-clean
+  (lambda (text height)
+    (let* ([chars (string->list text)]
+          ;; how many chars to skip in one phase
+          [move (- (* height 2) 2)]
+          [times move])
+      (encode chars times move))))
 
 (define merge-phases
   (lambda (lat)
@@ -58,10 +66,12 @@
     (apply string-append (map list->string lat))))
 
 ;; 11 = (height * 2) - 1
-(define a (encode (string->list "diesisteinklartext") 11 10))
+;; 10 = how many items to skip
+(define a (encode (string->list "diesisteinklartext") 10 10))
+a
 ;(every-nth-item '(1 2 3 4) 5)
 (define b (merge-phases a))
-(define c (flatten b))
+;(define c (flatten b))
 
 ;;; like enumerate in Python
 (define enumerate
@@ -89,8 +99,8 @@
     (if (null? code) '()
         (append (car code) (flatten-linecode (cdr code))))))
 
-(generate-linecodes c 6)
-(flatten-linecode (generate-linecodes c 6))
+;(generate-linecodes c 6)
+;(flatten-linecode (generate-linecodes c 6))
 
 (define decrypt
   (lambda (text height)
@@ -102,4 +112,4 @@
                      (lambda (index) (hash-ref cleartext index)) 
                      (build-list (string-length text) values))))))
 
-(decrypt c 6)
+;(decrypt c 6)
