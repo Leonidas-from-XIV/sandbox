@@ -15,18 +15,20 @@
 
 ;;; creates a list of numbers of all phases
 (define build-phases
-  (lambda (chars times move)
+  (lambda (chars move times)
     (cond [(= times 1) (list (every-nth-item chars move))]
           [else (cons (every-nth-item chars move)
-                      (build-phases (cdr chars) (- times 1) move))])))
+                      (build-phases (cdr chars) move (- times 1)))])))
 
-(define encode-clean
+(define encode
   (lambda (text height)
     (let* ([chars (string->list text)]
           ;; how many chars to skip in one phase
           [move (- (* height 2) 2)]
-          [times move])
-      (build-phases chars times move))))
+          [times move]
+          [up/down-phases (build-phases chars times move)]
+          [unified-phases (merge-phases up/down-phases height)])
+      (apply string-append (map list->string unified-phases)))))
 
 ;;; merges up and down phases and leaves the top and bottom phases alone
 (define merge-phases
@@ -50,6 +52,7 @@
               [tail (list-ref lat second)])
           (list head tail))))
     
+    ;; merge phases together as long as begin < end
     (if (>= begin end) '()
         (cons (merge-two-phases lat begin end)
               (merge-up/down-phases lat (+ begin 1) (- end 1))))))
@@ -62,16 +65,6 @@
           [else ;; (first-of-head first-of-tail recursive-rest)
            `(,(car head-lat) ,(car tail-lat) 
                              ,@(interweave (cdr head-lat) (cdr tail-lat)))])))
-
-;;; flattens a list of lists of chars into a string
-(define flatten
-  (lambda (lat)
-    (apply string-append (map list->string lat))))
-
-(define a (encode-clean "diesisteinklartext" 6))
-(define b (merge-phases a 6))
-b
-;(define c (flatten b))
 
 ;;; like enumerate in Python
 (define enumerate
@@ -89,16 +82,17 @@ b
 
 (define generate-linecodes
   (lambda (text height)
-    (let ([len (string-length text)])
-      (merge-phases (build-phases (build-list len values) 10 10)))))
+    (let* ([len (string-length text)]
+           [move (- (* height 2) 2)]
+           [times move])
+      (merge-phases 
+       (build-phases (build-list len values) move times)
+       height))))
 
 (define flatten-linecode
   (lambda (code)
     (if (null? code) '()
         (append (car code) (flatten-linecode (cdr code))))))
-
-;(generate-linecodes c 6)
-;(flatten-linecode (generate-linecodes c 6))
 
 (define decrypt
   (lambda (text height)
@@ -106,8 +100,9 @@ b
                             (make-immutable-hash '())
                             (zip (flatten-linecode (generate-linecodes text height))
                                  (string->list text)))])
-      (list->string (map 
+      (list->string (map
                      (lambda (index) (hash-ref cleartext index)) 
                      (build-list (string-length text) values))))))
 
-;(decrypt c 6)
+(encode "diesisteinklartext" 6)
+(decrypt (encode "diesisteinklartext" 6) 6)
