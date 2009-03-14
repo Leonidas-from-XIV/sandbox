@@ -26,8 +26,9 @@
            [head (car lat)]
            ; 5 = height - 1
            [tail (list-ref lat 5)]
-           [grouped (merge-all-double lat 1 (- len 1))])
-      `(,head ,@grouped ,tail))))
+           [grouped (merge-all-double lat 1 (- len 1))]
+           [merged (map (lambda (arg) (apply interweave arg)) grouped)])
+      `(,head ,@merged ,tail))))
 
 (define merge-double-phases
   (lambda (lat first second)
