@@ -13,12 +13,12 @@
           [else (cons (car lat)
                       (every-nth-item (drop lat n) n))])))
 
-;;; bad name, this does not actually encode
-(define encode
+;;; creates a list of numbers of all phases
+(define build-phases
   (lambda (chars times move)
-    (cond [(= times 0) (list (every-nth-item chars move))]
+    (cond [(= times 1) (list (every-nth-item chars move))]
           [else (cons (every-nth-item chars move)
-                      (encode (cdr chars) (- times 1) move))])))
+                      (build-phases (cdr chars) (- times 1) move))])))
 
 (define encode-clean
   (lambda (text height)
@@ -26,30 +26,33 @@
           ;; how many chars to skip in one phase
           [move (- (* height 2) 2)]
           [times move])
-      (encode chars times move))))
+      (build-phases chars times move))))
 
+;;; merges up and down phases and leaves the top and bottom phases alone
 (define merge-phases
-  (lambda (lat)
+  (lambda (lat height)
     (let* ([len (length lat)]
-           [head (car lat)]
-           ; 5 = height - 1
-           [tail (list-ref lat 5)]
-           ; merge all items except for the first and last
-           [grouped (merge-all-double lat 1 (- len 1))]
+           [top (car lat)]
+           ;; the last element
+           [bottom (list-ref lat (- height 1))]
+           ;; merge all items except for the first and last
+           [grouped (merge-up/down-phases lat 1 (- len 1))]
            [merged (map (lambda (arg) (apply interweave arg)) grouped)])
-      `(,head ,@merged ,tail))))
+      ;; connect top, the merged phases and bottom phases together
+      `(,top ,@merged ,bottom))))
 
-(define merge-double-phases
-  (lambda (lat first second)
-    (let ([head (list-ref lat first)]
-          [tail (list-ref lat second)])
-      (list head tail))))
-
-(define merge-all-double
+;;; helper for merge-phases, does the actual merging
+(define merge-up/down-phases
   (lambda (lat begin end)
+    (define merge-two-phases
+      (lambda (lat first second)
+        (let ([head (list-ref lat first)]
+              [tail (list-ref lat second)])
+          (list head tail))))
+    
     (if (>= begin end) '()
-        (cons (merge-double-phases lat begin end)
-              (merge-all-double lat (+ begin 1) (- end 1))))))
+        (cons (merge-two-phases lat begin end)
+              (merge-up/down-phases lat (+ begin 1) (- end 1))))))
 
 ;;; (a b c) (d e f) -> (a d b e c f)
 (define interweave
@@ -65,12 +68,9 @@
   (lambda (lat)
     (apply string-append (map list->string lat))))
 
-;; 11 = (height * 2) - 1
-;; 10 = how many items to skip
-(define a (encode (string->list "diesisteinklartext") 10 10))
-a
-;(every-nth-item '(1 2 3 4) 5)
-(define b (merge-phases a))
+(define a (encode-clean "diesisteinklartext" 6))
+(define b (merge-phases a 6))
+b
 ;(define c (flatten b))
 
 ;;; like enumerate in Python
@@ -87,12 +87,10 @@ a
     (let ([indices (map (curryr modulo size) (build-list (length lat) values))])
       (zip indices lat))))
 
-;(decode c 6)
-
 (define generate-linecodes
   (lambda (text height)
     (let ([len (string-length text)])
-      (merge-phases (encode (build-list len values) 11 10)))))
+      (merge-phases (build-phases (build-list len values) 10 10)))))
 
 (define flatten-linecode
   (lambda (code)
