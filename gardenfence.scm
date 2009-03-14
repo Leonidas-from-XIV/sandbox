@@ -63,17 +63,6 @@
 (define b (merge-phases a))
 (define c (flatten b))
 
-;;; decode
-(define decode
-  (lambda (text height)
-    (foldl
-     ;; the function to apply on each letter
-     (lambda (letter lat) (display letter))
-     ;; initial value: n (height) empty lists
-     (build-list height (lambda (e) '()))
-     ;; the value to be folded
-     (enumerate-cycle (string->list text) height))))
-
 ;;; like enumerate in Python
 (define enumerate
   (lambda (lat)
@@ -88,4 +77,29 @@
     (let ([indices (map (curryr modulo size) (build-list (length lat) values))])
       (zip indices lat))))
 
-(decode c 6)
+;(decode c 6)
+
+(define generate-linecodes
+  (lambda (text height)
+    (let ([len (string-length text)])
+      (merge-phases (encode (build-list len values) 11 10)))))
+
+(define flatten-linecode
+  (lambda (code)
+    (if (null? code) '()
+        (append (car code) (flatten-linecode (cdr code))))))
+
+(generate-linecodes c 6)
+(flatten-linecode (generate-linecodes c 6))
+
+(define decrypt
+  (lambda (text height)
+    (let ([cleartext (foldl (lambda (item hash) (hash-set hash (car item) (cadr item)))
+                            (make-immutable-hash '())
+                            (zip (flatten-linecode (generate-linecodes text height))
+                                 (string->list text)))])
+      (list->string (map 
+                     (lambda (index) (hash-ref cleartext index)) 
+                     (build-list (string-length text) values))))))
+
+(decrypt c 6)
