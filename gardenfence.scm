@@ -26,6 +26,7 @@
            [head (car lat)]
            ; 5 = height - 1
            [tail (list-ref lat 5)]
+           ; merge all items except for the first and last
            [grouped (merge-all-double lat 1 (- len 1))]
            [merged (map (lambda (arg) (apply interweave arg)) grouped)])
       `(,head ,@merged ,tail))))
@@ -51,7 +52,13 @@
            `(,(car head-lat) ,(car tail-lat) 
                              ,@(interweave (cdr head-lat) (cdr tail-lat)))])))
 
+;;; flattens a list of lists of chars into a string
+(define flatten
+  (lambda (lat)
+    (apply string-append (map list->string lat))))
+
 ;; 11 = (height * 2) - 1
 (define a (encode (string->list "diesisteinklartext") 11 10))
 ;(every-nth-item '(1 2 3 4) 5)
-(merge-phases a)
+(define b (merge-phases a))
+(flatten b)
