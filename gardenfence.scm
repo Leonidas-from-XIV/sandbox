@@ -20,7 +20,7 @@
           [else (cons (every-nth-item chars move)
                       (build-phases (cdr chars) move (- times 1)))])))
 
-(define encode
+(define encrypt
   (lambda (text height)
     (let* ([chars (string->list text)]
           ;; how many chars to skip in one phase
@@ -66,20 +66,9 @@
            `(,(car head-lat) ,(car tail-lat) 
                              ,@(interweave (cdr head-lat) (cdr tail-lat)))])))
 
-;;; like enumerate in Python
-(define enumerate
-  (lambda (lat)
-    (let ([indices (build-list (length lat) values)])
-      (zip indices lat))))
-
-;;; like enumerate but cycles the argument
-(define enumerate-cycle
-  (lambda (lat size)
-    ;; calculate the modulo size of all indizes
-    ;; curry creates a partial function
-    (let ([indices (map (curryr modulo size) (build-list (length lat) values))])
-      (zip indices lat))))
-
+;;; generates the "gartenzaun" for the given height and text but instead
+;;; of letters, it uses numbers, so the result can be used to map
+;;; letters back to their original position in the cleartext
 (define generate-linecodes
   (lambda (text height)
     (let* ([len (string-length text)]
@@ -104,5 +93,5 @@
                      (lambda (index) (hash-ref cleartext index)) 
                      (build-list (string-length text) values))))))
 
-(encode "diesisteinklartext" 6)
-(decrypt (encode "diesisteinklartext" 6) 6)
+(encrypt "diesisteinklartext" 6)
+(decrypt (encrypt "diesisteinklartext" 6) 6)
