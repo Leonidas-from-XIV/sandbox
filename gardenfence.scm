@@ -61,4 +61,31 @@
 (define a (encode (string->list "diesisteinklartext") 11 10))
 ;(every-nth-item '(1 2 3 4) 5)
 (define b (merge-phases a))
-(flatten b)
+(define c (flatten b))
+
+;;; decode
+(define decode
+  (lambda (text height)
+    (foldl
+     ;; the function to apply on each letter
+     (lambda (letter lat) (display letter))
+     ;; initial value: n (height) empty lists
+     (build-list height (lambda (e) '()))
+     ;; the value to be folded
+     (enumerate-cycle (string->list text) height))))
+
+;;; like enumerate in Python
+(define enumerate
+  (lambda (lat)
+    (let ([indices (build-list (length lat) values)])
+      (zip indices lat))))
+
+;;; like enumerate but cycles the argument
+(define enumerate-cycle
+  (lambda (lat size)
+    ;; calculate the modulo size of all indizes
+    ;; curry creates a partial function
+    (let ([indices (map (curryr modulo size) (build-list (length lat) values))])
+      (zip indices lat))))
+
+(decode c 6)
