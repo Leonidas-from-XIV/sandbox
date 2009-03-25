@@ -20,6 +20,23 @@
     [(_ fun single-arg) (fun single-arg)]
     [(_ fun first-arg ... last-arg) ((call/curry fun first-arg ...) last-arg)]))
 
+(define-syntax lambda/curry
+  (syntax-rules ()
+    [(_ () body) (lambda () body)]
+    [(_ (single) body) (lambda (single) body)]))
+
+(define just-false
+  (lambda/curry ()
+              #f))
+
+(just-false)
+
+(define pass-through
+  (lambda/curry (val)
+                val))
+
+(pass-through 1)
+
 ;;; test results
 (check-expect ((manually-curried 1) 2) (/ 1 2))
 (check-expect (call/curry manually-curried 1 2) (/ 1 2))
