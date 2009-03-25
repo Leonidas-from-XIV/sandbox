@@ -17,7 +17,8 @@
 
 (define-syntax call/curry
   (syntax-rules ()
-    [(_ fun first-arg ... last-arg) ((fun first-arg) ... last-arg)]))
+    [(_ fun single-arg) (fun single-arg)]
+    [(_ fun first-arg ... last-arg) ((call/curry fun first-arg ...) last-arg)]))
 
 (call/curry manually-curried 1 2)
 (call/curry three-layers 1 2 3)
