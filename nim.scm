@@ -5,6 +5,7 @@
 ;;;;
 ;;;; For the rules check <http://en.wikipedia.org/wiki/Nim>
 
+;;; creates a field with random amounts of items in it
 (define make-field
   (lambda (rows maximum-in-row)
     (if (= rows 1) (list (add1 (random maximum-in-row)))
@@ -37,11 +38,9 @@
          (cons (car field) 
                (take-from-row (cdr field) (sub1 row) howmany))))))
 
-(define switch-player
-  (lambda (n)
-    (if (= n 1) 2
-        1)))
 
+
+;;; helper function to display a prompt before reading the input
 (define read-prompt
   (lambda (prompt)
     (display prompt)
@@ -49,6 +48,12 @@
 
 (define play
   (lambda ()
+    ;;; switches the player. If it is player 1, return player 2,
+    ;;; if it is player 2, return player 1
+    (define (switch-player n)
+      (if (= n 1) 2
+          1))
+    
     (define (play-iter field player)
       (if (empty? field) (display (format "Player ~a wins~n" (switch-player player)))
           (begin
@@ -60,4 +65,8 @@
                         (switch-player player)))))
     
     ;; run the game with some settings
+    ;; 3 rows and a maximum of 4 items in one row; start with player 1
     (play-iter (make-field 3 4) 1)))
+
+;;; start the game
+(play)
