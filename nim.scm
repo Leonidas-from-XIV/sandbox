@@ -36,3 +36,28 @@
      (if (= row 0) (cons (- (car field) howmany) (cdr field))
          (cons (car field) 
                (take-from-row (cdr field) (sub1 row) howmany))))))
+
+(define switch-player
+  (lambda (n)
+    (if (= n 1) 2
+        1)))
+
+(define read-prompt
+  (lambda (prompt)
+    (display prompt)
+    (read-line)))
+
+(define play
+  (lambda ()
+    (define (play-iter field player)
+      (if (empty? field) (display (format "Player ~a wins~n" (switch-player player)))
+          (begin
+            (display (format "Player ~a~n" player))
+            (display-field field)
+            (play-iter (take-from-row field 
+                                      (sub1 (string->number (read-prompt "Which row? ")))
+                                      (string->number (read-prompt "How many items? ")))
+                        (switch-player player)))))
+    
+    ;; run the game with some settings
+    (play-iter (make-field 3 4) 1)))
