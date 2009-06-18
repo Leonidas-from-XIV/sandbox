@@ -3,8 +3,21 @@
 
 % ( hole-degrees -- )
 /nonCompleteCircle
- { 0 exch 0 exch 54 exch 0 exch 360 exch sub arc stroke } def
+ { %def
+	% x, y coordinates
+ 	0 0
+	% radius
+ 	54
+	% start angle
+	0 
+	% stop angle
+        360 5 index sub 
+        arc stroke 
+} def
 
-300 500 translate doACircle
-%300 500 translate 10 nonCompleteCircle
+/rotatedCircle
+ { /nonCompleteCircle 45 rotate } def
+
+%300 500 translate doACircle
+300 500 translate 30 nonCompleteCircle
 showpage
