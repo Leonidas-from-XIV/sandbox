@@ -2,8 +2,6 @@
 %%Title: (in.tum.de logo)
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
-/doACircle
- { 0 0 54 95 440 arc stroke } def
 
 % ( angle hole-degrees -- )
 /nonCompleteCircle
@@ -22,12 +20,16 @@
 	% stop angle
         360 add 5 index sub 
         arc stroke
-	pop pop
+	% remove 2 dangling elements
+	2 npop
 } def
 
-/rotatedCircle
- { /nonCompleteCircle 45 rotate } def
+% removes a number of items from the stack
+% ( n -- )
+/npop
+ {
+	{ pop } repeat
+ } def
 
-%300 500 translate doACircle
 300 500 translate 90 30 nonCompleteCircle
 %showpage
