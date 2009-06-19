@@ -1,23 +1,30 @@
+
 /doACircle
  { 0 0 54 95 440 arc stroke } def
 
-% ( hole-degrees -- )
+% ( angle hole-degrees -- )
 /nonCompleteCircle
  { %def
+	% divide hole-degrees by two
+	2 div
 	% x, y coordinates
  	0 0
 	% radius
  	54
-	% start angle
-	0 
+	% get the starting angle
+	4 index
+        dup
+	5 index add
+	exch
 	% stop angle
-        360 5 index sub 
-        arc stroke 
+        360 add 5 index sub 
+        arc stroke
+	pop pop
 } def
 
 /rotatedCircle
  { /nonCompleteCircle 45 rotate } def
 
 %300 500 translate doACircle
-300 500 translate 30 nonCompleteCircle
-showpage
+300 500 translate 90 30 nonCompleteCircle
+%showpage
