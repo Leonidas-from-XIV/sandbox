@@ -31,5 +31,14 @@
 	{ pop } repeat
  } def
 
-300 500 translate 54 90 30 nonCompleteCircle
+% transform the coordinates
+300 500 translate
+% draw the circle
+54 90 15 nonCompleteCircle
+% move down a bit
+0 -45 moveto
+% draw the line straight up
+0 60 lineto
+% draw the path
+stroke
 %showpage
