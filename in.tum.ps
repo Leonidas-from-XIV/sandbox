@@ -38,12 +38,24 @@
 
 /in-logo
  { %def
+	% circle, radius 54, hole on top (90°), 15° hole
 	54 90 15 nonCompleteCircle
 	% move down a bit
 	0 -45 moveto
 	% draw the line straight up
 	0 60 lineto
 	% draw the path
+	stroke
+ } def
+
+/ar-logo
+ { %def
+	% radius 54, no hole, actually
+	54 90 0 nonCompleteCircle
+	% move to top of circle
+	0 54 moveto
+	-40 -40 lineto
+	%arct
 	stroke
  } def
 
@@ -54,4 +66,4 @@ linecolor setrgbcolor
 300 500 translate
 % draw the logo
 in-logo
-%showpage
+%ar-logo
