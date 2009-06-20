@@ -89,6 +89,16 @@
 	stroke
  } def
 
+/edu-logo 
+ { % def
+	0 0 radius 350 170 arc %stroke
+	radius 350 angle-coords moveto
+	-60 0 rlineto stroke
+	0 0 radius 180 340 arc %stroke
+	radius 180 angle-coords moveto
+	60 0 rlineto stroke
+ } def
+
 % set the color of the strokes
 linecolor setrgbcolor
 
@@ -96,4 +106,5 @@ linecolor setrgbcolor
 300 500 translate
 % draw the logo
 %in-logo
-ar-logo
+%ar-logo
+edu-logo
