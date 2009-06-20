@@ -7,6 +7,7 @@
 /tumcolor [ 0 122 195 ] def
 % divide each color by 255, since PS uses floats to represent colors
 /linecolor { tumcolor { 255 div } forall } def
+/radius 54 def
 
 % ( radius hole-center hole-degrees -- )
 /nonCompleteCircle
@@ -39,7 +40,7 @@
 /in-logo
  { %def
 	% circle, radius 54, hole on top (90°), 15° hole
-	54 90 15 nonCompleteCircle
+	radius 90 15 nonCompleteCircle
 	% move down a bit
 	0 -45 moveto
 	% draw the line straight up
@@ -48,14 +49,32 @@
 	stroke
  } def
 
+% (radius angle) -- (x y)
+/angle-coords
+ { %def
+	% put args in an array
+	2 array astore
+	% duplicate array
+	dup
+	% unpack the topmost one
+	aload pop
+	% calculate x
+	sin mul
+	% the other array
+	exch
+	% unpack
+	aload pop
+	% calculate y
+	cos mul
+	% done
+ } def
+
 /ar-logo
  { %def
-	% radius 54, no hole, actually
-	54 90 0 nonCompleteCircle
-	% move to top of circle
-	0 54 moveto
-	-40 -40 lineto
-	%arct
+	% radius 54, no hole actually
+	radius 90 0 nonCompleteCircle
+	radius 220 angle-coords moveto
+	0 0 lineto
 	stroke
  } def
 
@@ -65,5 +84,5 @@ linecolor setrgbcolor
 % transform the coordinates
 300 500 translate
 % draw the logo
-in-logo
-%ar-logo
+%in-logo
+ar-logo
