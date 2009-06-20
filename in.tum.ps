@@ -4,7 +4,9 @@
 %%EndComments
 
 % the color (RGB) of the lines
-/tumcolor { 1 0 1 } def
+/tumcolor [ 0 122 195 ] def
+% divide each color by 255, since PS uses floats to represent colors
+/linecolor { tumcolor { 255 div } forall } def
 
 % ( radius hole-center hole-degrees -- )
 /nonCompleteCircle
@@ -35,7 +37,7 @@
  } def
 
 % set the color of the strokes
-tumcolor setrgbcolor
+linecolor setrgbcolor
 
 % transform the coordinates
 300 500 translate
