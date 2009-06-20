@@ -9,6 +9,9 @@
 /linecolor { tumcolor { 255 div } forall } def
 /radius 54 def
 
+% small helper function (the name is from Factor)
+/. { pstack } def
+
 % ( radius hole-center hole-degrees -- )
 /nonCompleteCircle
  { %def
@@ -59,13 +62,13 @@
 	% unpack the topmost one
 	aload pop
 	% calculate x
-	sin mul
+	cos mul
 	% the other array
 	exch
 	% unpack
 	aload pop
 	% calculate y
-	cos mul
+	sin mul
 	% done
  } def
 
@@ -73,8 +76,16 @@
  { %def
 	% radius 54, no hole actually
 	radius 90 0 nonCompleteCircle
-	radius 220 angle-coords moveto
-	0 0 lineto
+	% go to left, lower end of 'A'
+	radius 230 angle-coords moveto
+	% draw to top of 'A'
+	radius 90 angle-coords lineto
+	% draw to lower right end of 'A'
+	radius 310 angle-coords lineto
+	stroke
+	% draw the bar through the A shape
+	radius 200 angle-coords moveto
+	radius 340 angle-coords lineto
 	stroke
  } def
 
