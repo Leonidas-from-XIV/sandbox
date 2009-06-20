@@ -3,6 +3,9 @@
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
 
+% the color (RGB) of the lines
+/tumcolor { 1 0 1 } def
+
 % ( radius hole-center hole-degrees -- )
 /nonCompleteCircle
  { %def
@@ -30,6 +33,9 @@
  {
 	{ pop } repeat
  } def
+
+% set the color of the strokes
+tumcolor setrgbcolor
 
 % transform the coordinates
 300 500 translate
