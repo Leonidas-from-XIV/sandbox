@@ -1,5 +1,5 @@
 %!PS-Adobe-3.0
-%%Title: (in.tum.de logo)
+%%Title: (TUM logos)
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
 
@@ -36,17 +36,22 @@
 	{ pop } repeat
  } def
 
+/in-logo
+ { %def
+	54 90 15 nonCompleteCircle
+	% move down a bit
+	0 -45 moveto
+	% draw the line straight up
+	0 60 lineto
+	% draw the path
+	stroke
+ } def
+
 % set the color of the strokes
 linecolor setrgbcolor
 
 % transform the coordinates
 300 500 translate
-% draw the circle
-54 90 15 nonCompleteCircle
-% move down a bit
-0 -45 moveto
-% draw the line straight up
-0 60 lineto
-% draw the path
-stroke
+% draw the logo
+in-logo
 %showpage
