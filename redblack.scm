@@ -6,6 +6,16 @@
   (left right value parent color)
   #:transparent #:mutable)
 
+(define set-rb-node-root!
+  (lambda (node new-root)
+    ;; if it is the parent node: bad luck, can't change
+    (cond [(eq? (rb-node-parent node) (void)) (void)]
+          ;; if it is the direct child of the root: change the root
+          [(eq? (rb-node-parent (rb-node-parent node)) (void))
+           (set-rb-node-parent! node new-root)]
+          ;; if it is neither: go upwards until one of the cases fits
+          [else (set-rb-node-root! (rb-node-parent node) new-root)])))
+
 (define left-rotate
   (lambda (T x)
     (let ([y (rb-node-right x)])
