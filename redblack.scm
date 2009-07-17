@@ -18,22 +18,26 @@
 (define-struct rb-tree
   (root) #:mutable #:transparent)
 
+(define generate-rotate
+  (lambda (node set-node! contra-node set-contra-node!)
+    (lambda (T x)
+      (let ([y (contra-node x)])
+        (set-contra-node! x (node y))
+        (if (not (eq? (node y) (void)))
+          (set-rb-node-parent! (node y) x) #f)
+        (set-rb-node-parent! y (rb-node-parent x))
+        (if (eq? (rb-node-parent x) (void))
+            ;; root[T] <- y
+            (set-rb-tree-root! T y)
+            ;; else
+            (if (eq? x (node (rb-node-parent x)))
+                (set-node! (rb-node-parent x) y)
+                (set-contra-node! (rb-node-parent x) y)))
+        (set-node! y x)
+        (set-rb-node-parent! x y)))))
+
 (define left-rotate
-  (lambda (T x)
-    (let ([y (rb-node-right x)])
-      (set-rb-node-right! x (rb-node-left y))
-      (if (not (eq? (rb-node-left y) (void)))
-          (set-rb-node-parent! (rb-node-left y) x) #f)
-      (set-rb-node-parent! y (rb-node-parent x))
-      (if (eq? (rb-node-parent x) (void))
-          ;; root[T] <- y
-          (set-rb-tree-root! T y)
-          ;; else
-          (if (eq? x (rb-node-left (rb-node-parent x)))
-              (set-rb-node-left! (rb-node-parent x) y)
-              (set-rb-node-right! (rb-node-parent x) y)))
-      (set-rb-node-left! y x)
-      (set-rb-node-parent! x y))))
+  (generate-rotate rb-node-left set-rb-node-left! rb-node-right set-rb-node-right!))
 
 (define right-rotate
   (lambda (T x)
