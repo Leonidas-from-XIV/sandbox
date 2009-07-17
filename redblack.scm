@@ -23,8 +23,7 @@
     (let ([y (rb-node-right x)])
       (set-rb-node-right! x (rb-node-left y))
       (if (not (eq? (rb-node-left y) (void)))
-          (set-rb-node-parent! (rb-node-left y) x)
-          #f)
+          (set-rb-node-parent! (rb-node-left y) x) #f)
       (set-rb-node-parent! y (rb-node-parent x))
       (if (eq? (rb-node-parent x) (void))
           ;; root[T] <- y
@@ -34,6 +33,23 @@
               (set-rb-node-left! (rb-node-parent x) y)
               (set-rb-node-right! (rb-node-parent x) y)))
       (set-rb-node-left! y x)
+      (set-rb-node-parent! x y))))
+
+(define right-rotate
+  (lambda (T x)
+    (let ([y (rb-node-left x)])
+      (set-rb-node-left! x (rb-node-right y))
+      (if (not (eq? (rb-node-right y) (void)))
+          (set-rb-node-parent! (rb-node-right y) x) #f)
+      (set-rb-node-parent! y (rb-node-parent x))
+      (if (eq? (rb-node-parent x) (void))
+          ;; root[T] <- y
+          (set-rb-tree-root! T y)
+          ;; else
+          (if (eq? x (rb-node-right (rb-node-parent x)))
+              (set-rb-node-right! (rb-node-parent x) y)
+              (set-rb-node-left! (rb-node-parent x) y)))
+      (set-rb-node-right! y x)
       (set-rb-node-parent! x y))))
 
 ;;; sample code for trying stuff out
@@ -74,4 +90,8 @@
 ;; rotate
 (left-rotate T x)
 ;; check what we got
+(rb-node-value (rb-tree-root T))
+;; rotate back
+(right-rotate T y)
+;; re-check
 (rb-node-value (rb-tree-root T))
