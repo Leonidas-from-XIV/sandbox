@@ -8,13 +8,15 @@
 
 ;;; define the representation of one single node
 (define-struct rb-node
-  (left right value parent color)
-  #:mutable)
+  ((left #:mutable)
+   (right #:mutable)
+   value
+   (parent #:mutable)
+   (color #:mutable)))
 
 ;;; define the representation of the whole tree
 (define-struct rb-tree
-  (root)
-  #:mutable)
+  (root) #:mutable #:transparent)
 
 (define left-rotate
   (lambda (T x)
