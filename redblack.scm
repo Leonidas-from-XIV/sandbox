@@ -21,21 +21,20 @@
 (define left-rotate
   (lambda (T x)
     (let ([y (rb-node-right x)])
-      (begin
-        (set-rb-node-right! x (rb-node-left y))
-        (if (not (eq? (rb-node-left y) (void)))
-            (set-rb-node-parent! (rb-node-left y) x)
-            #f)
-        (set-rb-node-parent! y (rb-node-parent x))
-        (if (eq? (rb-node-parent x) (void))
-            ;; root[T] <- y
-            (set-rb-tree-root! T y)
-            ;; else
-            (if (eq? x (rb-node-left (rb-node-parent x)))
-                (set-rb-node-left! (rb-node-parent x) y)
-                (set-rb-node-right! (rb-node-parent x) y)))
-        (set-rb-node-left! y x)
-        (set-rb-node-parent! x y)))))
+      (set-rb-node-right! x (rb-node-left y))
+      (if (not (eq? (rb-node-left y) (void)))
+          (set-rb-node-parent! (rb-node-left y) x)
+          #f)
+      (set-rb-node-parent! y (rb-node-parent x))
+      (if (eq? (rb-node-parent x) (void))
+          ;; root[T] <- y
+          (set-rb-tree-root! T y)
+          ;; else
+          (if (eq? x (rb-node-left (rb-node-parent x)))
+              (set-rb-node-left! (rb-node-parent x) y)
+              (set-rb-node-right! (rb-node-parent x) y)))
+      (set-rb-node-left! y x)
+      (set-rb-node-parent! x y))))
 
 ;;; sample code for trying stuff out
 
