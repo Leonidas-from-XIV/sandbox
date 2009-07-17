@@ -58,7 +58,25 @@
   (lambda (T z)
     (let* ([y (void)]
            [x (rb-tree-root T)])
-      #f)))
+      (while (not (eq? x (void)))
+             (set! y x)
+             (if (< (rb-node-value z) (rb-node-value x))
+                 (set! x (rb-node-left x))
+                 (set! x (rb-node-right x))))
+      (set-rb-node-parent! z y)
+      (if (eq? y (void))
+          (set-rb-tree-root! T z)
+          (if (< (rb-node-value z) (rb-node-value y))
+              (set-rb-node-left! y z)
+              (set-rb-node-right! y z)))
+      (set-rb-node-left! z (void))
+      (set-rb-node-right! z (void))
+      (set-rb-node-color! z 'red)
+      (rb-insert-fixup T z))))
+
+(define rb-insert-fixup
+  (lambda (T z)
+    #f))
 
 ;;; sample code for trying stuff out
 
@@ -104,4 +122,5 @@
 ;; re-check
 (rb-node-value (rb-tree-root T))
 
+(set-rb-tree-root! T (void))
 (rb-insert T (make-rb-node (void) (void) 3 (void) 'black))
