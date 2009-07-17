@@ -27,8 +27,8 @@
         (set-rb-node-parent! y (rb-node-parent x))
         (cond 
           [(eq? (rb-node-parent x) (void))
-           ;; what is root[T]?
-           (#f)]
+           ;; root[T] <- y
+           (set-rb-node-root! T y)]
           [(eq? x (rb-node-left (rb-node-parent x)))
            (set-rb-node-left! (rb-node-parent x) y)]
           [else (set-rb-node-right! (rb-node-parent x) y)])
