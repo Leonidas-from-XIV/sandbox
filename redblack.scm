@@ -42,6 +42,12 @@
 (define right-rotate
   (generate-rotate rb-node-right set-rb-node-right! rb-node-left set-rb-node-left!))
 
+(define rb-insert
+  (lambda (T z)
+    (let* ([y (void)]
+           [x (rb-tree-root T)])
+      #f)))
+
 ;;; sample code for trying stuff out
 
 (define x
@@ -85,3 +91,5 @@
 (right-rotate T y)
 ;; re-check
 (rb-node-value (rb-tree-root T))
+
+(rb-insert T (make-rb-node (void) (void) 3 (void) 'black))
