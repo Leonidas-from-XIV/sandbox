@@ -40,21 +40,7 @@
   (generate-rotate rb-node-left set-rb-node-left! rb-node-right set-rb-node-right!))
 
 (define right-rotate
-  (lambda (T x)
-    (let ([y (rb-node-left x)])
-      (set-rb-node-left! x (rb-node-right y))
-      (if (not (eq? (rb-node-right y) (void)))
-          (set-rb-node-parent! (rb-node-right y) x) #f)
-      (set-rb-node-parent! y (rb-node-parent x))
-      (if (eq? (rb-node-parent x) (void))
-          ;; root[T] <- y
-          (set-rb-tree-root! T y)
-          ;; else
-          (if (eq? x (rb-node-right (rb-node-parent x)))
-              (set-rb-node-right! (rb-node-parent x) y)
-              (set-rb-node-left! (rb-node-parent x) y)))
-      (set-rb-node-right! y x)
-      (set-rb-node-parent! x y))))
+  (generate-rotate rb-node-right set-rb-node-right! rb-node-left set-rb-node-left!))
 
 ;;; sample code for trying stuff out
 
