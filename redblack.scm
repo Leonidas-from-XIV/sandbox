@@ -35,5 +35,34 @@
         (set-rb-node-left! y x)
         (set-rb-node-parent! x y)))))
 
-(define sample
-  (make-rb-node (void) (void) 3 (void) 'black))
+;;; sample code for trying stuff out
+
+(define x
+  (make-rb-node (void) (void) 'x (void) 'black))
+
+(define y
+  (make-rb-node (void) (void) 'y (void) 'black))
+
+(define alpha
+  (make-rb-node (void) (void) 'alpha (void) 'black))
+
+(define beta
+  (make-rb-node (void) (void) 'beta (void) 'black))
+
+(define gamma
+  (make-rb-node (void) (void) 'gamma (void) 'black))
+
+;; attach alpha to x
+(set-rb-node-left! x alpha)
+(set-rb-node-parent! alpha x)
+;; attach y to x
+(set-rb-node-right! x y)
+(set-rb-node-parent! y x)
+;; attach beta to y
+(set-rb-node-left! y beta)
+(set-rb-node-parent! beta y)
+;; attach gamma to y
+(set-rb-node-right! y gamma)
+(set-rb-node-parent! gamma y)
+
+x y alpha beta gamma
