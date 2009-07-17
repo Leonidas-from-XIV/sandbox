@@ -42,6 +42,18 @@
 (define right-rotate
   (generate-rotate rb-node-right set-rb-node-right! rb-node-left set-rb-node-left!))
 
+;;; macro taken from
+;;; <http://willdonnelly.wordpress.com/2008/09/04/a-scheme-syntax-rules-primer/>
+(define-syntax while
+  (syntax-rules ()
+    [(while condition body ...)
+     (let loop ()
+       (if condition
+           (begin
+             body ...
+             (loop))
+           #f))]))
+
 (define rb-insert
   (lambda (T z)
     (let* ([y (void)]
