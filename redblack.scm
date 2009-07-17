@@ -25,13 +25,13 @@
             (set-rb-node-parent! (rb-node-left y) x)
             #f)
         (set-rb-node-parent! y (rb-node-parent x))
-        (cond 
-          [(eq? (rb-node-parent x) (void))
-           ;; root[T] <- y
-           (set-rb-node-root! T y)]
-          [(eq? x (rb-node-left (rb-node-parent x)))
-           (set-rb-node-left! (rb-node-parent x) y)]
-          [else (set-rb-node-right! (rb-node-parent x) y)])
+        (if (eq? (rb-node-parent x) (void))
+            ;; root[T] <- y
+            (set-rb-node-root! T y)
+            ;; else
+            (if (eq? x (rb-node-left (rb-node-parent x)))
+                (set-rb-node-left! (rb-node-parent x) y)
+                (set-rb-node-right! (rb-node-parent x) y)))
         (set-rb-node-left! y x)
         (set-rb-node-parent! x y)))))
 
