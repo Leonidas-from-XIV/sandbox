@@ -1,20 +1,20 @@
 #lang scheme
-;;;; Implementation of Red Black Trees
+;;;; Implementation of red black trees
+;;;; 2009 by Marek Kubica <marek@xivilization.net>
+;;;; This code is free under the MIT License
+;;;;
+;;;; The implementation is taken from CLRS 2nd Edition
+;;;; and adapted for PLT Scheme 4.
 
-;;; define a type
+;;; define the representation of one single node
 (define-struct rb-node
   (left right value parent color)
-  #:transparent #:mutable)
+  #:mutable)
 
-(define set-rb-node-root!
-  (lambda (node new-root)
-    ;; if it is the parent node: bad luck, can't change
-    (cond [(eq? (rb-node-parent node) (void)) (void)]
-          ;; if it is the direct child of the root: change the root
-          [(eq? (rb-node-parent (rb-node-parent node)) (void))
-           (set-rb-node-parent! node new-root)]
-          ;; if it is neither: go upwards until one of the cases fits
-          [else (set-rb-node-root! (rb-node-parent node) new-root)])))
+;;; define the representation of the whole tree
+(define-struct rb-tree
+  (root)
+  #:mutable)
 
 (define left-rotate
   (lambda (T x)
@@ -27,7 +27,7 @@
         (set-rb-node-parent! y (rb-node-parent x))
         (if (eq? (rb-node-parent x) (void))
             ;; root[T] <- y
-            (set-rb-node-root! T y)
+            (set-rb-tree-root! T y)
             ;; else
             (if (eq? x (rb-node-left (rb-node-parent x)))
                 (set-rb-node-left! (rb-node-parent x) y)
@@ -64,5 +64,13 @@
 ;; attach gamma to y
 (set-rb-node-right! y gamma)
 (set-rb-node-parent! gamma y)
+;; create a tree with root x
+(define T
+  (make-rb-tree x))
 
-x y alpha beta gamma
+;; check what we had
+(rb-node-value (rb-tree-root T))
+;; rotate
+(left-rotate T x)
+;; check what we got
+(rb-node-value (rb-tree-root T))
