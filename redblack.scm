@@ -52,7 +52,7 @@
            (begin
              body ...
              (loop))
-           #f))]))
+           (void)))]))
 
 (define rb-insert
   (lambda (T z)
@@ -76,7 +76,38 @@
 
 (define rb-insert-fixup
   (lambda (T z)
-    #f))
+    (while (eq? (rb-node-color (rb-node-parent z)) 'red)
+           (if (eq? (rb-node-parent z) (rb-node-left (rb-node-parent (rb-node-parent z))))
+               (let ([y (rb-node-right (rb-node-parent (rb-node-parent z)))])
+                 (if (eq? (rb-node-color y) 'red)
+                     (begin
+                       (set-rb-node-color! (rb-node-parent z) 'black)
+                       (set-rb-node-color! y 'black)
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red))
+                     ;; else
+                     (begin
+                       (if (eq? z (rb-node-right (rb-node-parent z)))
+                           (let ([z (rb-node-parent z)])
+                             (left-rotate T z)) #f)
+                       (set-rb-node-color! (rb-node-parent z) 'black)
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
+                       (right-rotate T (rb-node-parent (rb-node-parent z))))))
+               ;; else
+               (let ([y (rb-node-left (rb-node-parent (rb-node-parent z)))])
+                 (if (eq? (rb-node-color y) 'red)
+                     (begin
+                       (set-rb-node-color! (rb-node-parent z) 'black)
+                       (set-rb-node-color! y 'black)
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red))
+                     ;; else
+                     (begin
+                       (if (eq? z (rb-node-left (rb-node-parent z)))
+                           (let ([z (rb-node-parent z)])
+                             (right-rotate T z)) #f)
+                       (set-rb-node-color! (rb-node-parent z) 'black)
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
+                       (left-rotate T (rb-node-parent (rb-node-parent z)))))))
+           (set-rb-node-color! (rb-tree-root T) 'black))))
 
 ;;; sample code for trying stuff out
 
@@ -122,5 +153,11 @@
 ;; re-check
 (rb-node-value (rb-tree-root T))
 
-(set-rb-tree-root! T (void))
-(rb-insert T (make-rb-node (void) (void) 3 (void) 'black))
+;; another test
+
+(define (simple-node value)
+  (make-rb-node (void) (void) value (void) 'black))
+(define a (simple-node 3))
+(set-rb-tree-root! T a)
+(rb-insert T (simple-node 5))
+(rb-insert T (simple-node 4))
