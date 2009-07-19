@@ -109,6 +109,7 @@
                        (left-rotate T (rb-node-parent (rb-node-parent z)))))))
            (set-rb-node-color! (rb-tree-root T) 'black))))
 
+;;; traverse a tree and find out which nodes are connected
 (define traverse-dot-edges
   (lambda (node)
     (cond 
@@ -127,6 +128,7 @@
                (traverse-dot-edges (rb-node-left node))
                (traverse-dot-edges (rb-node-right node)))])))
 
+;;; traverse a tree and find out which nodes have which color
 (define traverse-dot-colors
   (lambda (node)
     (cond
@@ -144,14 +146,17 @@
                (traverse-dot-colors (rb-node-left node))
                (traverse-dot-colors (rb-node-right node)))])))
 
+;;; generates a file that can be used by GraphViz' dot
 (define generate-dot
   (lambda (T filename)
     (let* ([edges (traverse-dot-edges (rb-tree-root T))]
            [vertices (traverse-dot-colors (rb-tree-root T))]
            [file-port (open-output-file 
                        filename #:mode 'text #:exists 'truncate)])
+      ;; create the header
       (write-string "graph {" file-port)
       (newline file-port)
+      ;; write out the node configuration (red/black)
       (map (lambda (vertex)
              (write-string 
               (if (eq? (cadr vertex) 'black)
@@ -160,11 +165,14 @@
                   file-port))
            vertices)
       (newline file-port)
+      ;; write out the list of edges
       (map (lambda (edge)
              (write-string (format "~s -- ~s;~n" (car edge) (cadr edge)) file-port))
            edges)
+      ;; write out the footer
       (write-string "}" file-port)
       (newline file-port)
+      ;; close the file
       (close-output-port file-port))))
 
 ;;; sample code for trying stuff out
