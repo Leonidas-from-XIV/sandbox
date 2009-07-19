@@ -74,8 +74,10 @@
       (set-rb-node-color! z 'red)
       (rb-insert-fixup T z))))
 
+;;; Fixes up a red black tree after one single red node has been inserted
 (define rb-insert-fixup
   (lambda (T z)
+    ;; y is always the 'uncle' node
     (while (eq? (rb-node-color (rb-node-parent z)) 'red)
            (if (eq? (rb-node-parent z) (rb-node-left (rb-node-parent (rb-node-parent z))))
                (let ([y (rb-node-right (rb-node-parent (rb-node-parent z)))])
@@ -182,7 +184,7 @@
 
 (define T (make-rb-tree (simple-node 3)))
 (rb-insert T (simple-node 5))
-;(rb-insert T (simple-node 4))
+(rb-insert T (simple-node 4))
 ;(rb-insert T (simple-node 6))
 
-(generate-dot T "rb.dot")
+;(generate-dot T "rb.dot")
