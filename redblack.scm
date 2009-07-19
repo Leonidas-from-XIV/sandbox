@@ -109,55 +109,73 @@
                        (left-rotate T (rb-node-parent (rb-node-parent z)))))))
            (set-rb-node-color! (rb-tree-root T) 'black))))
 
+(define traverse-dot-edges
+  (lambda (node)
+    (cond 
+      [(and (eq? (rb-node-left node) (void))
+             (eq? (rb-node-right node) (void)))
+       '()]
+      [(eq? (rb-node-left node) (void))
+       (cons (list (rb-node-value node) (rb-node-value (rb-node-right node)))
+               (traverse-dot-edges (rb-node-right node)))]
+      [(eq? (rb-node-right node) (void))
+       (cons (list (rb-node-value node) (rb-node-value (rb-node-left node)))
+               (traverse-dot-edges (rb-node-left node)))]
+      [else
+       (append (list (rb-node-value node) (rb-node-value (rb-node-left node)))
+               (list (rb-node-value node) (rb-node-value (rb-node-right node)))
+               (traverse-dot-edges (rb-node-left node))
+               (traverse-dot-edges (rb-node-right node)))])))
+
+(define traverse-dot-colors
+  (lambda (node)
+    (cond
+      [(and (eq? (rb-node-left node) (void))
+             (eq? (rb-node-right node) (void)))
+       (list (list (rb-node-value node) (rb-node-color node)))]
+      [(eq? (rb-node-left node) (void))
+       (cons (list (rb-node-value node) (rb-node-color node))
+               (traverse-dot-colors (rb-node-right node)))]
+      [(eq? (rb-node-right node) (void))
+       (cons (list (rb-node-value node) (rb-node-color node))
+               (traverse-dot-colors (rb-node-left node)))]
+      [else
+       (append (list (rb-node-value node) (rb-node-color node))
+               (traverse-dot-colors (rb-node-left node))
+               (traverse-dot-colors (rb-node-right node)))])))
+
+(define generate-dot
+  (lambda (T filename)
+    (let* ([edges (traverse-dot-edges (rb-tree-root T))]
+           [vertices (traverse-dot-colors (rb-tree-root T))]
+           [file-port (open-output-file 
+                       filename #:mode 'text #:exists 'truncate)])
+      (write-string "graph {" file-port)
+      (newline file-port)
+      (map (lambda (vertex)
+             (write-string 
+              (if (eq? (cadr vertex) 'black)
+                  (format "~s[color = black, fontcolor = white, style = filled];~n" (car vertex))
+                  (format "~s[color = red, fontcolor = black, style = filled];~n" (car vertex)))
+                  file-port))
+           vertices)
+      (newline file-port)
+      (map (lambda (edge)
+             (write-string (format "~s -- ~s;~n" (car edge) (cadr edge)) file-port))
+           edges)
+      (write-string "}" file-port)
+      (newline file-port)
+      (close-output-port file-port)
+      vertices)))
+
 ;;; sample code for trying stuff out
-
-(define x
-  (make-rb-node (void) (void) 'x (void) 'black))
-
-(define y
-  (make-rb-node (void) (void) 'y (void) 'black))
-
-(define alpha
-  (make-rb-node (void) (void) 'alpha (void) 'black))
-
-(define beta
-  (make-rb-node (void) (void) 'beta (void) 'black))
-
-(define gamma
-  (make-rb-node (void) (void) 'gamma (void) 'black))
-
-;; attach alpha to x
-(set-rb-node-left! x alpha)
-(set-rb-node-parent! alpha x)
-;; attach y to x
-(set-rb-node-right! x y)
-(set-rb-node-parent! y x)
-;; attach beta to y
-(set-rb-node-left! y beta)
-(set-rb-node-parent! beta y)
-;; attach gamma to y
-(set-rb-node-right! y gamma)
-(set-rb-node-parent! gamma y)
-;; create a tree with root x
-(define T
-  (make-rb-tree x))
-
-;; check what we had
-(rb-node-value (rb-tree-root T))
-;; rotate
-(left-rotate T x)
-;; check what we got
-(rb-node-value (rb-tree-root T))
-;; rotate back
-(right-rotate T y)
-;; re-check
-(rb-node-value (rb-tree-root T))
-
-;; another test
 
 (define (simple-node value)
   (make-rb-node (void) (void) value (void) 'black))
-(define a (simple-node 3))
-(set-rb-tree-root! T a)
+
+(define T (make-rb-tree (simple-node 3)))
 (rb-insert T (simple-node 5))
-(rb-insert T (simple-node 4))
+;(rb-insert T (simple-node 4))
+;(rb-insert T (simple-node 6))
+
+(generate-dot T "rb.dot")
