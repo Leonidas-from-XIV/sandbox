@@ -165,8 +165,7 @@
            edges)
       (write-string "}" file-port)
       (newline file-port)
-      (close-output-port file-port)
-      vertices)))
+      (close-output-port file-port))))
 
 ;;; sample code for trying stuff out
 
