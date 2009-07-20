@@ -57,6 +57,8 @@
              (loop))
            (void)))]))
 
+;;; inserts the node z into the binary tree and calls the fixup afterwards
+;;; to make sure it is still a red black tree
 (define rb-insert
   (lambda (T z)
     (let* ([y (void)]
@@ -96,6 +98,7 @@
                        (set-rb-node-color! (rb-node-parent z) 'black)
                        (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
                        (node-rotate T (rb-node-parent (rb-node-parent z))))))
+      ;; return the new z, since we need this in the calling code
       z)))
 
 ;;; Fixes up a red black tree after one single red node has been inserted
@@ -113,16 +116,20 @@
 ;;; traverse a tree and find out which nodes are connected
 (define traverse-dot-edges
   (lambda (node)
-    (cond 
+    (cond
+      ;; no child nodes
       [(and (eq? (rb-node-left node) (void))
              (eq? (rb-node-right node) (void)))
        '()]
+      ;; just a right child node
       [(eq? (rb-node-left node) (void))
        (cons (list (rb-node-value node) (rb-node-value (rb-node-right node)))
                (traverse-dot-edges (rb-node-right node)))]
+      ;; just a left child node
       [(eq? (rb-node-right node) (void))
        (cons (list (rb-node-value node) (rb-node-value (rb-node-left node)))
                (traverse-dot-edges (rb-node-left node)))]
+      ;; both left and right child nodes exist
       [else
        (append (list (list (rb-node-value node) (rb-node-value (rb-node-left node))))
                (list (list (rb-node-value node) (rb-node-value (rb-node-right node))))
