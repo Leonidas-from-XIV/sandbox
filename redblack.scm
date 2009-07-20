@@ -3,8 +3,11 @@
 ;;;; 2009 by Marek Kubica <marek@xivilization.net>
 ;;;; This code is free under the MIT License
 ;;;;
-;;;; The implementation is taken from CLRS 2nd Edition
-;;;; and adapted for PLT Scheme 4.
+;;;; The implementation is taken from CLRS 2nd Edition and adapted for 
+;;;; PLT Scheme 4.
+;;;;
+;;;; A good applet demonstrating the algorithm as in CLRS can be found at
+;;;; <http://people.ksp.sk/~kuko/bak/index.html>
 
 ;;; define the representation of one single node
 (define-struct rb-node
@@ -81,30 +84,34 @@
     (while (eq? (rb-node-color (rb-node-parent z)) 'red)
            (if (eq? (rb-node-parent z) (rb-node-left (rb-node-parent (rb-node-parent z))))
                (let ([y (rb-node-right (rb-node-parent (rb-node-parent z)))])
-                 (if (eq? (rb-node-color y) 'red)
+                 (if (eq? (if (not (eq? y (void))) (rb-node-color y) #f) 'red)
                      (begin
                        (set-rb-node-color! (rb-node-parent z) 'black)
                        (set-rb-node-color! y 'black)
-                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red))
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
+                       (set! z (rb-node-parent (rb-node-parent z))))
                      ;; else
                      (begin
                        (if (eq? z (rb-node-right (rb-node-parent z)))
-                           (let ([z (rb-node-parent z)])
+                           (begin
+                             (set! z (rb-node-parent z))
                              (left-rotate T z)) #f)
                        (set-rb-node-color! (rb-node-parent z) 'black)
                        (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
                        (right-rotate T (rb-node-parent (rb-node-parent z))))))
                ;; else
                (let ([y (rb-node-left (rb-node-parent (rb-node-parent z)))])
-                 (if (eq? (rb-node-color y) 'red)
+                 (if (eq? (if (not (eq? y (void))) (rb-node-color y) #f) 'red)
                      (begin
                        (set-rb-node-color! (rb-node-parent z) 'black)
                        (set-rb-node-color! y 'black)
-                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red))
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
+                       (set! z (rb-node-parent (rb-node-parent z))))
                      ;; else
                      (begin
                        (if (eq? z (rb-node-left (rb-node-parent z)))
-                           (let ([z (rb-node-parent z)])
+                           (begin
+                             (set! z (rb-node-parent z))
                              (right-rotate T z)) #f)
                        (set-rb-node-color! (rb-node-parent z) 'black)
                        (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
