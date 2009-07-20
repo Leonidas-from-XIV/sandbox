@@ -125,8 +125,8 @@
        (cons (list (rb-node-value node) (rb-node-value (rb-node-left node)))
                (traverse-dot-edges (rb-node-left node)))]
       [else
-       (append (list (rb-node-value node) (rb-node-value (rb-node-left node)))
-               (list (rb-node-value node) (rb-node-value (rb-node-right node)))
+       (append (list (list (rb-node-value node) (rb-node-value (rb-node-left node))))
+               (list (list (rb-node-value node) (rb-node-value (rb-node-right node))))
                (traverse-dot-edges (rb-node-left node))
                (traverse-dot-edges (rb-node-right node)))])))
 
@@ -144,7 +144,7 @@
        (cons (list (rb-node-value node) (rb-node-color node))
                (traverse-dot-colors (rb-node-left node)))]
       [else
-       (append (list (rb-node-value node) (rb-node-color node))
+       (append (list (list (rb-node-value node) (rb-node-color node)))
                (traverse-dot-colors (rb-node-left node))
                (traverse-dot-colors (rb-node-right node)))])))
 
@@ -182,9 +182,8 @@
 (define (simple-node value)
   (make-rb-node (void) (void) value (void) 'black))
 
-(define T (make-rb-tree (simple-node 3)))
-(rb-insert T (simple-node 5))
+(define T (make-rb-tree (simple-node 5)))
+(rb-insert T (simple-node 3))
 (rb-insert T (simple-node 4))
-;(rb-insert T (simple-node 6))
 
-;(generate-dot T "rb.dot")
+(generate-dot T "rb.dot")
