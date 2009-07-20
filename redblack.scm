@@ -77,46 +77,38 @@
       (set-rb-node-color! z 'red)
       (rb-insert-fixup T z))))
 
+(define generate-fixup-branch
+  (lambda (node-access node-rotate contra-node-rotate)
+    (lambda (T z)
+      (let ([y (node-access (rb-node-parent (rb-node-parent z)))])
+                 (if (eq? (if (not (eq? y (void))) (rb-node-color y) #f) 'red)
+                     (begin
+                       (set-rb-node-color! (rb-node-parent z) 'black)
+                       (set-rb-node-color! y 'black)
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
+                       (set! z (rb-node-parent (rb-node-parent z))))
+                     ;; else
+                     (begin
+                       (if (eq? z (node-access (rb-node-parent z)))
+                           (begin
+                             (set! z (rb-node-parent z))
+                             (contra-node-rotate T z)) #f)
+                       (set-rb-node-color! (rb-node-parent z) 'black)
+                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
+                       (node-rotate T (rb-node-parent (rb-node-parent z))))))
+      z)))
+
 ;;; Fixes up a red black tree after one single red node has been inserted
 (define rb-insert-fixup
   (lambda (T z)
     ;; y is always the 'uncle' node
     (while (eq? (rb-node-color (rb-node-parent z)) 'red)
            (if (eq? (rb-node-parent z) (rb-node-left (rb-node-parent (rb-node-parent z))))
-               (let ([y (rb-node-right (rb-node-parent (rb-node-parent z)))])
-                 (if (eq? (if (not (eq? y (void))) (rb-node-color y) #f) 'red)
-                     (begin
-                       (set-rb-node-color! (rb-node-parent z) 'black)
-                       (set-rb-node-color! y 'black)
-                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
-                       (set! z (rb-node-parent (rb-node-parent z))))
-                     ;; else
-                     (begin
-                       (if (eq? z (rb-node-right (rb-node-parent z)))
-                           (begin
-                             (set! z (rb-node-parent z))
-                             (left-rotate T z)) #f)
-                       (set-rb-node-color! (rb-node-parent z) 'black)
-                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
-                       (right-rotate T (rb-node-parent (rb-node-parent z))))))
-               ;; else
-               (let ([y (rb-node-left (rb-node-parent (rb-node-parent z)))])
-                 (if (eq? (if (not (eq? y (void))) (rb-node-color y) #f) 'red)
-                     (begin
-                       (set-rb-node-color! (rb-node-parent z) 'black)
-                       (set-rb-node-color! y 'black)
-                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
-                       (set! z (rb-node-parent (rb-node-parent z))))
-                     ;; else
-                     (begin
-                       (if (eq? z (rb-node-left (rb-node-parent z)))
-                           (begin
-                             (set! z (rb-node-parent z))
-                             (right-rotate T z)) #f)
-                       (set-rb-node-color! (rb-node-parent z) 'black)
-                       (set-rb-node-color! (rb-node-parent (rb-node-parent z)) 'red)
-                       (left-rotate T (rb-node-parent (rb-node-parent z)))))))
-           (set-rb-node-color! (rb-tree-root T) 'black))))
+               ;; call the branch for the "left" case
+               (set! z ((generate-fixup-branch rb-node-right right-rotate left-rotate) T z))
+               ;; else, the "right" case
+               (set! z ((generate-fixup-branch rb-node-left left-rotate right-rotate) T z))))
+    (set-rb-node-color! (rb-tree-root T) 'black)))
 
 ;;; traverse a tree and find out which nodes are connected
 (define traverse-dot-edges
