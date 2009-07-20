@@ -113,6 +113,19 @@
                (set! z ((generate-fixup-branch rb-node-left left-rotate right-rotate) T z))))
     (set-rb-node-color! (rb-tree-root T) 'black)))
 
+(define tree-successor
+  (lambda (x)
+    "TODO"))
+
+(define rb-delete
+  (lambda (T z)
+    (define y (void))
+    (if (or (eq? (rb-node-left z) (void))
+            (eq? (rb-node-right z) (void)))
+        (set! y z)
+        (set! y (tree-successor z)))
+    "TODO"))
+
 ;;; traverse a tree and find out which nodes are connected
 (define traverse-dot-edges
   (lambda (node)
