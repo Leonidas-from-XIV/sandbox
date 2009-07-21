@@ -128,7 +128,40 @@
 
 (define rb-delete-fixup
   (lambda (T x)
-    "TODO"))
+    (while (and 
+            (not (eq? x (rb-tree-root T)))
+            (eq? (rb-node-color x) 'black))
+           (if (eq? x (rb-node-left (rb-node-parent x)))
+               (let ([w (rb-node-right (rb-node-parent x))])
+                 (if (eq? (rb-node-color w) 'red)
+                     (begin
+                       (set-rb-node-color! w 'black)
+                       (set-rb-node-color! (rb-node-parent x) 'red)
+                       (left-rotate T (rb-node-parent x))
+                       (set! w (rb-node-right (rb-node-parent x))))
+                     #f)
+                 (if (and
+                      (eq? (rb-node-color (rb-node-left w)) 'black)
+                      (eq? (rb-node-color (rb-node-right w)) 'black))
+                     (begin
+                       (set-rb-node-color! w 'red)
+                       (set! x (rb-node-parent x)))
+                     (begin
+                       (if (eq? (rb-node-color (rb-node-right w)) 'black)
+                           (begin
+                             (set-rb-node-color! (rb-node-left w) 'black)
+                             (set-rb-node-color! w 'rot)
+                             (right-rotate T w)
+                             (set! w (rb-node-right (rb-node-parent x))))
+                           #f)
+                       (set-rb-node-color! w (rb-node-color (rb-node-parent x)))
+                       (set-rb-node-color! (rb-node-parent x) 'black)
+                       (set-rb-node-color! (rb-node-right w) 'black)
+                       (left-rotate T (rb-node-parent x))
+                       (set! x (rb-tree-root T)))))
+               ;; else
+               "TODO"))
+    (set-rb-node-color! x 'black)))
 
 (define rb-delete
   (lambda (T z)
