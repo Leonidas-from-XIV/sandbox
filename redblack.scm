@@ -165,32 +165,34 @@
 
 (define rb-delete
   (lambda (T z)
-    ;; here be 'let*' binding
-    (define y (void))
-    (define x (void))
-    (if (or (eq? (rb-node-left z) (void))
-            (eq? (rb-node-right z) (void)))
-        (set! y z)
-        (set! y (tree-successor z)))
-    (if (not (eq? (rb-node-left y) (void)))
-        (set! x (rb-node-left y))
-        (set! x (rb-node-right y)))
-    (set-rb-node-parent! x (rb-node-parent y))
-    (if (eq? (rb-node-parent y) (void))
-        (set-rb-tree-root! T x)
-        ;; else
-        (if (eq? y (rb-node-left (rb-node-parent y)))
-            (set-rb-node-left! (rb-node-parent y) x)
-            (set-rb-node-right! (rb-node-parent y) x)))
-    (if (not (eq? y z))
-        (begin
-          (set-rb-node-value! z (rb-node-value y))
-          (set-rb-node-left! z (rb-node-left y))
-          (set-rb-node-right! z (rb-node-right y)))
-        #f)
-    (if (eq? (rb-node-color y) 'black)
-        (rb-delete-fixup (T x))
-        (void))))
+    (let* ([y (void)]
+           [x (void)])
+      (if (or (eq? (rb-node-left z) (void))
+              (eq? (rb-node-right z) (void)))
+          (set! y z)
+          (set! y (tree-successor z)))
+      (if (not (eq? (rb-node-left y) (void)))
+          (set! x (rb-node-left y))
+          (set! x (rb-node-right y)))
+      ;; if x is void, we don't need to set its parent
+      (if (not (eq? x (void)))
+          (set-rb-node-parent! x (rb-node-parent y))
+          #f)
+      (if (eq? (rb-node-parent y) (void))
+          (set-rb-tree-root! T x)
+          ;; else
+          (if (eq? y (rb-node-left (rb-node-parent y)))
+              (set-rb-node-left! (rb-node-parent y) x)
+              (set-rb-node-right! (rb-node-parent y) x)))
+      (if (not (eq? y z))
+          (begin
+            (set-rb-node-value! z (rb-node-value y))
+            (set-rb-node-left! z (rb-node-left y))
+            (set-rb-node-right! z (rb-node-right y)))
+          #f)
+      (if (eq? (rb-node-color y) 'black)
+          (rb-delete-fixup (T x))
+          (void)))))
 
 ;;; traverse a tree and find out which nodes are connected
 (define traverse-dot-edges
@@ -275,5 +277,4 @@
 (rb-insert T second)
 (rb-insert T third)
 (rb-delete T second)
-
 (generate-dot T "rb.dot")
