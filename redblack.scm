@@ -267,8 +267,13 @@
 (define (simple-node value)
   (make-rb-node (void) (void) value (void) 'black))
 
-(define T (make-rb-tree (simple-node 5)))
-(rb-insert T (simple-node 3))
-(rb-insert T (simple-node 4))
+(define first (simple-node 5))
+(define second (simple-node 3))
+(define third (simple-node 4))
+
+(define T (make-rb-tree first))
+(rb-insert T second)
+(rb-insert T third)
+(rb-delete T second)
 
 (generate-dot T "rb.dot")
