@@ -137,6 +137,16 @@
             (eq? (rb-node-right z) (void)))
         (set! y z)
         (set! y (tree-successor z)))
+    (if (not (eq? (rb-node-left y) (void)))
+        (set! x (rb-node-left y))
+        (set! x (rb-node-right y)))
+    (set-rb-node-parent! x (rb-node-parent y))
+    (if (eq? (rb-node-parent y) (void))
+        (set-rb-tree-root! T x)
+        ;; else
+        (if (eq? y (rb-node-left (rb-node-parent y)))
+            (set-rb-node-left! (rb-node-parent y) x)
+            (set-rb-node-right! (rb-node-parent y) x)))
     "TODO"))
 
 ;;; traverse a tree and find out which nodes are connected
