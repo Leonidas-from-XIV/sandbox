@@ -11,11 +11,7 @@
 
 ;;; define the representation of one single node
 (define-struct rb-node
-  ((left #:mutable)
-   (right #:mutable)
-   value
-   (parent #:mutable)
-   (color #:mutable)))
+  (left right value parent color) #:mutable)
 
 ;;; define the representation of the whole tree
 (define-struct rb-tree
@@ -130,9 +126,15 @@
                  (set! y (rb-node-parent y)))
           y))))
 
+(define rb-delete-fixup
+  (lambda (T x)
+    "TODO"))
+
 (define rb-delete
   (lambda (T z)
+    ;; here be 'let*' binding
     (define y (void))
+    (define x (void))
     (if (or (eq? (rb-node-left z) (void))
             (eq? (rb-node-right z) (void)))
         (set! y z)
@@ -147,7 +149,15 @@
         (if (eq? y (rb-node-left (rb-node-parent y)))
             (set-rb-node-left! (rb-node-parent y) x)
             (set-rb-node-right! (rb-node-parent y) x)))
-    "TODO"))
+    (if (not (eq? y z))
+        (begin
+          (set-rb-node-value! z (rb-node-value y))
+          (set-rb-node-left! z (rb-node-left y))
+          (set-rb-node-right! z (rb-node-right y)))
+        #f)
+    (if (eq? (rb-node-color y) 'black)
+        (rb-delete-fixup (T x))
+        (void))))
 
 ;;; traverse a tree and find out which nodes are connected
 (define traverse-dot-edges
