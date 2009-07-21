@@ -7,7 +7,7 @@
 ;;;; PLT Scheme 4.
 ;;;;
 ;;;; A good applet demonstrating the algorithm as in CLRS can be found at
-;;;; <http://people.ksp.sk/~kuko/bak/index.html>
+;;;; <http://people.ksp.sk/~kuko/bak/>
 
 ;;; define the representation of one single node
 (define-struct rb-node
@@ -101,7 +101,8 @@
 (define rb-insert-fixup
   (lambda (T z)
     ;; y is always the 'uncle' node
-    (while (eq? (rb-node-color (rb-node-parent z)) 'red)
+    (while (and (not (eq? (rb-node-parent z) (void)))
+                (eq? (rb-node-color (rb-node-parent z)) 'red))
            (if (eq? (rb-node-parent z) (rb-node-left (rb-node-parent (rb-node-parent z))))
                ;; call the branch for the "left" case
                (set! z ((generate-fixup-branch rb-node-right right-rotate left-rotate) T z))
@@ -191,7 +192,7 @@
             (set-rb-node-right! z (rb-node-right y)))
           #f)
       (if (eq? (rb-node-color y) 'black)
-          (rb-delete-fixup (T x))
+          (rb-delete-fixup T x)
           (void)))))
 
 ;;; traverse a tree and find out which nodes are connected
@@ -272,9 +273,14 @@
 (define first (simple-node 5))
 (define second (simple-node 3))
 (define third (simple-node 4))
+(define fourth (simple-node 6))
+(define fifth (simple-node 2))
 
 (define T (make-rb-tree first))
 (rb-insert T second)
 (rb-insert T third)
-(rb-delete T second)
+(rb-insert T fourth)
+(rb-insert T fifth)
 (generate-dot T "rb.dot")
+(rb-delete T second)
+;(generate-dot T "rb.dot")
