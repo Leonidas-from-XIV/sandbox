@@ -113,9 +113,22 @@
                (set! z ((generate-fixup-branch rb-node-left left-rotate right-rotate) T z))))
     (set-rb-node-color! (rb-tree-root T) 'black)))
 
+(define tree-minimum
+  (lambda (x)
+    (while (not (eq? (rb-node-left x) (void)))
+           (set! x (rb-node-left x)))
+    x))
+
 (define tree-successor
   (lambda (x)
-    "TODO"))
+    (if (not (eq? (rb-node-right x) (void)))
+        (tree-minimum (rb-node-right x))
+        ;; else
+        (let ([y (rb-node-parent x)])
+          (while (and (not (eq? y (void))) (eq? x (rb-node-right y)))
+                 (set! x y)
+                 (set! y (rb-node-parent y)))
+          y))))
 
 (define rb-delete
   (lambda (T z)
