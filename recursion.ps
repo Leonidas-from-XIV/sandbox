@@ -1,0 +1,47 @@
+%!PS-Adobe-3.0
+
+/Black { 0 0 0 } def
+/Yellow { 1 1 0 } def
+/Radius 200 def
+/Linewidth 30 def
+/Roundjoins 1 def
+
+% (radius angle) -- (x y)
+/anglecoords
+ { %def
+	% put args in an array
+	2 array astore
+	% duplicate array
+	dup
+	% unpack the topmost one
+	aload pop
+	% calculate x
+	cos mul
+	% the other array
+	exch
+	% unpack
+	aload pop
+	% calculate y
+	sin mul
+	% done
+ } def
+
+/sign
+  { % def
+  	Linewidth setlinewidth
+	Roundjoins setlinejoin
+	Yellow setrgbcolor
+
+	Radius 90 anglecoords moveto
+	Radius 210 anglecoords lineto
+	Radius 330 anglecoords lineto
+	Radius 90 anglecoords lineto
+	Radius 210 anglecoords lineto
+	gsave
+		fill
+	grestore
+	stroke
+  } def
+
+300 500 translate
+sign
