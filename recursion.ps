@@ -26,7 +26,7 @@
 	% done
  } def
 
-/sign
+/drawbg
   { % def
   	Linewidth setlinewidth
 	Roundjoins setlinejoin
@@ -35,12 +35,29 @@
 	Radius 90 anglecoords moveto
 	Radius 210 anglecoords lineto
 	Radius 330 anglecoords lineto
-	Radius 90 anglecoords lineto
-	Radius 210 anglecoords lineto
+	closepath
 	gsave
 		fill
 	grestore
 	stroke
+  } def
+
+/drawfg
+  { % def
+	/Subradius Radius 20 sub def
+	Black setrgbcolor
+
+	Subradius 90 anglecoords moveto
+	Subradius 210 anglecoords lineto
+	Subradius 330 anglecoords lineto
+	closepath
+	stroke
+  } def
+
+/sign
+  { % def
+	drawbg
+	drawfg
   } def
 
 300 500 translate
