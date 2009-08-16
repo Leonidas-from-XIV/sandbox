@@ -6,6 +6,9 @@
 /Linewidth 30 def
 /Roundjoins 1 def
 
+Linewidth setlinewidth
+Roundjoins setlinejoin
+
 % (radius angle) -- (x y)
 /anglecoords
  { %def
@@ -28,8 +31,6 @@
 
 /drawbg
   { % def
-  	Linewidth setlinewidth
-	Roundjoins setlinejoin
 	Yellow setrgbcolor
 
 	Radius 90 anglecoords moveto
@@ -68,5 +69,19 @@
 	drawtext
   } def
 
-300 500 translate
-sign
+gsave
+	300 500 translate
+	sign
+grestore
+gsave
+	300 510 translate
+	0.5 0.5 scale
+	drawfg
+	drawtext
+grestore
+gsave
+	300 520 translate
+	0.25 0.25 scale
+	drawfg
+	drawtext
+grestore
