@@ -1,11 +1,17 @@
 %!PS-Adobe-3.0
+%%Title: (A recursion warning sign)
+%%Creator: (Marek Kubica <marek@xivilization.net>)
+%%EndComments
 
+% foreground color
 /Black { 0 0 0 } def
+% background color
 /Yellow { 1 1 0 } def
 /Radius 200 def
 /Linewidth 30 def
 /Roundjoins 1 def
 
+% switch the linewidth and line joinging styles
 Linewidth setlinewidth
 Roundjoins setlinejoin
 
@@ -29,6 +35,8 @@ Roundjoins setlinejoin
 	% done
  } def
 
+% draws the background of the triangle sign
+% --
 /drawbg
   { % def
 	Yellow setrgbcolor
@@ -43,6 +51,9 @@ Roundjoins setlinejoin
 	stroke
   } def
 
+% draws the foreground (just the lines) of the triangle
+% sign
+% --
 /drawfg
   { % def
 	/Subradius Radius 20 sub def
@@ -55,39 +66,50 @@ Roundjoins setlinejoin
 	stroke
   } def
 
+% draws the text unter the sign
+% --
 /drawtext
   { % def
+	% get a bold, sans-serif font
 	/Helvetica-Bold findfont 19 scalefont setfont
+	% starting values gathered via trying out
 	-105 -64 moveto
 	(RECURSION WARNING) show
   } def
 
+% draws the inner sign: foreground lines and the text
+% --
 /innersign
   { % def
 	drawfg
 	drawtext
   } def
 
+% draws the complete sign with all background and the inner sign
+% --
 /fullsign
   { % def
 	drawbg
 	innersign
   } def
 
+% draws a number of subsign, recursively (only the inner sign parts, not
+% the complete sign with all background)
 % number --
 /subsign
   { % def
-	dup
-	0 eq
+	% duplicate the counter and check whether it is 0
+	dup 0 eq
 	{ %iftrue
-		% recursion end: delete the zero
+		% recursion end: delete the counter which is 0
 		pop
 	}
 	{ %iffalse
-		% change graphics context
+		% change graphics context: move the next triangle a bit
+		% up and scale it a bit down
 		0 13 translate
 		0.55 0.55 scale
-		% draw the nex triangle
+		% draw the next triangle
 		innersign
 
 		% decrease the recursion counter
@@ -98,13 +120,18 @@ Roundjoins setlinejoin
 	ifelse
   } def
 
+% draws the outer sign, and then a number of inner circles
 % number --
 /sign
   { % def
+	% first draw the complete sign, together with the background
 	fullsign
+	% draw a number of smaller, recursive signs
 	1 sub
 	subsign
   } def
 
+% center the triangle at 300, 500
 300 500 translate
+% draw  
 5 sign
