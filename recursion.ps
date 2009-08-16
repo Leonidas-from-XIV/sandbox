@@ -54,10 +54,18 @@
 	stroke
   } def
 
+/drawtext
+  { % def
+	/Helvetica-Bold findfont 19 scalefont setfont
+	-105 -64 moveto
+	(RECURSION WARNING) show
+  } def
+
 /sign
   { % def
 	drawbg
 	drawfg
+	drawtext
   } def
 
 300 500 translate
