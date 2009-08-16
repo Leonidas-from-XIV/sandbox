@@ -62,26 +62,49 @@ Roundjoins setlinejoin
 	(RECURSION WARNING) show
   } def
 
-/sign
+/innersign
   { % def
-	drawbg
 	drawfg
 	drawtext
   } def
 
-gsave
-	300 500 translate
-	sign
-grestore
-gsave
-	300 510 translate
-	0.5 0.5 scale
-	drawfg
-	drawtext
-grestore
-gsave
-	300 520 translate
-	0.25 0.25 scale
-	drawfg
-	drawtext
-grestore
+/fullsign
+  { % def
+	drawbg
+	innersign
+  } def
+
+% number --
+/subsign
+  { % def
+	dup
+	0 eq
+	{ %iftrue
+		% recursion end: delete the zero
+		pop
+	}
+	{ %iffalse
+		% change graphics context
+		0 13 translate
+		0.55 0.55 scale
+		% draw the nex triangle
+		innersign
+
+		% decrease the recursion counter
+		1 sub
+		% recursievely call
+		subsign
+	}
+	ifelse
+  } def
+
+% number --
+/sign
+  { % def
+	fullsign
+	1 sub
+	subsign
+  } def
+
+300 500 translate
+5 sign
