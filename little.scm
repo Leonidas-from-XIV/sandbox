@@ -25,3 +25,10 @@
       [(null? lat) '()]
       [(eq? (car lat) a) (cdr lat)]
       [else (cons (car lat) (rember a (cdr lat)))])))
+
+(define firsts
+  (lambda (l)
+    (cond
+      [(null? l) '()]
+      [else (cons (caar l)
+                  (firsts (cdr l)))])))
