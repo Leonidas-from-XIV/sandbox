@@ -6,13 +6,19 @@
 % (frequency -- )
 /freqlines
   { %def
-	  0 0 moveto
-	  0 250 lineto
-	  stroke
-	  10 0 moveto
-	  10 250 lineto
-	  stroke
+	  0 exch 400 { %for
+		  dup
+		  0 moveto
+		  250 lineto
+		  stroke
+	  } for
   } def
 
-300 500 translate
-10 freqlines
+gsave
+	10 500 translate
+	0.95 4 mul freqlines
+grestore
+gsave
+	50 400 translate
+	4 freqlines
+grestore
