@@ -1,10 +1,9 @@
-"""
-A simple example of an animated plot using a gtk backend
-"""
-import random
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import threading
 import matplotlib
 import serial
-import threading
 
 matplotlib.use('GTKAgg')
 import gobject
@@ -21,11 +20,14 @@ class Device(threading.Thread):
         threading.Thread.__init__(self)
         self.value = 0
         self.accumulator = []
+        self.run_on = False
         #self.source = serial.Serial('/dev/ttyUSB0', 9600)
         self.source = open('foo', 'r')
 
     def run(self):
-        while True:
+        self.run_on = True
+
+        while self.run_on:
             c = self.source.read(1)
             if c == '\n':
                 try:
@@ -38,8 +40,10 @@ class Device(threading.Thread):
             else:
                 self.accumulator.append(c)
 
+    def stop(self):
+        self.run_on = False
+
 def update_graph(source):
-    #value = random.randrange(0, 1024, 1)
     value = source.value
     for i in xrange(10):
         y_points.pop(0)
@@ -55,6 +59,7 @@ def main():
     source.start()
     gobject.idle_add(update_graph, source)
     plt.show()
+    source.stop()
 
 if __name__ == '__main__':
     main()
