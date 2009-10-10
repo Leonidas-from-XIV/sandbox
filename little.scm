@@ -114,4 +114,14 @@
       [(eq? (car lat) old) (cons new (multisubst new old (cdr lat)))]
       [else (cons (car lat) (multisubst new old (cdr lat)))])))
 
-(def
+(define o+
+  (lambda (n m)
+    (cond
+      [(zero? m) n]
+      [else (add1 (o+ n (sub1 m)))])))
+
+(define o-
+  (lambda (n m)
+    (cond
+      [(zero? m) n]
+      [else (sub1 (o- n (sub1 m)))])))
