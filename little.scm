@@ -161,6 +161,16 @@
       [(zero? n) #t]
       [else (o< (sub1 n) (sub1 m))])))
 
+(define o=
+  (lambda (n m)
+    (not (or (o< n m) (o> n m)))))
+
+(define oexpt
+  (lambda (n m)
+    (cond
+      [(zero? m) 1]
+      [else (o* n (oexpt n (sub1 m)))])))
+
 (define length
   (lambda (lat)
     (cond
@@ -179,7 +189,12 @@
       [(one? n) (cdr lat)]
       [else (cons (car lat) (rempick (sub1 n) (cdr lat)))])))
 
-;; no-nums & all-nums are defined elsewhere, needs merge
+(define no-nums
+  (lambda (lat)
+    (cond
+      [(null? lat) '()]
+      [(number? (car lat)) (no-nums (cdr lat))]
+      [else (cons (car lat) (no-nums (cdr lat)))])))
 
 (define eqan?
   (lambda (e1 e2)
