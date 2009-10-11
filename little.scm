@@ -160,3 +160,15 @@
       [(zero? m) #f]
       [(zero? n) #t]
       [else (o< (sub1 n) (sub1 m))])))
+
+(define length
+  (lambda (lat)
+    (cond
+      [(null? lat) 0]
+      [else (add1 (length (cdr lat)))])))
+
+(define pick
+  (lambda (n lat)
+    (cond
+      [(zero? (sub1 n)) (car lat)]
+      [else (pick (sub1 n) (cdr lat))])))
