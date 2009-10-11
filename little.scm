@@ -125,3 +125,15 @@
     (cond
       [(zero? m) n]
       [else (sub1 (o- n (sub1 m)))])))
+
+(define addtup
+  (lambda (l)
+    (cond
+      [(null? l) 0]
+      [else (o+ (car l) (addtup (cdr l)))])))
+
+(define o*
+  (lambda (n m)
+    (cond
+      [(zero? m) 0]
+      [else (o+ n (o* n (sub1 m)))])))
