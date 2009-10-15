@@ -172,3 +172,18 @@
     (cond
       [(zero? (sub1 n)) (car lat)]
       [else (pick (sub1 n) (cdr lat))])))
+
+(define rempick
+  (lambda (n lat)
+    (cond
+      [(zero? (sub1 n)) (cdr lat)]
+      [else (cons (car lat) (rempick (sub1 n) (cdr lat)))])))
+
+;; no-nums & all-nums are defined elsewhere, needs merge
+
+(define eqan?
+  (lambda (e1 e2)
+    (cond
+      [(and (number? e1) (number? e2)) (= e1 e2)]
+      [(or (number? e1) (number? e2)) #f]
+      [else (eq? e1 e2)])))
