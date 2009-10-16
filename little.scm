@@ -267,3 +267,14 @@
        (cons new (subst* new old (cdr l)))]
       [else
        (cons (car l) (subst* new old (cdr l)))])))
+
+(define insertL*
+  (lambda (new old l)
+    (cond
+      [(null? l) '()]
+      [(list? (car l))
+       (cons (insertL* new old (car l)) (insertL* new old (cdr l)))]
+      [(eq? (car l) old)
+       (cons new (cons old (insertL* new old (cdr l))))]
+      [else
+       (cons (car l) (insertL* new old (cdr l)))])))
