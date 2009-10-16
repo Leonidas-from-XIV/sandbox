@@ -278,3 +278,18 @@
        (cons new (cons old (insertL* new old (cdr l))))]
       [else
        (cons (car l) (insertL* new old (cdr l)))])))
+
+(define member*
+  (lambda (a l)
+    (cond
+      [(null? l) #f]
+      [(list? (car l))
+       (or (member* a (car l)) (member* a (cdr l)))]
+      [(eq? (car l) a) #t]
+      [else (member* a (cdr l))])))
+
+(define leftmost
+  (lambda (l)
+    (cond
+      [(atom? (car l)) (car l)]
+      [else (leftmost (car l))])))
