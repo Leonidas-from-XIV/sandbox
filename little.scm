@@ -226,3 +226,11 @@
 (define one?
   (lambda (n)
     (zero? (sub1 n))))
+
+(define rember*
+  (lambda (a l)
+    (cond
+      [(null? l) '()]
+      [(list? (car l)) (cons (rember* a (car l)) (rember* a (cdr l)))]
+      [(eq? (car l) a) (rember* a (cdr l))]
+      [else (cons (car l) (rember* a (cdr l)))])))
