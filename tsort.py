@@ -3,7 +3,7 @@
 """tsort.py - Topological sort in Python.
 This program should behave like 'tsort' from the coreutils.
 
-written 2007 by Marek Kubica
+written 2007, 2009 by Marek Kubica
 This program is free software, you can use and modify it under the terms of
 the revised BSD license.
 
@@ -40,14 +40,13 @@ class GraphNode(object):
                 )
 
     def __str__(self):
-        """A nice representation for output to users"""
+        """A nice representation for user output"""
         return self.value
 
     def __eq__(self, other):
         """Are two GraphNodes equal?"""
         # they are equal as long as their 'value' is equal
-        result = True if self.value == other.value else False
-        return result
+        return self.value == other.value
 
 def get_from_cache(cache, element):
     """Gets a node from a list (cache) if there is already the same node in 
@@ -106,8 +105,7 @@ def chunk_in_order(nodes):
 def has_zero_dependents(nodes):
     """Check whether there are any nodes which do notdepend on anything"""
     number = len([node for node in nodes if len(node.dependents) == 0])
-    result = True if number > 0 else False
-    return result
+    return number > 0
 
 def all_in_order(nodes):
     """Returns all nodes topologically sorted"""
@@ -133,7 +131,7 @@ def main():
     except EOFError:
         # add a new line
         print
-    
+
     # create the proper dependency structure
     node_structure = create_nodes(depends)
     # display it in a sorted way
