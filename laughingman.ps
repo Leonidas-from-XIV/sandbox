@@ -120,10 +120,19 @@ end
 	stroke
 } def
 
+/whiteout
+{
+	gsave
+		Bgcolor setrgbcolor
+		110 -25 100 40 rectfill
+	grestore
+} def
+
 270 400 translate
 0 0 moveto
 showtext
 180 11 filledcircle
+whiteout
 gsave
 	20 setlinewidth
 	innercircle
