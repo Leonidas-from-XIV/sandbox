@@ -9,6 +9,55 @@
 % white
 /Bgcolor { 1 1 1 } def
 
-0 400 moveto
+/outsidecircletext
+  {
+	  circtextdict begin
+		  /radius exch def
+		  /centerangle exch def
+		  /ptsize exch def
+		  /str exch def
+		  /xradius radius ptsize 4 div add def
+
+		  gsave
+			  centerangle str findhalfangle add rotate
+
+			  str
+			  {
+				  /charcode exch def
+				  ( ) dup 0 charcode put outsideplacechar
+			  } forall
+		  grestore
+	  end
+  } def
+
+/circtextdict 16 dict def
+circtextdict begin
+	/findhalfangle
+	{
+		stringwidth pop 2 div
+		2 xradius mul pi mul div 360 mul
+	} def
+
+	/outsideplacechar
+	{
+		/char exch def
+		/halfangle char findhalfangle def
+		gsave
+			halfangle neg rotate
+			radius 0 translate
+			-90 rotate
+			char stringwidth pop 2 div neg 0 moveto
+			char show
+		grestore
+		halfangle 2 mul neg rotate
+	} def
+
+	/pi 3.1415923 def
+end
+
+
 Fgcolor setrgbcolor
-(I thought what I'd do was, I'd pretend I was one of those deaf-mutes) show
+200 400 translate
+0 0 moveto
+(I thought what I'd do was, I'd pretend I was one of those deaf-mutes)
+22 90 140 outsidecircletext
