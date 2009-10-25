@@ -8,26 +8,28 @@
 % white
 /Bgcolor { 1 1 1 } def
 
+% code from PostScript language tutorial and cookbook, 1985
+% page 167-170
 /outsidecircletext
-  {
-	  circtextdict begin
-		  /radius exch def
-		  /centerangle exch def
-		  /ptsize exch def
-		  /str exch def
-		  /xradius radius ptsize 4 div add def
+{
+	circtextdict begin
+		/radius exch def
+		/centerangle exch def
+		/ptsize exch def
+		/str exch def
+		/xradius radius ptsize 4 div add def
 
-		  gsave
-			  centerangle str findhalfangle add rotate
+		gsave
+		  centerangle str findhalfangle add rotate
 
-			  str
-			  {
-				  /charcode exch def
-				  ( ) dup 0 charcode put outsideplacechar
-			  } forall
-		  grestore
-	  end
-  } def
+		  str
+		  {
+			  /charcode exch def
+			  ( ) dup 0 charcode put outsideplacechar
+		  } forall
+		grestore
+	end
+} def
 
 /circtextdict 16 dict def
 circtextdict begin
@@ -53,12 +55,12 @@ circtextdict begin
 
 	/pi 3.1415923 def
 end
+% end of the code from the blue book
 
 /showtext
 {
 	/fontsize 28 def
 	/Helvetica-Bold findfont fontsize scalefont setfont
-	Fgcolor setrgbcolor
 
 	(I thought what I'd do was, I'd pretend I was one of those deaf-mutes)
 	28 315 140 outsidecircletext
@@ -70,7 +72,6 @@ end
 	/width exch def
 	/radius exch def
 
-	Fgcolor setrgbcolor
 	newpath
 	0 0 radius 0 360 arc
         0 0 radius width sub 0 360 arc
@@ -128,22 +129,28 @@ end
 	grestore
 } def
 
+/laughingman
+{
+	Fgcolor setrgbcolor
+	showtext
+	180 11 filledcircle
+	whiteout
+	gsave
+		20 setlinewidth
+		innercircle
+		block
+		smile
+	grestore
+
+	gsave
+		-60 -13 translate
+		1.5 1.5 scale
+		smileeye
+		50 0 translate
+		smileeye
+	grestore
+} def
+
 270 400 translate
 0 0 moveto
-showtext
-180 11 filledcircle
-whiteout
-gsave
-	20 setlinewidth
-	innercircle
-	block
-	smile
-grestore
-
-gsave
-	-60 -13 translate
-	1.5 1.5 scale
-	smileeye
-	50 0 translate
-	smileeye
-grestore
+laughingman
