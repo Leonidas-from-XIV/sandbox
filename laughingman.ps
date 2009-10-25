@@ -71,13 +71,36 @@ end
 	/radius exch def
 
 	Fgcolor setrgbcolor
-	radius 0 rmoveto
+	newpath
 	0 0 radius 0 360 arc
         0 0 radius width sub 0 360 arc
 	eofill
+} def
+
+/innercircle
+{
+	/radius 120 def
+	20 setlinewidth
+	0 0 radius 10 170 arc
+	310 0 rlineto
+	200 -5 26 90 270 arcn
+	-93 0 rlineto
+	0 0 radius 345 180 arcn
+	stroke
+} def
+
+/smile
+{
+	/radius 80 def
+	/offset 22 def
+	0 0 radius 180 offset add 360 offset sub arc
+	closepath
+	stroke
 } def
 
 270 400 translate
 0 0 moveto
 showtext
 180 11 filledcircle
+innercircle
+smile
