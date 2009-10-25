@@ -57,13 +57,21 @@ circtextdict begin
 end
 % end of the code from the blue book
 
-/showtext
+% (angle -- )
+/angletext
 {
 	/fontsize 28 def
 	/Helvetica-Bold findfont fontsize scalefont setfont
 
+	% the text to display
 	(I thought what I'd do was, I'd pretend I was one of those deaf-mutes)
-	28 315 140 outsidecircletext
+	fontsize
+	% roll the angle to the top
+	3 -1 roll
+	% the radius of the circle
+	140
+	% draw it
+	outsidecircletext
 } def
 
 % (radius line-width -- )
@@ -78,6 +86,7 @@ end
 	eofill
 } def
 
+% ( -- )
 /innercircle
 {
 	/radius 120 def
@@ -89,6 +98,7 @@ end
 	stroke
 } def
 
+% ( -- )
 /smile
 {
 	/radius 80 def
@@ -98,6 +108,7 @@ end
 	stroke
 } def
 
+% ( -- )
 /smileeye
 {
 	/startx 0 def
@@ -114,6 +125,7 @@ end
 	fill
 } def
 
+% ( -- )
 /block
 {
 	0 126 moveto
@@ -121,6 +133,7 @@ end
 	stroke
 } def
 
+% ( -- )
 /whiteout
 {
 	gsave
@@ -129,10 +142,12 @@ end
 	grestore
 } def
 
-/laughingman
+% ( angle -- )
+/angleman
 {
 	Fgcolor setrgbcolor
-	showtext
+	% consumes the angle parameter
+	angletext
 	180 11 filledcircle
 	whiteout
 	gsave
@@ -151,6 +166,23 @@ end
 	grestore
 } def
 
-270 400 translate
-0 0 moveto
-laughingman
+/laughingman
+{
+	270 400 translate
+	0 0 moveto
+	315 angleman
+} def
+
+/rotatingman
+{
+	[ 360 -1 1 { 315 add 360 mod } for ]
+	{
+		270 400 translate
+		0 0 moveto
+		angleman
+		showpage
+	} forall
+} def
+
+%laughingman
+rotatingman
