@@ -54,10 +54,30 @@ circtextdict begin
 	/pi 3.1415923 def
 end
 
+/showtext
+{
+	/fontsize 28 def
+	/Helvetica-Bold findfont fontsize scalefont setfont
+	Fgcolor setrgbcolor
 
-Fgcolor setrgbcolor
+	(I thought what I'd do was, I'd pretend I was one of those deaf-mutes)
+	28 315 140 outsidecircletext
+} def
+
+% (radius line-width -- )
+/filledcircle
+{
+	/width exch def
+	/radius exch def
+
+	Fgcolor setrgbcolor
+	radius 0 rmoveto
+	0 0 radius 0 360 arc
+        0 0 radius width sub 0 360 arc
+	eofill
+} def
+
 270 400 translate
 0 0 moveto
-/Helvetica-Bold findfont 28 scalefont setfont
-(I thought what I'd do was, I'd pretend I was one of those deaf-mutes)
-28 315 140 outsidecircletext
+showtext
+180 11 filledcircle
