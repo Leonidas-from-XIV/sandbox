@@ -80,7 +80,6 @@ end
 /innercircle
 {
 	/radius 120 def
-	20 setlinewidth
 	0 0 radius 10 170 arc
 	310 0 rlineto
 	200 -5 26 90 270 arcn
@@ -98,9 +97,36 @@ end
 	stroke
 } def
 
+/smileeye
+{
+	/startx 0 def
+	/starty 0 def
+	/endx 30 def
+	/endy 0 def
+
+	/midx startx endx add 2 div def
+
+	0 0 moveto
+	startx starty midx 30 endx endy curveto
+	endx endy midx 15 startx starty curveto
+	closepath
+	fill
+} def
+
 270 400 translate
 0 0 moveto
 showtext
 180 11 filledcircle
-innercircle
-smile
+gsave
+	20 setlinewidth
+	innercircle
+	smile
+grestore
+
+gsave
+	-60 -13 translate
+	1.5 1.5 scale
+	smileeye
+	50 0 translate
+	smileeye
+grestore
