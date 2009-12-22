@@ -3,24 +3,25 @@
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
 
-% (order length) -- (order length)
+% (order length) -- ()
 /drawthird { %def
-	/lenght exch def
+	/length exch def
 	/order exch def
 
 	order 0 eq { %ifelse: true
 		length 0 rlineto
-		order length
 	}
 	{ %ifelse: false
 		/sublength length 3 div def
 		/neworder order 1 sub def
 
-		neworder sublength
-		pstack
-		drawthird
+		neworder sublength drawthird
 		60 rotate
-		drawthird
+		neworder sublength drawthird
+		240 rotate
+		neworder sublength drawthird
+		60 rotate
+		neworder sublength drawthird
 	} ifelse
 
 } def
@@ -30,18 +31,15 @@
 	1 sub
 	/order exch def
 
-	order length
 	60 rotate
-	drawthird
-	240 rotate
-	drawthird
-	240 rotate
-	drawthird
-
-	pop pop
+	order length drawthird
+	%240 rotate
+	%order length drawthird
+	%240 rotate
+	%order length drawthird
 } def
 
 200 300 translate
 0 0 moveto
-2 300 drawtriangle
+2 100 drawtriangle
 stroke
