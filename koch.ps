@@ -5,25 +5,29 @@
 
 % (order len) -- (order len)
 /drawthird { %def
-	2 copy
-
 	% get a copy of order on top
 	1 index
 	% compare that to zero
 	0 eq
 	{ %ifelse: true
 		% duplicate len
+		dup
+		% draw line
 		0 rlineto
-		% delete order
-		pop
 	}
 	{ %ifelse: false
+		% create copies of (order len)
+		2 copy
+		% create a mark and push it below these two values
+		mark 3 1 roll
+
 		% divide len/3, decrement order
 		3 div
 		exch
 		1 sub
 		exch
 
+		% draw a segment, rotate afterwards
 		drawthird
 		60 rotate
 		drawthird
@@ -32,7 +36,8 @@
 		60 rotate
 		drawthird
 
-		pop pop
+		% delete everything to the mark
+		cleartomark
 	} ifelse
 
 } def
