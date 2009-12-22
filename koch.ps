@@ -3,8 +3,11 @@
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
 
+% draws a segment of some specific order, by calling itself recursively
+% order 0 means straight line, order 1 a line with a spike and so on.
+%
 % (order len) -- (order len)
-/drawthird { %def
+/drawsegment { %def
 	% get a copy of order on top
 	1 index
 	% compare that to zero
@@ -28,13 +31,13 @@
 		exch
 
 		% draw a segment, rotate afterwards
-		drawthird
+		drawsegment
 		60 rotate
-		drawthird
+		drawsegment
 		240 rotate
-		drawthird
+		drawsegment
 		60 rotate
-		drawthird
+		drawsegment
 
 		% delete everything to the mark
 		cleartomark
@@ -42,22 +45,29 @@
 
 } def
 
+% draws a koch snowflake of some order and with some specific side length
+% order 1 means: triangle, further orders go into more detail
+%
 % (order len) -- ()
-/drawtriangle {
+/drawkoch {
 	% decrement order
 	exch 1 sub exch
 
+	% each side of the original triangle
 	60 rotate
-	drawthird
+	drawsegment
 	240 rotate
-	drawthird
+	drawsegment
 	240 rotate
-	drawthird
+	drawsegment
+
+	% restore the previous orientation
+	270 rotate
 
 	pop pop
 } def
 
-200 300 translate
+150 300 translate
 0 0 moveto
-3 300 drawtriangle
+1 300 drawkoch
 stroke
