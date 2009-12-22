@@ -62,12 +62,23 @@
 	drawsegment
 
 	% restore the previous orientation
-	270 rotate
+	180 rotate
 
 	pop pop
 } def
 
-150 300 translate
-0 0 moveto
-1 300 drawkoch
-stroke
+% (order) -- ()
+/fixedkoch { %def
+	/linelen 300 def
+	linelen drawkoch
+} def
+
+/main { %def
+	150 300 translate
+	0 0 moveto
+	%1 1 6 { fixedkoch } for
+	6 fixedkoch
+	stroke
+} def
+
+main
