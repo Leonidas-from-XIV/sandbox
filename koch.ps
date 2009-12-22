@@ -67,17 +67,10 @@
 	pop pop
 } def
 
-% (order) -- ()
-/fixedkoch { %def
-	/linelen 300 def
-	linelen drawkoch
-} def
-
 /main { %def
 	150 300 translate
 	0 0 moveto
-	%1 1 6 { fixedkoch } for
-	6 fixedkoch
+	6 300 drawkoch
 	stroke
 } def
 
