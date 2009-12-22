@@ -1,0 +1,32 @@
+%!PS-Adobe-3.0
+%%Title: (Koch snowflake)
+%%Creator: (Marek Kubica <marek@xivilization.net>)
+%%EndComments
+
+% (order length) -- (order length)
+/drawthird {
+	/lenght exch def
+	/order exch def
+
+	length 0 rlineto
+	order length
+} def
+
+/drawtriangle {
+	/length exch def
+	1 sub
+	/order exch def
+
+	order length
+	60 rotate
+	drawthird
+	240 rotate
+	drawthird
+	240 rotate
+	drawthird
+} def
+
+200 300 translate
+0 0 moveto
+1 300 drawtriangle
+stroke
