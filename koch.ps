@@ -5,38 +5,38 @@
 
 % (order length) -- ()
 /drawthird { %def
-	/length exch def
-	/order exch def
+	/armlen exch def
+	/armorder exch def
 
-	order 0 eq { %ifelse: true
-		length 0 rlineto
+	armorder 0 eq { %ifelse: true
+		armlen 0 rlineto
 	}
 	{ %ifelse: false
-		/sublength length 3 div def
-		/neworder order 1 sub def
+		/sublen armlen 3 div def
+		/neworder armorder 1 sub def
 
-		neworder sublength drawthird
+		neworder sublen drawthird
 		60 rotate
-		neworder sublength drawthird
+		neworder sublen drawthird
 		240 rotate
-		neworder sublength drawthird
+		neworder sublen drawthird
 		60 rotate
-		neworder sublength drawthird
+		neworder sublen drawthird
 	} ifelse
 
 } def
 
 /drawtriangle {
-	/length exch def
+	/len exch def
 	1 sub
 	/order exch def
 
 	60 rotate
-	order length drawthird
-	%240 rotate
-	%order length drawthird
-	%240 rotate
-	%order length drawthird
+	order len drawthird
+	240 rotate
+	order len drawthird
+	240 rotate
+	order len drawthird
 } def
 
 200 300 translate
