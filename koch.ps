@@ -3,43 +3,56 @@
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
 
-% (order length) -- ()
+% (order len) -- (order len)
 /drawthird { %def
-	/armlen exch def
-	/armorder exch def
+	2 copy
 
-	armorder 0 eq { %ifelse: true
-		armlen 0 rlineto
+	% get a copy of order on top
+	1 index
+	% compare that to zero
+	0 eq
+	{ %ifelse: true
+		% duplicate len
+		0 rlineto
+		% delete order
+		pop
 	}
 	{ %ifelse: false
-		/sublen armlen 3 div def
-		/neworder armorder 1 sub def
+		% divide len/3, decrement order
+		3 div
+		exch
+		1 sub
+		exch
 
-		neworder sublen drawthird
+		drawthird
 		60 rotate
-		neworder sublen drawthird
+		drawthird
 		240 rotate
-		neworder sublen drawthird
+		drawthird
 		60 rotate
-		neworder sublen drawthird
+		drawthird
+
+		pop pop
 	} ifelse
 
 } def
 
+% (order len) -- ()
 /drawtriangle {
-	/len exch def
-	1 sub
-	/order exch def
+	% decrement order
+	exch 1 sub exch
 
 	60 rotate
-	order len drawthird
+	drawthird
 	240 rotate
-	order len drawthird
+	drawthird
 	240 rotate
-	order len drawthird
+	drawthird
+
+	pop pop
 } def
 
 200 300 translate
 0 0 moveto
-2 100 drawtriangle
+3 300 drawtriangle
 stroke
