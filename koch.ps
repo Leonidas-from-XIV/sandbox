@@ -4,12 +4,25 @@
 %%EndComments
 
 % (order length) -- (order length)
-/drawthird {
+/drawthird { %def
 	/lenght exch def
 	/order exch def
 
-	length 0 rlineto
-	order length
+	order 0 eq { %ifelse: true
+		length 0 rlineto
+		order length
+	}
+	{ %ifelse: false
+		/sublength length 3 div def
+		/neworder order 1 sub def
+
+		neworder sublength
+		pstack
+		drawthird
+		60 rotate
+		drawthird
+	} ifelse
+
 } def
 
 /drawtriangle {
@@ -24,9 +37,11 @@
 	drawthird
 	240 rotate
 	drawthird
+
+	pop pop
 } def
 
 200 300 translate
 0 0 moveto
-1 300 drawtriangle
+2 300 drawtriangle
 stroke
