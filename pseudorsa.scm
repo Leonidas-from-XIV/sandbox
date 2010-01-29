@@ -56,15 +56,16 @@
 ;; do the parsing (splitting), exponentiation and modulo
 (define encrypt
   (lambda (message e n)
-    (map (lambda (element) (remainder (expt element e) n))
-         (smaller-chunks message n))))
+    (construct-message
+     (map (lambda (element) (remainder (expt element e) n))
+          (smaller-chunks message n)))))
 
 ;; inversion of encrypt
 (define decrypt
-  (lambda (blocks d n)
+  (lambda (message d n)
     (construct-message
      (map (lambda (element) (remainder (expt element d) n))
-          blocks))))
+          (smaller-chunks message n)))))
 
 ;; roundtrip works
 (decrypt (encrypt message e n) d n)
