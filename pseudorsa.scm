@@ -1,12 +1,13 @@
 #lang scheme
 ;;; pseudo RSA stuff for the GBS sheet 13 (WS0910)
-;;; purely functional solution without loops :)
+;;; purely functional solution without loops, mutation, IO
 ;;; (c) 2010 by Marek Kubica
 
 ;; some definitions from the sheet
 (define p 47)
 (define q 71)
-(define n (* (- p 1) (- q 1)))
+(define n (* p q))
+(define x (* (- p 1) (- q 1)))
 (define e 79)
 (define d 1019)
 (define message 688232687966668003)
@@ -52,12 +53,18 @@
     (let ([shift-with (exp (add1 (maximal-magnitude numbers)))])
       (foldl (lambda (new msg) (+ (* msg shift-with) new)) 0 numbers))))
 
-;; do the exponentiation, modulo and reconstruction of a new, encrypted
-;; message.
+;; do the parsing (splitting), exponentiation and modulo
 (define encrypt
   (lambda (message e n)
-    (construct-message
-      (map (lambda (element) (remainder (expt element e) n))
-         (smaller-chunks message n)))))
+    (map (lambda (element) (remainder (expt element e) n))
+         (smaller-chunks message n))))
 
-(encrypt message e n)
+;; inversion of encrypt
+(define decrypt
+  (lambda (blocks d n)
+    (construct-message
+     (map (lambda (element) (remainder (expt element d) n))
+          blocks))))
+
+;; roundtrip works
+(decrypt (encrypt message e n) d n)
