@@ -3,7 +3,7 @@
 ;;;; Port to PLT Scheme by Marek Kubica <marek@xivilization.net>
 
 
-;;; System-dependent but essential code (currently for Chicken)
+;;; System-dependent but essential code (currently for PLT Scheme)
 (display "sysdep...")
 
 ;; SYSTEM-DEPENDENT: hash table for defines
@@ -14,7 +14,8 @@
   (hash-ref joy-defines s '()))
 
 ;; SYSTEM-DEPENDENT: set value of Joy symbol
-(define (joy-set! s v) (hash-set! joy-defines s v))
+(define (joy-set! s v)
+  (hash-set! joy-defines s v))
 
 ;; SYSTEM-DEPENDENT: report error (accepts multiple arguments)
 (define (joy-error . s) (error "joy code" (apply string-append s)))
@@ -85,15 +86,16 @@
 		(else #t)))
 
 ;; Execute a list as Joy code
-(define (joy-exec c) (for-each joy-exec-one c))
+(define (joy-exec c)
+  (for-each joy-exec-one c))
 
 (define (joy-exec-autoput c)
-	(joy-exec c)
-	(cond
-		((eqv? joy-autoput 1)
-			(write (car joy-stack)) (newline))
-		((eqv? joy-autoput 2)
-			(joy-write-list joy-stack))))
+  (joy-exec c)
+  (cond
+    ((eqv? joy-autoput 1)
+     (write (car joy-stack)) (newline))
+    ((eqv? joy-autoput 2)
+     (joy-write-list joy-stack))))
 
 ;; Lookup Joy symbol
 (define (joy-lookup i)
@@ -745,10 +747,9 @@
 
 ;; Read-exec-print loop
 (define (joy-repl)
-	(joy-exec-autoput (read))
-	(joy-repl))
+  (joy-exec-autoput (read))
+  (joy-repl))
 
 ;;; Done
-(display "done
-")
+(display "done\n")
 (joy-repl)
