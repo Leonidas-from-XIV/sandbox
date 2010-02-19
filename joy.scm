@@ -98,33 +98,33 @@
 (define (joy-exec-autoput c)
   (joy-exec c)
   (cond
-    ((eqv? joy-autoput 1)
-     (write (car joy-stack)) (newline))
-    ((eqv? joy-autoput 2)
-     (joy-write-list joy-stack))))
+    [(eqv? joy-autoput 1)
+     (write (car joy-stack)) (newline)]
+    [(eqv? joy-autoput 2)
+     (joy-write-list joy-stack)]))
 
 ;; Lookup Joy symbol
 (define (joy-lookup i)
-	(let ((p (joy-get i)))
-		(and
-			(null? p)
-			joy-undeferror
-			(joy-error "Undefined symbol " (symbol->string i)))
-		p))
+  (let ([p (joy-get i)])
+    (and
+     (null? p)
+     joy-undeferror
+     (joy-error "Undefined symbol " (symbol->string i)))
+    p))
 
 ;; Invoke a symbol or push a datum
 (define (joy-exec-one i)
-	(if (symbol? i)
-		(joy-invoke (joy-lookup i))
-		(joy-push! i)))
+  (if (symbol? i)
+      (joy-invoke (joy-lookup i))
+      (joy-push! i)))
 
 ;; Execute a Joy quotation or call a Scheme procedure
 (define (joy-invoke p)
-	(cond
-		((procedure? p) (p))
-		((pair? p) (joy-exec p))
-		((null? p) #f)
-		(else (joy-error "Attempt to invoke non-procedure")))) 
+  (cond
+    [(procedure? p) (p)]
+    [(pair? p) (joy-exec p)]
+    [(null? p) #f]
+    [else (joy-error "Attempt to invoke non-procedure")]))
 
 
 ;;; Module definition
@@ -135,73 +135,79 @@
 (define joy-modstring "unknown:")
 
 ;; Alphatize a symbol
-(define (joy-alphatize mode s)	; convert symbol s depending on mode
-	(case mode
-		((private) (gensym))
-		((public) (string->symbol (string-append
-			joy-modstring
-			(symbol->string s))))
-		((exported) s)
-		(else (joy-error (symbol->string mode) " mode unknown"))))
+(define (joy-alphatize mode s)
+  ; convert symbol s depending on mode
+  (case mode
+    [(private) (gensym)]
+    [(public) (string->symbol (string-append
+                               joy-modstring
+                               (symbol->string s)))]
+    [(exported) s]
+    [else (joy-error (symbol->string mode) " mode unknown")]))
 
 ;; Add a redefinition to joy-alpha
 (define (joy-redef! username truename)
-	(set! joy-alpha (cons (cons username truename) joy-alpha)))
+  (set! joy-alpha (cons (cons username truename) joy-alpha)))
 
 ;; Analyze the definitions and build up joy-alpha
 (define (joy-analyze! mode defs)
-	(cond
-		((null? defs) (if #f #f #f))
-		((symbol? (car defs)) (joy-analyze! (car defs) (cdr defs)))
-		(else (joy-redef! (cadar defs) (joy-alphatize mode (cadar defs)))
-			(joy-analyze! mode (cdr defs)))))
+  (cond
+    [(null? defs) (if #f #f #f)]
+    [(symbol? (car defs)) (joy-analyze! (car defs) (cdr defs))]
+    [else (joy-redef! (cadar defs) (joy-alphatize mode (cadar defs)))
+          (joy-analyze! mode (cdr defs))]))
 
 ;; Substitute based on joy-alpha
 (define (joy-subst t)
-	(let ((a (assq t joy-alpha)))
-		(if a (cdr a)
-			(if (pair? t)
-				(cons (joy-subst (car t)) (joy-subst (cdr t)))
-				t))))
-;; Install amodule definition
+  (let ([a (assq t joy-alpha)])
+    (if a (cdr a)
+        (if (pair? t)
+            (cons (joy-subst (car t)) (joy-subst (cdr t)))
+            t))))
+
+;; Install a module definition
 (define (joy-install! def)
-	(if (pair? def) (joy-set! (cadr def) (cddr def)) #f))
+  (if (pair? def) (joy-set! (cadr def) (cddr def)) #f))
 
 ;; Install module
 (define (joy-module-set! name members)
-	(set! joy-alpha '())
-	(set! joy-modstring (string-append (symbol->string name) ":"))
-	(joy-analyze! 'public members)
-	(for-each joy-install! (joy-subst members)))
+  (set! joy-alpha '())
+  (set! joy-modstring (string-append (symbol->string name) ":"))
+  (joy-analyze! 'public members)
+  (for-each joy-install! (joy-subst members)))
 
 
 ;;; Macros for defining Joy primitives
 (display "macros...")
 
 ;; Push one result
-(define-syntax joy-prim (syntax-rules ()
-	((joy-prim (name . vars) . code)
-		(joy-set! 'name (lambda ()
-			(joy-let vars (joy-push! (begin . code))))))))
+(define-syntax joy-prim
+  (syntax-rules ()
+    [(joy-prim (name . vars) . code)
+     (joy-set! 'name (lambda ()
+                       (joy-let vars (joy-push! (begin . code)))))]))
 
 ;; Push a freshly consed list of results
-(define-syntax joy-prim-list (syntax-rules ()
-	((joy-prim-list (name . vars) . code)
-		(joy-set! 'name (lambda ()
-			(joy-let vars (joy-push-list! (begin . code))))))))
+(define-syntax joy-prim-list
+  (syntax-rules ()
+    [(joy-prim-list (name . vars) . code)
+     (joy-set! 'name (lambda ()
+                       (joy-let vars (joy-push-list! (begin . code)))))]))
 
 ;; Push nothing
-(define-syntax joy-prim-void (syntax-rules ()
-	((joy-prim-void (name . vars) . code)
-		(joy-set! 'name (lambda ()
-			(joy-let vars (begin . code)))))))
+(define-syntax joy-prim-void
+  (syntax-rules ()
+    [(joy-prim-void (name . vars) . code)
+     (joy-set! 'name (lambda ()
+                       (joy-let vars (begin . code))))]))
 
 ;; Set up appropriate pops
-(define-syntax joy-let (syntax-rules () 
-	((joy-let () . body) 
-		(begin . body))
-	((joy-let (x1 x2 ...) . body)
-		(joy-let (x2 ...) (let ((x1 (joy-pop!))) . body)))))
+(define-syntax joy-let
+  (syntax-rules ()
+    [(joy-let () . body) 
+     (begin . body)]
+    [(joy-let (x1 x2 ...) . body)
+     (joy-let (x2 ...) (let ((x1 (joy-pop!))) . body))]))
 
 
 ;;; Joy non-combinator primitives
@@ -297,14 +303,15 @@
 
 ;; Stream primitives
 (joy-prim-void (fclose f)
-	(if (input-port? f) (close-input-port f) (close-output-port f)))
+               (if (input-port? f) (close-input-port f)
+                   (close-output-port f)))
 (joy-prim (eof x) (eof-object? x))	; different from C-Joy
 (joy-prim (fgetch) (read-char (car joy-stack)))
 (joy-prim (fopen p m)
-	(cond
-		((string=? m "r") (open-input-file p))
-		((string=? m "w") (open-output-file p))
-		(else (joy-error "Invalid fopen mode " m))))
+          (cond
+            [(string=? m "r") (open-input-file p)]
+            [(string=? m "w") (open-output-file p)]
+            [else (joy-error "Invalid fopen mode " m)]))
 (joy-prim (fput x) (write x (car joy-stack)))
 (joy-prim (fputch c) (display c (car joy-stack)))
 (joy-prim (fputchars s) (display s (car joy-stack)))
@@ -315,47 +322,47 @@
 
 ;; Cons element onto aggregate
 (joy-prim (cons x a)
-	(if (string? a)
-		(string-append (string x) a)
-		(cons x a)))
+          (if (string? a)
+              (string-append (string x) a)
+              (cons x a)))
 
 ;; Swapped cons
 (joy-prim (swons a x)
-	(if (string? a)
-		(string-append (string x) a)
-		(cons x a)))
+          (if (string? a)
+              (string-append (string x) a)
+              (cons x a)))
 
 ;; Get first element
 (joy-prim (first a)
-	(if (string? a)
-		(string-ref a 0)
-		(car a)))
+          (if (string? a)
+              (string-ref a 0)
+              (car a)))
 
 ;; Get remaining elements
 (joy-prim (rest a)
-	(if (string? a)
-		(substring a 1 (string-length a))
-		(cdr a)))
+          (if (string? a)
+              (substring a 1 (string-length a))
+              (cdr a)))
 
 ;; FIXME: compare not implemented
 
 ;; Element of aggregate at location (zero-based)
 (joy-prim (at a i)
-	(if (string? a)
-		(string-ref a i)
-		(list-ref a i)))
+          (if (string? a)
+              (string-ref a i)
+              (list-ref a i)))
 
 ;; Inverse of at
 (joy-prim (of i a)
-	(if (string? a)
-		(string-ref a i)
-		(list-ref a i)))
+          (if (string? a)
+              (string-ref a i)
+              (list-ref a i)))
 
 ;; Size of aggregate
 (joy-prim (size a)
-	(if (string? a)
-		(string-length a)
-		(length a)))
+          (if (string? a)
+              (string-length a)
+              (length a)))
 
 ;; FIXME: opcase not implemented
 
@@ -363,41 +370,41 @@
 
 ;; Uncons an aggregate
 (joy-prim-list (uncons a)
-	(if (string? a)
-		(list (string-ref a 0) (substring a 0 (string-length a)))
-		(list (car a) (cdr a))))
+               (if (string? a)
+                   (list (string-ref a 0) (substring a 0 (string-length a)))
+                   (list (car a) (cdr a))))
 
 ;; Uncons an aggregate and swap
 (joy-prim-list (unswons a)
-	(if (string? a)
-		(list (substring a 0 (string-length a)) (string-ref a 0))
-		(list (cdr a) (car a))))
+               (if (string? a)
+                   (list (substring a 0 (string-length a)) (string-ref a 0))
+                   (list (cdr a) (car a))))
 
 ;; Drop first n elements of an aggregate
 (joy-prim (drop a n)
-	(if (string? a)
-		(substring a n (string-length a))
-		(list-tail a n)))
+          (if (string? a)
+              (substring a n (string-length a))
+              (list-tail a n)))
 
 ;; Take first n elements of aggregate
 (joy-prim (take a n)
-	(if (string? a)
-		(substring a 0 n)
-		(reverse (joy-reversed-head a n))))
+          (if (string? a)
+              (substring a 0 n)
+              (reverse (joy-reversed-head a n))))
 (define (joy-reversed-head a n)
-	(if (or (zero? n) (null? a))
-		'()
-		(cons (car a) (joy-reversed-head (cdr a) (- n 1)))))
+  (if (or (zero? n) (null? a))
+      '()
+      (cons (car a) (joy-reversed-head (cdr a) (- n 1)))))
 
 ;; Concatenate aggregates
 (joy-prim (concat s t)
-	(if (string? s) (string-append s t) (append s t)))
+          (if (string? s) (string-append s t) (append s t)))
 
 ;; Concatenate aggregates with an element in the middle
 (joy-prim (enconcat x s t)
-	(if (string? s)
-		(string-append s (string x) t)
-		(append s (list x) t)))
+          (if (string? s)
+              (string-append s (string x) t)
+              (append s (list x) t)))
 
 ;; Symbol/string conversion
 (joy-prim (name s) (symbol->string s))
@@ -406,68 +413,68 @@
 
 ;; Null aggregate or zero number
 (joy-prim (null x)
-	(cond
-		((string? x) (zero? (string-length x)))
-		((null? x) #t)
-		(else (zero? x))))
+          (cond
+            ((string? x) (zero? (string-length x)))
+            ((null? x) #t)
+            (else (zero? x))))
 
 ;; Small aggregate or zero or one number
 (joy-prim (small x)
-	(cond
-		((string? x) (<= (string-length x) 1))
-		((null? x) #t)
-		((pair? x) (null? (cdr x)))
-		(else (<= 0 x 1))))
+          (cond
+            [(string? x) (<= (string-length x) 1)]
+            [(null? x) #t]
+            [(pair? x) (null? (cdr x))]
+            [else (<= 0 x 1)]))
 
 ;; Relational operators
 
 (joy-prim (= x y)
-	(cond
-		((symbol? x)
-			(string=? (symbol->string x) (symbol->string y)))
-		((string? x)
-			(string=? x y))
-		(else (= x y))))
+          (cond
+            [(symbol? x)
+             (string=? (symbol->string x) (symbol->string y))]
+            [(string? x)
+             (string=? x y)]
+            [else (= x y)]))
 
 (joy-prim (!= x y)
-	(cond
-		((symbol? x)
-			(not (string=? (symbol->string x) (symbol->string y))))
-		((string? x)
-			(not (string=? x y)))
-		(else (not (= x y)))))
+          (cond
+            [(symbol? x)
+             (not (string=? (symbol->string x) (symbol->string y)))]
+            [(string? x)
+             (not (string=? x y))]
+            [else (not (= x y))]))
 
 (joy-prim (< x y)
-	(cond
-		((symbol? x)
-			(string<? (symbol->string x) (symbol->string y)))
-		((string? x)
-			(string<? x y))
-		(else (= x y))))
+          (cond
+            [(symbol? x)
+             (string<? (symbol->string x) (symbol->string y))]
+            [(string? x)
+             (string<? x y)]
+            [else (= x y)]))
 
 (joy-prim (> x y)
-	(cond
-		((symbol? x)
-			(string>? (symbol->string x) (symbol->string y)))
-		((string? x)
-			(string>? x y))
-		(else (> x y))))
+          (cond
+            [(symbol? x)
+             (string>? (symbol->string x) (symbol->string y))]
+            [(string? x)
+             (string>? x y)]
+            [else (> x y)]))
 
 (joy-prim (<= x y)
-	(cond
-		((symbol? x)
-			(string<=? (symbol->string x) (symbol->string y)))
-		((string? x)
-			(string<=? x y))
-		(else (<= x y))))
+          (cond
+            [(symbol? x)
+             (string<=? (symbol->string x) (symbol->string y))]
+            [(string? x)
+             (string<=? x y)]
+            [else (<= x y)]))
 
 (joy-prim (>= x y)
-	(cond
-		((symbol? x)
-			(string>=? (symbol->string x) (symbol->string y)))
-		((string? x)
-			(string>=? x y))
-		(else (>= x y))))
+          (cond
+            [(symbol? x)
+             (string>=? (symbol->string x) (symbol->string y))]
+            [(string? x)
+             (string>=? x y)]
+            [else (>= x y)]))
 
 ;; Tree equality
 (joy-prim (equal t u) (equal? t u))
@@ -476,12 +483,12 @@
 (joy-prim (has a x) (if (string? a) (joy-stringmem a x) (memq a x)))
 (joy-prim (in x a) (if (string? a) (joy-stringmem a x) (memq a x)))
 (define (joy-stringmem s c)
-	(define (try i r)
-		(cond
-			((zero? r) #f)
-			((eqv? c (string-ref s i)) #t)
-			(else (joy-stringmem (+ i 1) (- r 1)))))
-	(try 0 (string-length s)))
+  (define (try i r)
+    (cond
+      [(zero? r) #f]
+      [(eqv? c (string-ref s i)) #t]
+      [else (joy-stringmem (+ i 1) (- r 1))]))
+  (try 0 (string-length s)))
 
 ;; Type predicates
 (joy-prim (integer x) (integer? x))
@@ -505,11 +512,11 @@
 
 ;; Evaluate thunk on a stabilized stack
 (define (joy-stable p)
-	(let*
-		((s joy-stack)
-		 (r (p)))
-		(set! joy-stack s)
-		r))
+  (let*
+      ([s joy-stack]
+       [r (p)])
+    (set! joy-stack s)
+    r))
 
 ;; Execute Joy quotation stably, return top of stack
 (define (joy-stable-exec p) (joy-stable (lambda () (joy-exec p) (joy-pop!))))
@@ -526,9 +533,9 @@
 
 ;; Construct combinator
 (joy-prim-void (construct p1 p2)
-		(joy-stable (lambda ()
-			(joy-exec p1)
-			(for-each (lambda (q) (joy-exec q) (joy-pop!)) p2))))
+               (joy-stable (lambda ()
+                             (joy-exec p1)
+                             (for-each (lambda (q) (joy-exec q) (joy-pop!)) p2))))
 
 ;; N-ary combinators
 (joy-prim (nullary p) (let ((r (joy-stable-exec p))) r))
@@ -538,131 +545,131 @@
 
 ;; Execute unary combinator twice
 (joy-prim-list (unary2 x1 x2 p)
-	(let*
-		((r1 (begin (joy-push! x1) (joy-exec p) (joy-pop!)))
-		 (r2 (begin (joy-push! x2) (joy-exec p) (joy-pop!))))
-		(list r1 r2)))
+               (let*
+                   ([r1 (begin (joy-push! x1) (joy-exec p) (joy-pop!))]
+                    [r2 (begin (joy-push! x2) (joy-exec p) (joy-pop!))])
+                 (list r1 r2)))
 
 (joy-set! 'app2 (joy-get 'unary2))
 
 ;; Execute unary combinator three times
 (joy-prim (unary3 x1 x2 x3 p)
-	(let*
-		((r1 (begin (joy-push! x1) (joy-exec p) (joy-pop!)))
-		 (r2 (begin (joy-push! x2) (joy-exec p) (joy-pop!)))
-		 (r3 (begin (joy-push! x3) (joy-exec p) (joy-pop!))))
-		(list r1 r2 r3)))
+          (let*
+              ([r1 (begin (joy-push! x1) (joy-exec p) (joy-pop!))]
+               [r2 (begin (joy-push! x2) (joy-exec p) (joy-pop!))]
+               [r3 (begin (joy-push! x3) (joy-exec p) (joy-pop!))])
+            (list r1 r2 r3)))
 
 (joy-set! 'app3 (joy-get 'unary3))
 
 ;; Execute unary combinator four times
 (joy-prim (unary4 x1 x2 x3 x4 p)
-	(let*
-		((r1 (begin (joy-push! x1) (joy-exec p) (joy-pop!)))
-		 (r2 (begin (joy-push! x2) (joy-exec p) (joy-pop!)))
-		 (r3 (begin (joy-push! x3) (joy-exec p) (joy-pop!)))
-		 (r4 (begin (joy-push! x4) (joy-exec p) (joy-pop!))))
-		(list r1 r2 r3 r4)))
+          (let*
+              ([r1 (begin (joy-push! x1) (joy-exec p) (joy-pop!))]
+               [r2 (begin (joy-push! x2) (joy-exec p) (joy-pop!))]
+               [r3 (begin (joy-push! x3) (joy-exec p) (joy-pop!))]
+               [r4 (begin (joy-push! x4) (joy-exec p) (joy-pop!))])
+            (list r1 r2 r3 r4)))
 
 (joy-set! 'app4 (joy-get 'unary4))
 
 ;; Cleave combinator
 (joy-prim-list (cleave p1 p2)
-	(let*
-		((r1 (joy-stable-exec p1))
-		 (r2 (joy-stable-exec p2)))
-		(joy-pop!)
-		(list r1 r2)))
+               (let*
+                   ([r1 (joy-stable-exec p1)]
+                    [r2 (joy-stable-exec p2)])
+                 (joy-pop!)
+                 (list r1 r2)))
 
 ;; Conditional combinators
 (joy-prim-void (branch p t e)
-	(if (joy-true? p) (joy-exec t) (joy-exec e)))
+               (if (joy-true? p) (joy-exec t) (joy-exec e)))
 (joy-prim-void (ifte p t e)
-	(if (joy-yields-true? p) (joy-exec t) (joy-exec e)))
+               (if (joy-yields-true? p) (joy-exec t) (joy-exec e)))
 (joy-prim-void (ifinteger x t e) (if (integer? x) (joy-exec t) (joy-exec e)))
 (joy-prim-void (ifchar x t e) (if (char? x) (joy-exec t) (joy-exec e)))
 (joy-prim-void (iflogical x t e) (if (boolean? x) (joy-exec t) (joy-exec e)))
 (joy-prim-void (ifset x t e) (if (list? x) (joy-exec t) (joy-exec e)))
 (joy-prim-void (ifstring x t e) (if (string? x) (joy-exec t) (joy-exec e)))
 (joy-prim-void (iflist x t e)
-	(if (or (pair? x) (null? x)) (joy-exec t) (joy-exec e)))
+               (if (or (pair? x) (null? x)) (joy-exec t) (joy-exec e)))
 (joy-prim-void (iffloat x t e) (if (real? x) (joy-exec t) (joy-exec e)))
 (joy-prim-void (iffile x t e)
-	(if (or (input-port? x) (output-port? x)) (joy-exec t) (joy-exec e)))
+               (if (or (input-port? x) (output-port? x)) (joy-exec t) (joy-exec e)))
 
 ;; Joy's version of cond
 (joy-prim-void (cond p) (joy-cond p))
 (define (joy-cond p)
-	(cond
-		((null? p) #f)
-		((null? (cdr p)) (joy-exec (car p)))
-		((joy-yields-true? (caar p)) (joy-exec (cdar p)))
-		(else (joy-cond (cdr p)))))
+  (cond
+    [(null? p) #f]
+    [(null? (cdr p)) (joy-exec (car p))]
+    [(joy-yields-true? (caar p)) (joy-exec (cdar p))]
+    [else (joy-cond (cdr p))]))
 
 ;; While-do combinator
 (joy-prim-void (while p q) (joy-while p q))
 (define (joy-while p q)
-	(when (joy-yields-true? p)
-		(joy-exec q)
-		(joy-while p q)))
+  (when (joy-yields-true? p)
+    (joy-exec q)
+    (joy-while p q)))
 
 ;; Linear recursion combinator
 (joy-prim-void (linrec p t r1 r2) (joy-linrec p t r1 r2))
 (define (joy-linrec p t r1 r2)
-	(cond
-		((joy-yields-true? p) (joy-exec t))
-		(else (joy-exec r1) (joy-linrec p t r1 r2) (joy-exec r2))))
+  (cond
+    [(joy-yields-true? p) (joy-exec t)]
+    [else (joy-exec r1) (joy-linrec p t r1 r2) (joy-exec r2)]))
 
 ;; Tail recursion combinator
 (joy-prim-void (tailrec p t r) (joy-tailrec p t r))
 (define (joy-tailrec p t r)
-	(cond
-		((joy-yields-true? p) (joy-exec t))
-		(else (joy-exec r) (joy-tailrec p t r))))
+  (cond
+    [(joy-yields-true? p) (joy-exec t)]
+    [else (joy-exec r) (joy-tailrec p t r)]))
 
 ;; Binary recursion combinator
 (joy-prim-void (binrec p t r1 r2) (joy-binrec p t r1 r2))
 (define (joy-binrec p t r1 r2)
-	(cond
-		((joy-yields-true? p) (joy-exec t))
-		(else (joy-exec r1)
-			(let* ((n2 (joy-pop!)) (n1 (joy-pop!)))
-				(joy-push! n1)
-				(joy-binrec p t r1 r2)
-				(joy-push! n2)
-				(joy-binrec p t r1 r2)
-				(joy-exec r2)))))
+  (cond
+    [(joy-yields-true? p) (joy-exec t)]
+    [else (joy-exec r1)
+          (let* ([n2 (joy-pop!)] [n1 (joy-pop!)])
+            (joy-push! n1)
+            (joy-binrec p t r1 r2)
+            (joy-push! n2)
+            (joy-binrec p t r1 r2)
+            (joy-exec r2))]))
 
 ;; General recursion combinator
 (joy-prim-void (genrec p t r1 r2)
-	(cond
-		((joy-yields-true? p) (joy-exec t))
-		(else
-			(joy-exec r1)
-			(joy-push! (list p t r1 r2 'genrec))
-			(joy-exec r2))))
+               (cond
+                 [(joy-yields-true? p) (joy-exec t)]
+                 [else
+                  (joy-exec r1)
+                  (joy-push! (list p t r1 r2 'genrec))
+                  (joy-exec r2)]))
 
 ;; FIXME: condlinrec
 
 (joy-prim-void (step a p)
-	(if (string? a)
-		(joy-step-string a p 0 (string-length a))
-		(joy-step-list a p)))
+               (if (string? a)
+                   (joy-step-string a p 0 (string-length a))
+                   (joy-step-list a p)))
 
 (define (joy-step-string s p i n)
-	(cond
-		((zero? n) #f)
-		(else
-			(joy-stable (lambda ()
-				(joy-push! (string-ref s i))
-				(joy-exec p)))
-			(joy-step-string s p (+ i 1) (- n 1)))))
+  (cond
+    [(zero? n) #f]
+    [else
+     (joy-stable (lambda ()
+                   (joy-push! (string-ref s i))
+                   (joy-exec p)))
+     (joy-step-string s p (+ i 1) (- n 1))]))
 
 (define (joy-step-list a p)
-	(for-each (lambda (e)
-		(joy-stable (lambda ()
-			(joy-push! e)
-			(joy-exec p)))) a))
+  (for-each (lambda (e)
+              (joy-stable (lambda ()
+                            (joy-push! e)
+                            (joy-exec p)))) a))
 
 
 ;; FIXME: fold
@@ -670,51 +677,51 @@
 ;; Map aggregate through quotation
 (define joy-map-result '())
 (joy-prim-void (map a p)
-	(cond
-		((string? a)
-			(let ((len (string-length a)))
-				(set! joy-map-result (make-string len))
-				(joy-map-string! a p 0 len)))
-		(else
-			(set! joy-map-result '())
-			(joy-map-list! a p)))
+               (cond
+                 [(string? a)
+                  (let ((len (string-length a)))
+                    (set! joy-map-result (make-string len))
+                    (joy-map-string! a p 0 len))]
+                 [else
+                  (set! joy-map-result '())
+                  (joy-map-list! a p)])
 	(joy-push! joy-map-result))
 
 (define (joy-map-string! s p i n)
-	(cond
-		((zero? n) #f)
-		(else
-			(string-set! joy-map-result i
-				(joy-stable (lambda ()
-					(joy-push! (string-ref s i))
-					(joy-exec p))))
-			(joy-map-string! s p (+ i 1) (- n 1)))))
+  (cond
+    [(zero? n) #f]
+    [else
+     (string-set! joy-map-result i
+                  (joy-stable (lambda ()
+                                (joy-push! (string-ref s i))
+                                (joy-exec p))))
+     (joy-map-string! s p (+ i 1) (- n 1))]))
 
 (define (joy-map-list! a p)
-	(cond
-		((null? a) #f)
-		(else
-			(set! joy-map-result (cons (joy-stable (lambda ()
-				(joy-push! (car a))
-				(joy-exec p))) joy-map-result))
-			(joy-map-list! (cdr a) p))))
-	
+  (cond
+    [(null? a) #f]
+    [else
+     (set! joy-map-result (cons (joy-stable (lambda ()
+                                              (joy-push! (car a))
+                                              (joy-exec p))) joy-map-result))
+     (joy-map-list! (cdr a) p)]))
+
 
 ;; Execute N times combinator
 (joy-prim-void (times n p) (joy-times n p))
 (define (joy-times n p)
-	(cond
-		((zero? n) #f)
-		(else (joy-exec p) (joy-times (- n 1) p))))
+  (cond
+    [(zero? n) #f]
+    [else (joy-exec p) (joy-times (- n 1) p)]))
 
 ;; Infra-stack combinator
 (joy-prim (infra l p)
-	(let ((s joy-stack))
-		(set! joy-stack l)
-		(joy-exec p)
-		(let ((r joy-stack))
-			(set! joy-stack s)
-			r)))
+          (let ([s joy-stack])
+            (set! joy-stack l)
+            (joy-exec p)
+            (let ([r joy-stack])
+              (set! joy-stack s)
+              r)))
 
 ;; FIXME: filter, split, some, all
 
@@ -729,23 +736,23 @@
 (display "integrator...")
 
 (joy-prim-void (integrate words)
-	(for-each (lambda (w)
-		(joy-set! w (joy-integrate w '()))) words))
+               (for-each (lambda (w)
+                           (joy-set! w (joy-integrate w '()))) words))
 
 (define (joy-integrate word parents)
-	(cond
-		((memq word parents) word)
-		((symbol? word) (joy-integrate-sym word parents))
-		((pair? word) (cons
-			(joy-integrate (car word) parents)
-			(joy-integrate (cdr word) parents)))
-		(else word)))
+  (cond
+    [(memq word parents) word]
+    [(symbol? word) (joy-integrate-sym word parents)]
+    [(pair? word) (cons
+                   (joy-integrate (car word) parents)
+                   (joy-integrate (cdr word) parents))]
+    [else word]))
 
 (define (joy-integrate-sym s parents)
-	(let ((v (joy-get s)))
-		(if (pair? v)
-			(joy-integrate v (cons s parents))
-			s)))
+  (let ([v (joy-get s)])
+    (if (pair? v)
+        (joy-integrate v (cons s parents))
+        s)))
 
 
 ;;; REPL
