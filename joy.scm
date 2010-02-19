@@ -18,26 +18,31 @@
   (hash-set! joy-defines s v))
 
 ;; SYSTEM-DEPENDENT: report error (accepts multiple arguments)
-(define (joy-error . s) (error "joy code" (apply string-append s)))
+(define (joy-error . s)
+  (error "joy code" (apply string-append s)))
 
 ;; SYSTEM-DEPENDENT: return an unused (or at least unusual) symbol
-(define (joy-gensym) (gensym))
+(define (joy-gensym)
+  (gensym))
 
 
 ;;; The user interface
 (display "ui...")
 
 ;; User interface for running Joy code (supports autoput)
-(define-syntax joy (syntax-rules ()
-	((joy . code) (joy-exec-autoput 'code))))
+(define-syntax joy
+  (syntax-rules ()
+    [(joy . code) (joy-exec-autoput 'code)]))
 
 ;; User interface for defining Joy symbols
-(define-syntax joy-define (syntax-rules ()
-	((joy-define name . code) (joy-set! 'name 'code))))
+(define-syntax joy-define
+  (syntax-rules ()
+    [(joy-define name . code) (joy-set! 'name 'code)]))
 
 ;; User interface for defining Joy modules
-(define-syntax joy-module (syntax-rules ()
-	((joy-module name . members) (joy-module-set! 'name 'members))))
+(define-syntax joy-module
+  (syntax-rules ()
+    [(joy-module name . members) (joy-module-set! 'name 'members)]))
 
 
 ;;; The main Joy interpreter
@@ -48,14 +53,14 @@
 
 ;; Write a list without its outer parentheses
 (define (joy-write-list q)
-	(cond
-		((null? q) (if #f #f #f))
-		((null? (cdr q)) (write (car q)) (newline))
-		((pair? q)
-			(write (car q))
-			(display #\space)
-			(joy-write-list (cdr q)))
-		(else (display ". ") (write q))))
+  (cond
+    [(null? q) (if #f #f #f)]
+    [(null? (cdr q)) (write (car q)) (newline)]
+    [(pair? q)
+     (write (car q))
+     (display #\space)
+     (joy-write-list (cdr q))]
+    [else (display ". ") (write q)]))
 
 ;; The Joy undefined-error flag
 (define joy-undeferror #t)
@@ -64,26 +69,27 @@
 (define joy-autoput 2)
 
 ;; Push an object on the Joy stack
-(define (joy-push! x) (set! joy-stack (cons x joy-stack)))
+(define (joy-push! x)
+  (set! joy-stack (cons x joy-stack)))
 
 ;; Pop an object from the Joy stack
 (define (joy-pop!)
-	(if (null? joy-stack) (joy-error "Stack underflow") #f)
-	(let ((x (car joy-stack)))
-		(set! joy-stack (cdr joy-stack))
-		x))
+  (if (null? joy-stack) (joy-error "Stack underflow") #f)
+  (let ([x (car joy-stack)])
+    (set! joy-stack (cdr joy-stack))
+    x))
 
 ;; Push a list (which must be freshly consed) onto the Joy stack
 (define (joy-push-list! x)
-	(set! joy-stack
-		(append (reverse x) joy-stack)))
+  (set! joy-stack
+        (append (reverse x) joy-stack)))
 
 ;; Joy predicate for truth
 (define (joy-true? x)
-	(cond
-		((number? x) (not (zero? x)))
-		((eq? x #f) #f)
-		(else #t)))
+  (cond
+    [(number? x) (not (zero? x))]
+    [(eq? x #f) #f]
+    [else #t]))
 
 ;; Execute a list as Joy code
 (define (joy-exec c)
