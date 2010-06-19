@@ -1,5 +1,5 @@
 %!PS-Adobe-3.0
-%%Title: (QR Code printer)
+%%Title: (QR code printer)
 %%Creator: (Marek Kubica <marek@xivilization.net>)
 %%EndComments
 
@@ -11,6 +11,14 @@
 % draws an QR code
 % (qr --)
 /drawqr {
+	% remove \n at beginning and end, first
+	{
+		% do something with the numbers
+		% when 'B': switch color to black and draw rect
+		% when ' ': switch color to white and draw rect
+		% when '\n': linebreak
+	}
+	forall
 } def
 
 % demo QR code
