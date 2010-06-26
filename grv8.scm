@@ -24,7 +24,7 @@
 
 (define (say port string)
   (print (string-append "--> " string))
-  (put-string port (string-append string "\r\n")))
+  (put-string port (string-append string "\n")))
 
 (define (print msg)
   (display (string-append msg "\n")))
