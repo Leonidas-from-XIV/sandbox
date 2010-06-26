@@ -10,7 +10,7 @@
       (hear port)
       (hear port)
       (let* ((numbers (map (lambda (dummy)
-                             (string->number (get-line port)))
+                             (string->number (hear port)))
                            '(1 2 3)))
              (sum (fold-left + 0 numbers))
              (string-sum (number->string sum)))
@@ -18,7 +18,9 @@
         (hear port))))
 
 (define (hear port)
-    (print (get-line port)))
+  (let ((read (get-line port)))
+    (print read)
+    read))
 
 (define (say port string)
   (print (string-append "--> " string))
