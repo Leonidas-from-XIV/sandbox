@@ -45,6 +45,12 @@
   (lambda (socket)
     (connection-handler socket text)))
 
-(call-with-socket
- (make-client-socket "ilab.net.in.tum.de" "2342")
- (make-connection-handler "Hi there"))
+(define (send-payload payload)
+  (call-with-socket
+   (make-client-socket "ilab.net.in.tum.de" "2342")
+   (make-connection-handler payload)))
+
+(define submittables (cdr (command-line)))
+(if (null? submittables) (print "Need to specify at least one string"))
+
+(map send-payload submittables)
