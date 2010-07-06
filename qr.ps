@@ -43,6 +43,22 @@ bbb
 	} loop
 } def
 
+% (seq -- reversedseq)
+/reverse { %def
+	% begin array construction
+	[
+		% get original sequence inside array construction
+		exch
+		% unpack array on stack
+		{} forall
+		% roll until we reversed everything
+		2 1 counttomark 2 sub { %for
+			-1 roll
+		} for
+	% re-create reversed array
+	]
+} def
+
 % ( seq -- bool )
 /startswithnewline {
 	0 get
