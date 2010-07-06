@@ -59,6 +59,10 @@ bbb
 	]
 } def
 
+/strip { %def
+	lstrip reverse lstrip reverse
+} def
+
 % ( seq -- bool )
 /startswithnewline {
 	0 get
