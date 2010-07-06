@@ -8,12 +8,6 @@
 /drawblock {
 } def
 
-(
-
-aaa
-bbb
-)
-
 % ( arr -- strippedarr )
 /lstripone {
 	% get the length of arr
@@ -70,9 +64,10 @@ bbb
 } def
 
 % draws an QR code
-% (qr --)
+% (qr -- )
 /drawqr {
 	% remove \n at beginning and end, first
+	strip
 	{
 		% do something with the numbers
 		% when 'B': switch color to black and draw rect
