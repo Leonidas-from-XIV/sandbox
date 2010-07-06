@@ -8,6 +8,47 @@
 /drawblock {
 } def
 
+(
+
+aaa
+bbb
+)
+
+% ( arr -- strippedarr )
+/lstripone {
+	% get the length of arr
+	dup length
+	% arr len
+	exch
+	% len arr
+	dup startswithnewline
+	% len arr 0th-was-\n
+	{ 1 } { 0 } ifelse
+	% len arr startfrom
+	3 -1 roll
+	% arr startfrom len
+	1 sub
+	% arr startfrom count
+	getinterval
+} def
+
+% (seq -- seq)
+/lstrip {
+	{
+	      dup startswithnewline
+              % seq bool
+	      not { exit } if
+	      % seq
+              lstripone
+	} loop
+} def
+
+% ( seq -- bool )
+/startswithnewline {
+	0 get
+	10 eq
+} def
+
 % draws an QR code
 % (qr --)
 /drawqr {
