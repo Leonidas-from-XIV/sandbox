@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Script that logins to Google, grabs the contacts and returns an XML file
-suitable for Claws Mail
+suitable for Claws Mail. You still need to put the file in the right place
+and register it in the Claws configuration"""
 
-(Unfortunately, in my setup, some contacts are doubled, I suppose something
-fucked up)"""
-
+import sys
 import getpass
-import random, itertools
+import random
 from lxml.builder import ElementMaker
 from lxml.etree import tostring
 import gdata.contacts.client
@@ -42,9 +41,8 @@ def get_contacts(email, password):
             }
 
 def get_uid():
-    unique = uuid.uuid4()
-    resized = unique.int % (10**8)
-    return str(int(resized))
+    uid = random.randint(10**8, 10**9)
+    return str(uid)
 
 def construct_abook(contacts):
     e = ElementMaker()
@@ -72,7 +70,8 @@ def construct_abook(contacts):
     abook = getattr(e, 'address-book')(name="Gmail", *people)
     return abook
 
-email = raw_input("Enter Google Account: ")
+print >>sys.stderr, "Enter Google Account: ",
+email = raw_input()
 password = getpass.getpass("Enter account password: ")
 abook = construct_abook(get_contacts(email, password))
 print """<?xml version="1.0" encoding="UTF-8" ?>"""
