@@ -74,5 +74,4 @@ print >>sys.stderr, "Enter Google Account: ",
 email = raw_input()
 password = getpass.getpass("Enter account password: ")
 abook = construct_abook(get_contacts(email, password))
-print """<?xml version="1.0" encoding="UTF-8" ?>"""
-print tostring(abook, pretty_print=True)
+print tostring(abook, pretty_print=True, encoding='UTF-8', xml_declaration=True)
