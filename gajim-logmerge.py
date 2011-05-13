@@ -29,7 +29,13 @@ class DestinationJID(JID):
     pass
 
 class Message(object):
-    pass
+    def __init__(self, jid, time, message):
+        self.time = time
+        self.message = message
+        self.jid = jid
+        self.contact_name = ''
+        self.kind = 4
+        self.subject = ''
 
 class SourceMessage(Message):
     pass
@@ -52,11 +58,20 @@ DestinationSession = sessionmaker(bind=destination)
 session_src = SourceSession()
 session_dst = DestinationSession()
 
-for message in session_src.query(SourceMessage).limit(1):
-    print(dir(message))
-    print(message.message)
-    print(message.time)
-    print(message.jid_id)
-    print(message.jid)
-    print(dir(message.jid))
-    print(message.jid.jid)
+for message_src in session_src.query(SourceMessage).limit(1):
+    print(dir(message_src))
+    print(message_src.message)
+    print(message_src.time)
+    print(message_src.jid_id)
+    print(message_src.jid)
+    print(dir(message_src.jid))
+    print(message_src.jid.jid)
+
+    # TODO: create JID if it doesn't exist
+    sender_dst = session_dst.query(DestinationJID).filter_by(jid=message_src.jid.jid).one()
+    print(sender_dst)
+
+    message_dst = DestinationMessage(jid=sender_dst, time=message_src.time, message=message_src.message)
+    # TODO: check whether message does not exist already in destination DB
+    print(message_dst)
+    session_dst.add(message_dst)
