@@ -52,6 +52,7 @@ class DestinationMessage(Message):
 
 def print_state(state):
     print(state, end='', file=sys.stderr)
+    sys.stderr.flush()
 
 mapper(SourceJID, jids_src)
 mapper(SourceMessage, logs_src, properties={
@@ -70,43 +71,36 @@ session_dst = DestinationSession()
 
 items = session_src.query(SourceMessage)
 print("Processing {} message(s)".format(items.count()))
-for message_src in items.limit(1):
-    print(dir(message_src))
-    print(message_src.message)
-    print(message_src.time)
-    print(message_src.jid_id)
-    print(message_src.jid)
-    print(dir(message_src.jid))
-    print(message_src.jid.jid)
-
+for message_src in items.all():
     # exclude conference messages
     if message_src.jid.type != JID_NORMAL_TYPE:
-        print('rooms not supported')
         print_state('U')
         continue
 
     try:
-        sender_dst = session_dst.query(DestinationJID).filter_by(jid=message_src.jid.jid).one()
+        sender_dst = session_dst.query(DestinationJID).\
+                filter_by(jid=message_src.jid.jid).one()
     except NoResultFound:
-        print("no such jid, creating")
+        # no such sender in DB, create a new one
         sender_dst = DestinationJID(message_src.jid.jid)
         session_dst.add(sender_dst)
 
-    print(sender_dst)
+    message_dst = DestinationMessage(jid=sender_dst, time=message_src.time,
+            message=message_src.message, kind=message_src.kind)
 
-    message_dst = DestinationMessage(jid=sender_dst, time=message_src.time, message=message_src.message, kind=message_src.kind)
-    print(message_dst)
-
+    # check whether such a message already exists in the DB
     duplicates = session_dst.query(DestinationMessage).\
             filter_by(message=message_src.message).\
             filter_by(time=message_src.time)
     if duplicates.all():
-        print('Message already in DB, skipping')
+        # we found a duplicate, skip it
         print_state('S')
         continue
 
-
+    # all checks went OK, add the message to the DB
     session_dst.add(message_dst)
-    print(session_dst.new)
     print_state('.')
     session_dst.commit()
+
+# new-line on exit
+print('', file=sys.stderr)
