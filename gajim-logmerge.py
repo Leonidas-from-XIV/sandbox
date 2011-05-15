@@ -27,7 +27,7 @@ jids_dst = Table('jids', meta_dst, autoload=True, autoload_with=source)
 class JID(object):
     def __init__(self, jid):
         self.jid = jid
-        self.type = JID_NORMAL
+        self.type = JID_NORMAL_TYPE
 
 class SourceJID(JID):
     pass
@@ -50,6 +50,9 @@ class SourceMessage(Message):
 class DestinationMessage(Message):
     pass
 
+def print_state(state):
+    print(state, end='', file=sys.stderr)
+
 mapper(SourceJID, jids_src)
 mapper(SourceMessage, logs_src, properties={
     'jid' : relationship(SourceJID)
@@ -65,7 +68,9 @@ DestinationSession = sessionmaker(bind=destination)
 session_src = SourceSession()
 session_dst = DestinationSession()
 
-for message_src in session_src.query(SourceMessage).limit(1):
+items = session_src.query(SourceMessage)
+print("Processing {} message(s)".format(items.count()))
+for message_src in items.limit(1):
     print(dir(message_src))
     print(message_src.message)
     print(message_src.time)
@@ -77,13 +82,14 @@ for message_src in session_src.query(SourceMessage).limit(1):
     # exclude conference messages
     if message_src.jid.type != JID_NORMAL_TYPE:
         print('rooms not supported')
+        print_state('U')
         continue
 
     try:
-        sender_dst = session_dst.query(DestinationJID).filter_by(jid=message_src.jid.jid+"def").one()
+        sender_dst = session_dst.query(DestinationJID).filter_by(jid=message_src.jid.jid).one()
     except NoResultFound:
         print("no such jid, creating")
-        sender_dst = DestinationJID(message_src.jid.jid+"def")
+        sender_dst = DestinationJID(message_src.jid.jid)
         session_dst.add(sender_dst)
 
     print(sender_dst)
@@ -96,9 +102,11 @@ for message_src in session_src.query(SourceMessage).limit(1):
             filter_by(time=message_src.time)
     if duplicates.all():
         print('Message already in DB, skipping')
-        #continue
+        print_state('S')
+        continue
 
 
     session_dst.add(message_dst)
     print(session_dst.new)
-    #session_dst.commit()
+    print_state('.')
+    session_dst.commit()
