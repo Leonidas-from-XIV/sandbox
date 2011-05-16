@@ -2,10 +2,9 @@
 
 import sys
 import argparse
-from sqlalchemy import create_engine, MetaData, Table, Column, ForeignKey, func
+from sqlalchemy import create_engine, MetaData, Table, Column, ForeignKey
 from sqlalchemy.orm import mapper, sessionmaker, relationship, backref
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql import exists
 
 # copied from Gajim common.logger
 JID_NORMAL_TYPE = 0
@@ -83,8 +82,18 @@ def main():
     # cache the known JIDs
     jid_cache = {}
 
+    # create message cache
+    all_dst_messages = session_dst.query(DestinationMessage.time,
+            DestinationMessage.message)
+    print("Populating message cache with {} message(s)...".format(
+        all_dst_messages.count()),
+            file=sys.stderr)
+    message_cache = set()
+    for time, message in all_dst_messages:
+        message_cache.add((time, message))
+
     items = session_src.query(SourceMessage)
-    print("Processing {} message(s)".format(items.count()))
+    print("Processing {} message(s)".format(items.count()), file=sys.stderr)
     for message_src in items.all():
         # exclude conference messages
         if message_src.jid.type != JID_NORMAL_TYPE:
@@ -104,18 +113,9 @@ def main():
             sender_dst = jid_cache[message_src.jid]
 
         # check whether such a message already exists in the DB
-        #dup = exists().where(DestinationMessage.message == message_src.message).\
-        #        where(DestinationMessage.time == message_src.time)
-
-        #duplicates = session_dst.query(DestinationMessage).\
-        #        filter(dup)
-        #        filter_by(message=message_src.message).\
-        #        filter_by(time=message_src.time)
-        duplicates = session_dst.query(func.count(DestinationMessage.log_line_id)).\
-                filter_by(message=message_src.message).\
-                filter_by(time=message_src.time)
-
-        if duplicates.one()[0] != 0:
+        # we use a prepopulated message cache because that is *vastly* faster than
+        # to issue invidivual queries
+        if (message_src.time, message_src.message) in message_cache:
             # we found a duplicate, skip it
             print_state('S')
             continue
