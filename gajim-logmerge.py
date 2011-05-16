@@ -79,6 +79,9 @@ def main():
     session_src = SourceSession()
     session_dst = DestinationSession()
 
+    # cache the known JIDs
+    jid_cache = {}
+
     items = session_src.query(SourceMessage)
     print("Processing {} message(s)".format(items.count()))
     for message_src in items.all():
@@ -87,13 +90,17 @@ def main():
             print_state('U')
             continue
 
-        try:
-            sender_dst = session_dst.query(DestinationJID).\
-                    filter_by(jid=message_src.jid.jid).one()
-        except NoResultFound:
-            # no such sender in DB, create a new one
-            sender_dst = DestinationJID(message_src.jid.jid)
-            session_dst.add(sender_dst)
+        if message_src.jid not in jid_cache:
+            try:
+                sender_dst = session_dst.query(DestinationJID).\
+                        filter_by(jid=message_src.jid.jid).one()
+            except NoResultFound:
+                # no such sender in DB, create a new one
+                sender_dst = DestinationJID(message_src.jid.jid)
+                session_dst.add(sender_dst)
+            jid_cache[message_src.jid] = sender_dst
+        else:
+            sender_dst = jid_cache[message_src.jid]
 
         message_dst = DestinationMessage(jid=sender_dst, time=message_src.time,
                 message=message_src.message, kind=message_src.kind)
