@@ -3,7 +3,7 @@
 .*\.ini
 .*\.html
 .*\.orig
-.*\.class
+*.class
 .*~
 scribble\.css
 scribble-common\.js
