@@ -102,17 +102,17 @@ def main():
         else:
             sender_dst = jid_cache[message_src.jid]
 
-        message_dst = DestinationMessage(jid=sender_dst, time=message_src.time,
-                message=message_src.message, kind=message_src.kind)
-
         # check whether such a message already exists in the DB
         duplicates = session_dst.query(DestinationMessage).\
                 filter_by(message=message_src.message).\
                 filter_by(time=message_src.time)
-        if duplicates.all():
+        if duplicates.count() != 0:
             # we found a duplicate, skip it
             print_state('S')
             continue
+
+        message_dst = DestinationMessage(jid=sender_dst, time=message_src.time,
+                message=message_src.message, kind=message_src.kind)
 
         # all checks went OK, add the message to the DB
         session_dst.add(message_dst)
