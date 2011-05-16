@@ -2,9 +2,10 @@
 
 import sys
 import argparse
-from sqlalchemy import create_engine, MetaData, Table, Column, ForeignKey
+from sqlalchemy import create_engine, MetaData, Table, Column, ForeignKey, func
 from sqlalchemy.orm import mapper, sessionmaker, relationship, backref
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import exists
 
 # copied from Gajim common.logger
 JID_NORMAL_TYPE = 0
@@ -103,10 +104,18 @@ def main():
             sender_dst = jid_cache[message_src.jid]
 
         # check whether such a message already exists in the DB
-        duplicates = session_dst.query(DestinationMessage).\
+        #dup = exists().where(DestinationMessage.message == message_src.message).\
+        #        where(DestinationMessage.time == message_src.time)
+
+        #duplicates = session_dst.query(DestinationMessage).\
+        #        filter(dup)
+        #        filter_by(message=message_src.message).\
+        #        filter_by(time=message_src.time)
+        duplicates = session_dst.query(func.count(DestinationMessage.log_line_id)).\
                 filter_by(message=message_src.message).\
                 filter_by(time=message_src.time)
-        if duplicates.count() != 0:
+
+        if duplicates.one()[0] != 0:
             # we found a duplicate, skip it
             print_state('S')
             continue
