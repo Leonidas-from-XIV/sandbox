@@ -46,7 +46,7 @@ int main(string[] args) {
 	try {
 		oc.parse(ref args);
 	} catch (GLib.OptionError e) {
-		stdout.printf("Error parsing argument: %s\n",
+		stderr.printf("Error parsing argument: %s\n",
 			e.message);
 		return 1;
 	}
@@ -58,23 +58,19 @@ int main(string[] args) {
 		null);
 
 	if (app.is_running) {
-		stdout.printf("Already running\n");
-		stdout.printf("Sending signal for it to quit\n");
+		// another program is running, tell it to stop and exit
 		app.send_message(Command.QUIT, null);
-		// bailing out early
+		// bail out early
 		return 1;
 	}
 
-	stdout.printf("Not running, starting\n");
-
 	if (filename == null) {
-		stdout.printf("No file specified\n");
+		stderr.printf("No file specified\n");
 		return 1;
 	}
 
 	// define a handler for receiving signals
 	app.message_received.connect((command, message_data, time_) => {
-		stdout.printf("Got data\n");
 		if (command == Command.QUIT) {
 			Idle.add(() => {
 				Gtk.main_quit();
@@ -97,18 +93,18 @@ int main(string[] args) {
 	proplist.sets(Canberra.PROP_MEDIA_FILENAME, filename);
 
 	// let Canberra play the file, calling the cb when done
-	stdout.printf("You hear me?!?\n");
 	var result = CanberraGtk.context_get().play_full(1, proplist, (c, id, code) => {
 		// playing done, we can close the program
-		stdout.printf("Done\n");
 		Idle.add(() => {
-			stdout.printf("Closing\n");
 			Gtk.main_quit();
 			return false;
 		});
 	});
+
+	// check whether we can play it
 	if (result < 0) {
-		stdout.printf("Failed\n");
+		stderr.printf("Failed to play the file: %s\n",
+			Canberra.strerror(result));
 		return 1;
 	}
 
