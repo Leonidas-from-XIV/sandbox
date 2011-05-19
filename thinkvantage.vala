@@ -15,6 +15,26 @@ class ThinkVantage.Main : GLib.Object {
 		// initialize GTK+, so it does not complain on runtime
 		// (canberra) or just segfault (unique)
 		Gtk.init(ref args);
+		string filename = null;
+
+		var oc = new GLib.OptionContext(" - thinkvantage");
+		GLib.OptionEntry[] options = {
+			OptionEntry() { long_name = "filename", short_name = 'f', flags=0, arg=GLib.OptionArg.FILENAME, arg_data=&filename, description="Bla", arg_description=null },
+			OptionEntry() { long_name = null, short_name = 0, flags=0, arg=0, arg_data=null, description=null, arg_description=null }
+		};
+
+		Intl.setlocale(GLib.LocaleCategory.ALL, "");
+
+		oc.add_main_entries(options, null);
+		oc.add_group(Gtk.get_option_group(true));
+		oc.set_help_enabled(true);
+		try {
+			oc.parse(ref args);
+		} catch (GLib.OptionError e) {
+			stdout.printf("Error parsing argument: %s\n",
+				e.message);
+			return 1;
+		}
 
 		// create an App object that supports the QUIT command
 		var app = new Unique.App.with_commands(
@@ -32,6 +52,11 @@ class ThinkVantage.Main : GLib.Object {
 
 		stdout.printf("Not running, starting\n");
 
+		if (filename == null) {
+			stdout.printf("No file specified\n");
+			return 1;
+		}
+
 		// define a handler for receiving signals
 		app.message_received.connect((command, message_data, time_) => {
 			stdout.printf("Got data\n");
@@ -47,14 +72,14 @@ class ThinkVantage.Main : GLib.Object {
 		// now we can configure canberra
 		CanberraGtk.context_get().change_props(
 			Canberra.PROP_APPLICATION_NAME, "thinkvantage",
-			Canberra.PROP_APPLICATION_VERSION, "0.0.1",
+			Canberra.PROP_APPLICATION_VERSION, "0.1.0",
 			Canberra.PROP_APPLICATION_ID, "net.xivilization.thinkvantage",
 			null);
 		Canberra.Proplist proplist;
 		Canberra.Proplist.create(out proplist);
 
 		// select the file to play
-		proplist.sets(Canberra.PROP_MEDIA_FILENAME, "bell.oga");
+		proplist.sets(Canberra.PROP_MEDIA_FILENAME, filename);
 
 		// let Canberra play the file, calling the cb when done
 		stdout.printf("You hear me?!?\n");
