@@ -11,9 +11,9 @@ JID_NORMAL_TYPE = 0
 JID_ROOM_TYPE = 1
 
 class JID(object):
-    def __init__(self, jid):
+    def __init__(self, jid, type):
         self.jid = jid
-        self.type = JID_NORMAL_TYPE
+        self.type = type
 
 class SourceJID(JID):
     pass
@@ -22,13 +22,14 @@ class DestinationJID(JID):
     pass
 
 class Message(object):
-    def __init__(self, jid, time, message, kind):
+    def __init__(self, jid, time, message, kind,
+            contact_name, subject):
         self.time = time
         self.message = message
         self.jid = jid
-        self.contact_name = ''
         self.kind = kind
-        self.subject = ''
+        self.contact_name = contact_name
+        self.subject = subject
 
 class SourceMessage(Message):
     pass
@@ -95,33 +96,33 @@ def main():
     items = session_src.query(SourceMessage)
     print("Processing {} message(s)".format(items.count()), file=sys.stderr)
     for message_src in items.all():
-        # exclude conference messages
-        if message_src.jid.type != JID_NORMAL_TYPE:
-            print_state('U')
-            continue
 
+        # query and populate the JID cache
         if message_src.jid not in jid_cache:
             try:
                 sender_dst = session_dst.query(DestinationJID).\
                         filter_by(jid=message_src.jid.jid).one()
             except NoResultFound:
                 # no such sender in DB, create a new one
-                sender_dst = DestinationJID(message_src.jid.jid)
+                sender_dst = DestinationJID(message_src.jid.jid,
+                        message_src.type)
                 session_dst.add(sender_dst)
             jid_cache[message_src.jid] = sender_dst
         else:
             sender_dst = jid_cache[message_src.jid]
 
         # check whether such a message already exists in the DB
-        # we use a prepopulated message cache because that is *vastly* faster than
-        # to issue invidivual queries
+        # we use a prepopulated message cache because that is *vastly* faster 
+        # than to issue individual queries
         if (message_src.time, message_src.message) in message_cache:
             # we found a duplicate, skip it
             print_state('S')
             continue
 
         message_dst = DestinationMessage(jid=sender_dst, time=message_src.time,
-                message=message_src.message, kind=message_src.kind)
+                message=message_src.message, kind=message_src.kind,
+                contact_name=message_src.contact_name,
+                subject=message_src.subject)
 
         # all checks went OK, add the message to the DB
         session_dst.add(message_dst)
