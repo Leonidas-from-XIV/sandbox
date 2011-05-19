@@ -1,7 +1,4 @@
 class ThinkVantage.Main : GLib.Object {
-	//public static void callback(Canberra.Context ctx, uint32 id, int code) {
-	//	stdout.printf("Exiting");
-	//}
 	public static int main(string[] args) {
 		stdout.printf("You hear me?!?\n");
 		CanberraGtk.context_get().change_props(
