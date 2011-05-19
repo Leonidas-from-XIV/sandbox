@@ -26,6 +26,13 @@ enum Command {
 	QUIT
 }
 
+void exit_program() {
+	Idle.add(() => {
+		Gtk.main_quit();
+		return false;
+	});
+}
+
 int main(string[] args) {
 	// initialize GTK+, so it does not complain on runtime
 	// (canberra) or just segfault (unique)
@@ -72,10 +79,7 @@ int main(string[] args) {
 	// define a handler for receiving signals
 	app.message_received.connect((command, message_data, time_) => {
 		if (command == Command.QUIT) {
-			Idle.add(() => {
-				Gtk.main_quit();
-				return false;
-			});
+			exit_program();
 		}
 		return 0;
 	});
@@ -95,10 +99,7 @@ int main(string[] args) {
 	// let Canberra play the file, calling the cb when done
 	var result = CanberraGtk.context_get().play_full(1, proplist, (c, id, code) => {
 		// playing done, we can close the program
-		Idle.add(() => {
-			Gtk.main_quit();
-			return false;
-		});
+		exit_program();
 	});
 
 	// check whether we can play it
