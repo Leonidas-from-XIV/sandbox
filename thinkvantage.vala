@@ -1,5 +1,13 @@
 class ThinkVantage.Main : GLib.Object {
 	public static int main(string[] args) {
+		Gtk.init(ref args);
+		//var app = new Unique.App.with_commands("net.xivilization.thinkvantage", null, "foo", 0, null);
+		var app = new Unique.App("net.xivilization.thinkvantage", null);
+		//if (app.is_running) {
+		//	stdout.printf("Already running");
+		//	return 1;
+		//}
+
 		stdout.printf("You hear me?!?\n");
 		CanberraGtk.context_get().change_props(
 			Canberra.PROP_APPLICATION_NAME, "thinkvantage",
