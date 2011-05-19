@@ -83,7 +83,7 @@ class ThinkVantage.Main : GLib.Object {
 
 		// let Canberra play the file, calling the cb when done
 		stdout.printf("You hear me?!?\n");
-		CanberraGtk.context_get().play_full(1, proplist, (c, id, code) => {
+		var result = CanberraGtk.context_get().play_full(1, proplist, (c, id, code) => {
 			// playing done, we can close the program
 			stdout.printf("Done\n");
 			Idle.add(() => {
@@ -92,6 +92,10 @@ class ThinkVantage.Main : GLib.Object {
 				return false;
 			});
 		});
+		if (result < 0) {
+			stdout.printf("Failed\n");
+			return 1;
+		}
 
 		// enter GTK+ loop, come back when done
 		Gtk.main();
