@@ -1,13 +1,33 @@
+enum ThinkVantage.Command {
+	ZERO,
+	QUIT
+}
+
+
 class ThinkVantage.Main : GLib.Object {
 	public static int main(string[] args) {
 		Gtk.init(ref args);
-		var app = new Unique.App.with_commands("net.xivilization.thinkvantage", null, "foo", 1, null);
+		var app = new Unique.App.with_commands("net.xivilization.thinkvantage", null,
+		"quit", Command.QUIT,
+		null);
 
 		if (app.is_running) {
 			stdout.printf("Already running\n");
 			stdout.printf("Sending signal to quit\n");
-			// TODO: Send and receive signal
+			app.send_message(Command.QUIT, null);
 			return 1;
+		} else {
+			stdout.printf("Not running, starting\n");
+			app.message_received.connect((command, message_data, time_) => {
+				stdout.printf("Got data\n");
+				if (command == Command.QUIT) {
+					Idle.add(() => {
+						Gtk.main_quit();
+						return false;
+					});
+				}
+				return 0;
+			});
 		}
 
 		stdout.printf("You hear me?!?\n");
