@@ -15,6 +15,12 @@ import fuse
 from fuse import Fuse
 import os.path
 
+from logbook import FileHandler, debug, DEBUG
+log_handler = FileHandler('/tmp/libraryfuse.log', level=DEBUG)
+log_handler.push_application()
+
+debug('Starting')
+
 fuse.fuse_python_api = (0, 2)
 fuse.feature_assert('stateful_files', 'has_init')
 
@@ -37,14 +43,22 @@ class LibraryFuse(Fuse):
         self.directories_to_merge = directories_to_merge
 
     def getattr(self, path):
+        debug('getattr with %s' % path)
         for library_part in self.directories_to_merge:
-            for e in os.listdir(library_part + path):
-                return os.lstat(library_part + path)
+            real_path = library_part + path
+            debug('trying %s' % real_path)
+            if os.path.exists(real_path):
+                lstat = os.lstat(real_path)
+                return lstat
+            else:
+                debug('%s not found, checking next' % real_path)
 
     def readlink(self, path):
+        debug('readlink called with {}'.format(path))
         return os.readlink("." + path)
 
     def readdir(self, path, offset):
+        debug('readdir called')
         elements = set()
         for library_part in self.directories_to_merge:
             for e in os.listdir(library_part + path):
@@ -54,48 +68,59 @@ class LibraryFuse(Fuse):
             yield fuse.Direntry(element)
 
     def unlink(self, path):
+        debug('unlink called')
         return -ENOSYS
         os.unlink("." + path)
 
     def rmdir(self, path):
+        debug('rmdir')
         return -ENOSYS
         os.rmdir("." + path)
 
     def symlink(self, path, path1):
+        debug('symlink')
         return -ENOSYS
         os.symlink(path, "." + path1)
 
     def rename(self, path, path1):
+        debug('rename')
         return -ENOSYS
         os.rename("." + path, "." + path1)
 
     def link(self, path, path1):
+        debug('link')
         return -ENOSYS
         os.link("." + path, "." + path1)
 
     def chmod(self, path, mode):
+        debug('chmod')
         return -ENOSYS
         os.chmod("." + path, mode)
 
     def chown(self, path, user, group):
+        debug('chown')
         return -ENOSYS
         os.chown("." + path, user, group)
 
     def truncate(self, path, len):
+        debug('truncate')
         return -ENOSYS
         f = open("." + path, "a")
         f.truncate(len)
         f.close()
 
     def mknod(self, path, mode, dev):
+        debug('mknod')
         return -ENOSYS
         os.mknod("." + path, mode, dev)
 
     def mkdir(self, path, mode):
+        debug('mkdir')
         return -ENOSYS
         os.mkdir("." + path, mode)
 
     def utime(self, path, times):
+        debug('utime')
         return -ENOSYS
         os.utime("." + path, times)
 
@@ -107,6 +132,7 @@ class LibraryFuse(Fuse):
 #      os.utime("." + path, (ts_acc.tv_sec, ts_mod.tv_sec))
 
     def access(self, path, mode):
+        debug('access')
         for library_part in self.directories_to_merge:
             if not os.access(library_part + path, mode):
                 return -EACCESS
@@ -129,7 +155,7 @@ class LibraryFuse(Fuse):
             - f_files - total number of file inodes
             - f_ffree - nunber of free file inodes
         """
-
+        debug('statvfs')
         return os.statvfs(".")
 
     class XmpFile(object):
