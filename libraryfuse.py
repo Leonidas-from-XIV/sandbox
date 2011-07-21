@@ -46,12 +46,17 @@ class LibraryFuse(Fuse):
                 return os.readlink(real_path)
 
     def readdir(self, path, offset):
-        debug('readdir called')
+        debug('readdir called with {0} and offset {1}'.format(path, offset))
         elements = set()
+        # gather elements
         for library_part in self.directories_to_merge:
-            for e in os.listdir(library_part + path):
+            real_path = library_part + path
+            if not os.path.exists(real_path):
+                continue
+            for e in os.listdir(real_path):
                 elements.add(e)
-        #yield fuse.Direntry(repr(elements))
+
+        # return elements
         for element in elements:
             yield fuse.Direntry(element)
 
@@ -123,8 +128,9 @@ class LibraryFuse(Fuse):
         debug('access {0} in mode {1}'.format(path, mode))
         for library_part in self.directories_to_merge:
             real_path = library_part + path
-            if not os.access(real_path, mode):
-                return -errno.EACCESS
+            if os.path.exists(real_path):
+                if not os.access(real_path, mode):
+                    return -errno.EACCES
 
     def statfs(self):
         """
