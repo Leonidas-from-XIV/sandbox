@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-
-#    Copyright (C) 2001  Jeff Epler  <jepler@unpythonic.dhs.org>
-#    Copyright (C) 2006  Csaba Henk  <csaba.henk@creo.hu>
+#!/usr/bin/env python2
+# Copyright (C) 2001 Jeff Epler <jepler@unpythonic.dhs.org>
+# Copyright (C) 2006 Csaba Henk <csaba.henk@creo.hu>
+# Copyright (C) 2011 Marek Kubica <marek@xivilization.net>
 #
-#    This program can be distributed under the terms of the GNU LGPL.
-#    See the file COPYING.
-#
+# This program can be distributed under the terms of the GNU LGPLv3.
 
 import os, sys
 from errno import *
