@@ -10,9 +10,10 @@ from errno import *
 from stat import *
 import fcntl
 import fuse
+
 from fuse import Fuse
 import os.path
-
+import errno
 from logbook import FileHandler, debug, DEBUG
 log_handler = FileHandler('/tmp/libraryfuse.log', level=DEBUG)
 log_handler.push_application()
@@ -46,14 +47,14 @@ class LibraryFuse(Fuse):
             real_path = library_part + path
             debug('trying %s' % real_path)
             if os.path.exists(real_path):
-                lstat = os.lstat(real_path)
-                return lstat
-            else:
-                debug('%s not found, checking next' % real_path)
+                return os.lstat(real_path)
 
     def readlink(self, path):
         debug('readlink called with {}'.format(path))
-        return os.readlink("." + path)
+        for library_part in self.directories_to_merge:
+            real_path = library_part + path
+            if os.path.exists(real_path):
+                return os.readlink(real_path)
 
     def readdir(self, path, offset):
         debug('readdir called')
@@ -130,10 +131,11 @@ class LibraryFuse(Fuse):
 #      os.utime("." + path, (ts_acc.tv_sec, ts_mod.tv_sec))
 
     def access(self, path, mode):
-        debug('access')
+        debug('access {0} in mode {1}'.format(path, mode))
         for library_part in self.directories_to_merge:
-            if not os.access(library_part + path, mode):
-                return -EACCESS
+            real_path = library_part + path
+            if not os.access(real_path, mode):
+                return -errno.EACCESS
 
     def statfs(self):
         """
