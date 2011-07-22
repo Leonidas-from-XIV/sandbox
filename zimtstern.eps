@@ -1,7 +1,13 @@
-%!PS-Adobe-3.0
+%!PS-Adobe-2.0 EPSF-1.2
 %%Title: (Zimtstern logo)
 %%Creator: (Marek Kubica <marek@xivilization.net>)
+%%BoundingBox: 195 395 455 650
+%%Pages: 1
 %%EndComments
+%%BeginProlog
+save countdictstack mark newpath /showpage {} def /setpagedevice /pop load def
+%%EndProlog
+%%Page 1 1
 
 % usually, red
 /Topcolor { [ 238 46 36 ] { 255 div } forall } def
@@ -125,3 +131,6 @@
 bottompart
 % continue with top
 toppart
+%%Trailer
+cleartomark countdictstack exch sub { end } repeat restore
+%%EOF
