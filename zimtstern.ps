@@ -23,13 +23,19 @@
 % Converts n units into 'pixel' coords
 /units {
 	Basesize Baseunits div
+	mul
 } def
+
+% for DSLs sake, an alias
+/unit { units } def
 
 % (n -- )
 /forward {
 	0 rlineto
 } def
 
+% ( -- )
+% both strokes and fills a path
 /StrokeAndFill {
 	gsave
 		stroke
@@ -39,7 +45,7 @@
 
 % centering and scaling
 200 400 translate
-0.25 0.25 scale
+%0.25 0.25 scale
 
 % line settings
 1 setlinejoin
@@ -49,24 +55,29 @@
 	gsave
 		Bottomcolor setrgbcolor
 
-		1000 0 lineto
+		% draw base line
+		4.5 units 0 lineto
+
+		% lower right part going up, taking 90° turn and inwards
 		116 rotate
-		286 forward
+		1.3 units forward
 		90 rotate
-		222 forward
+		1 unit forward
 
-		% circle here
+		% the rounded center
 		-90 rotate
+		% save current place, so we can translate back later
 		currentpoint
+		% move the origin to the current point
 		currentpoint translate
-
-		44 100 90 0 45 arcto
+		% draw the actual arc
+		0.2 units 100 0.41 units 0 0.2 units arcto
+		% remove that sutff that arcto left behind
 		4 { pop } repeat
-
+		% revert to the previous origin
 		antitranslation translate
-
 		-90 rotate
-		% end circle
+		% done with the rounded corner
 
 		222 forward
 		90 rotate
@@ -85,21 +96,25 @@
 	gsave
 		Topcolor setrgbcolor
 		64 rotate
-		344 0 rmoveto
+		1.55 units 0 units rmoveto
 
-		255 forward
+		1.15 units forward
 
+		% the spike
+		% save the current origin, so we can restore later to it
 		currentpoint
+		% move the origin
 		currentpoint translate
-
-		88 244 lineto
-		222 0 lineto
+		% draw the actual spike
+		0.4 units 1.1 units lineto
+		1 unit 0 units lineto
+		% revert the origin
 		antitranslation translate
 
-		266 forward
+		1.2 units forward
 
 		-126 rotate
-		444 forward
+		2 units forward
 
 		closepath
 		StrokeAndFill
