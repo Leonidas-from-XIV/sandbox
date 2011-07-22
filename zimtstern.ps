@@ -3,12 +3,19 @@
 /Topcolor { [ 238 46 36 ] { 255 div } forall } def
 /Bottomcolor { [ 0 0 0 ] { 255 div } forall } def
 
+% (x y) -- (x y)
+% returns the un-translation of the given coordinates, useful for reversing
+% translate operations
+/antitranslation {
+	neg exch
+	neg exch
+} def
+
 200 400 translate
 0.25 0.25 scale
 
 1 setlinejoin
 20 setlinewidth
-
 
 gsave
 	Bottomcolor setrgbcolor
@@ -22,7 +29,14 @@ gsave
 
 % circle here
 -90 rotate
-86 0 rlineto
+currentpoint
+currentpoint translate
+
+33 100 66 0 33 arcto
+4 { pop } repeat
+
+antitranslation translate
+
 -90 rotate
 % end circle
 
@@ -34,7 +48,6 @@ gsave
 711 0 rlineto
 
 closepath
-
 
 gsave
 	stroke
@@ -50,13 +63,6 @@ gsave
 64 rotate
 344 0 rmoveto
 
-% (x y) -- (x y)
-% returns the un-translation of the given coordinates, useful for reversing
-% translate operations
-/antitranslation {
-	neg exch
-	neg exch
-} def
 
 255 0 rlineto
 
