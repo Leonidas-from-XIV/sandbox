@@ -1,9 +1,17 @@
 %!PS-2.0
 
+/Topcolor { [ 238 46 36 ] { 255 div } forall } def
+/Bottomcolor { [ 0 0 0 ] { 255 div } forall } def
+
 200 400 translate
 0.25 0.25 scale
 
+1 setlinejoin
+20 setlinewidth
+
+
 gsave
+	Bottomcolor setrgbcolor
 0 0 moveto
 
 1000 0 lineto
@@ -27,8 +35,6 @@ gsave
 
 closepath
 
-1 setlinejoin
-20 setlinewidth
 
 gsave
 	stroke
@@ -38,6 +44,8 @@ grestore
 
 % that was the bottom part, now for the top
 % reset to origin
+gsave
+	Topcolor setrgbcolor
 0 0 moveto
 64 rotate
 344 0 rmoveto
@@ -66,5 +74,9 @@ antitranslation translate
 
 closepath
 
-stroke
+gsave
+	stroke
+grestore
+fill
 
+grestore
