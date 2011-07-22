@@ -3,6 +3,7 @@
 200 400 translate
 0.25 0.25 scale
 
+gsave
 0 0 moveto
 
 1000 0 lineto
@@ -33,4 +34,37 @@ gsave
 	stroke
 grestore
 fill
+grestore
+
+% that was the bottom part, now for the top
+% reset to origin
+0 0 moveto
+64 rotate
+344 0 rmoveto
+
+% (x y) -- (x y)
+% returns the un-translation of the given coordinates, useful for reversing
+% translate operations
+/antitranslation {
+	neg exch
+	neg exch
+} def
+
+255 0 rlineto
+
+currentpoint
+currentpoint translate
+
+88 244 lineto
+222 0 lineto
+antitranslation translate
+
+266 0 rlineto
+
+-126 rotate
+444 0 rlineto
+
+closepath
+
+stroke
 
