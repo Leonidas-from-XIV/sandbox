@@ -1,6 +1,11 @@
-%!PS-2.0
+%!PS-Adobe-3.0
+%%Title: (Zimtstern logo)
+%%Creator: (Marek Kubica <marek@xivilization.net>)
+%%EndComments
 
+% usually, red
 /Topcolor { [ 238 46 36 ] { 255 div } forall } def
+% usually, black
 /Bottomcolor { [ 0 0 0 ] { 255 div } forall } def
 
 % (x y) -- (x y)
@@ -11,78 +16,101 @@
 	neg exch
 } def
 
+/Basesize 1000 def
+/Baseunits 4.5 def
+
+% (n -- xy)
+% Converts n units into 'pixel' coords
+/units {
+	Basesize Baseunits div
+} def
+
+% (n -- )
+/forward {
+	0 rlineto
+} def
+
+% centering and scaling
 200 400 translate
 0.25 0.25 scale
 
+% line settings
 1 setlinejoin
 20 setlinewidth
 
-gsave
-	Bottomcolor setrgbcolor
-0 0 moveto
+/bottompart {
+	gsave
+		Bottomcolor setrgbcolor
 
-1000 0 lineto
-116 rotate
-286 0 rlineto
-90 rotate
-222 0 rlineto
+		1000 0 lineto
+		116 rotate
+		286 forward
+		90 rotate
+		222 forward
 
-% circle here
--90 rotate
-currentpoint
-currentpoint translate
+		% circle here
+		-90 rotate
+		currentpoint
+		currentpoint translate
 
-44 100 90 0 45 arcto
-4 { pop } repeat
+		44 100 90 0 45 arcto
+		4 { pop } repeat
 
-antitranslation translate
+		antitranslation translate
 
--90 rotate
-% end circle
+		-90 rotate
+		% end circle
 
-222 0 rlineto
-90 rotate
-176 0 rlineto
+		222 forward
+		90 rotate
+		176 forward
 
-90 rotate
-711 0 rlineto
+		90 rotate
+		711 forward
 
-closepath
+		closepath
 
-gsave
-	stroke
-grestore
-fill
-grestore
+		gsave
+			stroke
+		grestore
+		fill
+	grestore
+} def
 
 % that was the bottom part, now for the top
-% reset to origin
-gsave
-	Topcolor setrgbcolor
+/toppart {
+	gsave
+		Topcolor setrgbcolor
+		64 rotate
+		344 0 rmoveto
+
+		255 forward
+
+		currentpoint
+		currentpoint translate
+
+		88 244 lineto
+		222 0 lineto
+		antitranslation translate
+
+		266 forward
+
+		-126 rotate
+		444 forward
+
+		closepath
+
+		gsave
+			stroke
+		grestore
+		fill
+
+	grestore
+} def
+
+% move to the position we want to start with
 0 0 moveto
-64 rotate
-344 0 rmoveto
-
-
-255 0 rlineto
-
-currentpoint
-currentpoint translate
-
-88 244 lineto
-222 0 lineto
-antitranslation translate
-
-266 0 rlineto
-
--126 rotate
-444 0 rlineto
-
-closepath
-
-gsave
-	stroke
-grestore
-fill
-
-grestore
+% draw bottom first
+bottompart
+% continue with top
+toppart
