@@ -30,6 +30,13 @@
 	0 rlineto
 } def
 
+/StrokeAndFill {
+	gsave
+		stroke
+	grestore
+	fill
+} def
+
 % centering and scaling
 200 400 translate
 0.25 0.25 scale
@@ -69,11 +76,7 @@
 		711 forward
 
 		closepath
-
-		gsave
-			stroke
-		grestore
-		fill
+		StrokeAndFill
 	grestore
 } def
 
@@ -99,12 +102,7 @@
 		444 forward
 
 		closepath
-
-		gsave
-			stroke
-		grestore
-		fill
-
+		StrokeAndFill
 	grestore
 } def
 
