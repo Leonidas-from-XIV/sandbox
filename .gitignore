@@ -1,4 +1,5 @@
 *.py[c|o]
+*.pdf
 .*\.swp
 .*\.ini
 .*\.html
