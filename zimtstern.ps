@@ -16,7 +16,7 @@
 	neg exch
 } def
 
-/Basesize 1000 def
+/Basesize 250 def
 /Baseunits 4.5 def
 
 % (n -- xy)
@@ -45,11 +45,10 @@
 
 % centering and scaling
 200 400 translate
-0.25 0.25 scale
 
 % line settings
 1 setlinejoin
-20 setlinewidth
+0.1 units setlinewidth
 
 /bottompart {
 	gsave
