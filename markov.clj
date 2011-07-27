@@ -11,10 +11,6 @@
         key [first second]]
     (update-in cache (list key) (fn [entries] (conj entries third)))))
 
-(def words
-  (mapcat #(remove empty? (split #"\s" %))
-    (read-lines System/in)))
-
 (defn markov-link [cache words]
   (rand-nth (cache words)))
 
@@ -33,9 +29,11 @@
 
 (with-command-line
   *command-line-args*
-  "Usage: blah"
+  "Usage: markov < input-corpus > output-text"
   [[number n "The number of words to generate" "25"]]
   (let [number (Integer/parseInt number)
+        words (mapcat #(remove empty? (split #"\s" %))
+                      (read-lines System/in))
         generated-words (take number (markov-chain words))]
     (println (str-join " " generated-words))))
 
