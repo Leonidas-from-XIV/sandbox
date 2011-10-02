@@ -10,6 +10,7 @@ them securely.
 """
 
 from __future__ import unicode_literals, print_function
+import sys
 import urlparse
 import json
 import requests
@@ -29,7 +30,7 @@ def main():
     snoop = requests.get(url, headers=headers)
     if snoop.url == url:
         # we seem to be properly online, or something
-        print('seem to be online, bailing out')
+        print('We seem to be online, bailing out', file=sys.stderr)
         return
 
     # get the data from the URL we were redirected to
@@ -39,11 +40,10 @@ def main():
     naspo = parsed_qs['NASpo'][0]
 
     # construct the URL for the stage1 login
-    stage1_url = urlparse.urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
-    print(stage1_url)
-    # TODO use stage1 url if correct
-    #stage1 = requests.post(parsed_url.scheme + '://' + parsed_url.hostname + '/nu-wnet2/process_in.php',
-    stage1 = requests.post(TODO, data={
+    stage1_url = urlparse.urlunparse((parsed_url.scheme, parsed_url.netloc,
+        '/nu-wnet2/process_in.php', '', '', ''))
+    # pass NAS stuff and user/password to the server
+    stage1 = requests.post(stage1_url, data={
                 'NASip' : nasip,
                 'NASpo' : naspo,
                 'keepid' : 'off',
@@ -51,14 +51,17 @@ def main():
                 'password' : password
                 }, headers=headers)
 
-    print(stage1.url)
-    # stage1 login returns an URL
+    # stage1 login returns an URL to which to post more auth details
     new_url = stage1.content
+    # parse the url we got and extract the auth information we were passed
     parsed_url = urlparse.urlparse(new_url)
     parsed_qs = urlparse.parse_qs(parsed_url.query)
-    #stage2_url = '%s://%s:%s%s' % (parsed_url.scheme, parsed_url.hostname, parsed_url.port, parsed_url.path)
-    stage2_url = urlparse.urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, '', '', ''))
-    print(stage2_url)
+    # create the new URL without the auth information
+    stage2_url = urlparse.urlunparse((parsed_url.scheme, parsed_url.netloc,
+        parsed_url.path, '', '', ''))
+    # pass the new auth information to the server again
+    # together with some fields that aren't filled in anyway
+    # possibly we can just leave those out
     stage2 = requests.post(stage2_url, data={
         'username' : parsed_qs['username'][0],
         'password' : parsed_qs['password'][0],
@@ -71,12 +74,12 @@ def main():
         'multi' : '',
         'admin' : '',
         'fullname' : '',
-        'class' : 'affiliation',
+        'class' : '',
+        'affiliation' : '',
         'occupation' : ''
         }, headers=headers)
-    print(stage2)
-    print(stage2.url)
-    print(stage2.content)
+
+    print('Logged in.', file=sys.stderr)
 
 if __name__ == '__main__':
     main()
