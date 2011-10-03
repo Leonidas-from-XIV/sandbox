@@ -16,7 +16,7 @@ import json
 import requests
 
 headers = {
-        'User-Agent' : 'NUWNetLogin/0.9'
+        'User-Agent' : 'NUWNetLogin/0.9.1'
     }
 
 def main():
@@ -28,6 +28,9 @@ def main():
     # determine whether we are online, and what page to visit
     url = 'http://xivilization.net/'
     snoop = requests.get(url, headers=headers)
+    if snoop.url is None:
+        print('We seem to be disconnected. Cable plugged in?', file=sys.stderr)
+        return
     if snoop.url == url:
         # we seem to be properly online, or something
         print('We seem to be online, bailing out', file=sys.stderr)
