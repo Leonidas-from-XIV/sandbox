@@ -29,7 +29,7 @@ func insert(m [size]*list.List, e int) {
 func delete(m [size]*list.List, e int) {
 	bucket := h5(e)
 	for n := m[bucket].Back(); n != nil; n = n.Prev() {
-		//fmt.Printf("%d ? %d\n", e, n.Value)
+		// iterate over linked list and delete all occurences of e
 		if e == n.Value {
 			m[bucket].Remove(n)
 		}
@@ -37,10 +37,12 @@ func delete(m [size]*list.List, e int) {
 }
 
 func main() {
+	// create and initialize array of lists
 	var m [size]*list.List
 	for index, _ := range m {
 		m[index] = list.New()
 	}
+
 	insert(m, 3)
 	insert(m, 11)
 	insert(m, 9)
