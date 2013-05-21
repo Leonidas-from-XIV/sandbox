@@ -11,23 +11,33 @@ func h5(x int) int {
 	return (5 * x) % size
 }
 
-func printmap(m [size]*list.List) {
+func printmap(m *[size]*list.List) {
 	for i, e := range m {
 		fmt.Printf("[%2d]", i)
+		if e == nil {
+			println()
+			continue
+		}
 		for n := e.Front(); n != nil; n = n.Next() {
 			fmt.Printf(" %2d ", n.Value)
 		}
-		fmt.Println()
+		println()
 	}
 }
 
-func insert(m [size]*list.List, e int) {
+func insert(m *[size]*list.List, e int) {
 	bucket := h5(e)
+	if m[bucket] == nil {
+		m[bucket] = list.New()
+	}
 	m[bucket].PushBack(e)
 }
 
-func delete(m [size]*list.List, e int) {
+func delete(m *[size]*list.List, e int) {
 	bucket := h5(e)
+	if m[bucket] == nil {
+		return
+	}
 	for n := m[bucket].Back(); n != nil; n = n.Prev() {
 		// iterate over linked list and delete all occurences of e
 		if e == n.Value {
@@ -37,11 +47,8 @@ func delete(m [size]*list.List, e int) {
 }
 
 func main() {
-	// create and initialize array of lists
-	var m [size]*list.List
-	for index, _ := range m {
-		m[index] = list.New()
-	}
+	// zero initialize array[size] of list pointers
+	m := new([size]*list.List)
 
 	insert(m, 3)
 	insert(m, 11)

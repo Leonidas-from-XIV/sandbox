@@ -8,7 +8,7 @@ func h5(x int) int {
 	return (5 * x) % size
 }
 
-func printmap(m [size]int) {
+func printmap(m *[size]int) {
 	for i, _ := range m {
 		fmt.Printf(" %2d ", i)
 	}
@@ -60,23 +60,24 @@ func reflow(m *[size]int, start int) {
 }
 
 func main() {
-	var m [size]int
-	insert(&m, 3)
-	insert(&m, 11)
-	insert(&m, 9)
-	insert(&m, 7)
-	insert(&m, 14)
-	insert(&m, 23)
-	insert(&m, 4)
-	insert(&m, 12)
-	insert(&m, 15)
-	insert(&m, 8)
-	insert(&m, 1)
+	m := new([size]int)
+
+	insert(m, 3)
+	insert(m, 11)
+	insert(m, 9)
+	insert(m, 7)
+	insert(m, 14)
+	insert(m, 23)
+	insert(m, 4)
+	insert(m, 12)
+	insert(m, 15)
+	insert(m, 8)
+	insert(m, 1)
 	printmap(m)
 	println("===========================================")
-	delete(&m, 23)
+	delete(m, 23)
 	printmap(m)
 	println("===========================================")
-	insert(&m, 25)
+	insert(m, 25)
 	printmap(m)
 }
