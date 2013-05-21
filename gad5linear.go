@@ -44,6 +44,7 @@ func delete(m *[size]int, e int) {
 func reflow(m *[size]int, start int) {
 	for j := start + 1; j != start; j = (j + 1) % 11 {
 		currentContent := m[j]
+		// i = "ideal" bucket, j = current bucket
 		i := h5(currentContent)
 		for c := i; c != j; c = (c + 1) % 11 {
 			if m[c] == 0 {
@@ -51,6 +52,8 @@ func reflow(m *[size]int, start int) {
 				//println("Moving", currentContent)
 				m[c] = currentContent
 				m[j] = 0
+				// location found, no need to check further
+				break
 			}
 		}
 	}
