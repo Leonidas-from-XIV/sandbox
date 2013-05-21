@@ -2,11 +2,13 @@ package main
 
 import "fmt"
 
+const size = 11
+
 func h5(x int) int {
-	return (5 * x) % 11
+	return (5 * x) % size
 }
 
-func printmap(m [11]int) {
+func printmap(m [size]int) {
 	for i, _ := range m {
 		fmt.Printf(" %2d ", i)
 	}
@@ -17,30 +19,35 @@ func printmap(m [11]int) {
 	println()
 }
 
-func insert(m *[11]int, e int) {
+func insert(m *[size]int, e int) {
 	bucket := findBucket(*m, e)
 	m[bucket] = e
 }
 
-func findBucket(m [11]int, e int) int {
+/* returns the next free bucket for value e */
+func findBucket(m [size]int, e int) int {
+	// ideal bucket
 	bucket := h5(e)
+	// skip until bucket is free
 	for ; m[bucket] != 0 && m[bucket] != e; bucket = (bucket + 1) % 11 {
 	}
+	// return bucket number that was found
 	return bucket
 }
 
-func delete(m *[11]int, e int) {
+func delete(m *[size]int, e int) {
 	bucket := findBucket(*m, e)
 	m[bucket] = 0
 	reflow(m, bucket)
 }
 
-func reflow(m *[11]int, start int) {
+func reflow(m *[size]int, start int) {
 	for j := start + 1; j != start; j = (j + 1) % 11 {
 		currentContent := m[j]
 		i := h5(currentContent)
 		for c := i; c != j; c = (c + 1) % 11 {
 			if m[c] == 0 {
+				// move to new location
 				//println("Moving", currentContent)
 				m[c] = currentContent
 				m[j] = 0
@@ -50,7 +57,7 @@ func reflow(m *[11]int, start int) {
 }
 
 func main() {
-	var m [11]int
+	var m [size]int
 	insert(&m, 3)
 	insert(&m, 11)
 	insert(&m, 9)
@@ -63,10 +70,10 @@ func main() {
 	insert(&m, 8)
 	insert(&m, 1)
 	printmap(m)
-	println("============")
+	println("===========================================")
 	delete(&m, 23)
 	printmap(m)
-	println("============")
+	println("===========================================")
 	insert(&m, 25)
 	printmap(m)
 }

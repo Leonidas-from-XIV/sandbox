@@ -5,11 +5,13 @@ import (
 	"fmt"
 )
 
+const size = 11
+
 func h5(x int) int {
-	return (5 * x) % 11
+	return (5 * x) % size
 }
 
-func printmap(m [11]*list.List) {
+func printmap(m [size]*list.List) {
 	for i, e := range m {
 		fmt.Printf("[%2d]", i)
 		for n := e.Front(); n != nil; n = n.Next() {
@@ -19,12 +21,12 @@ func printmap(m [11]*list.List) {
 	}
 }
 
-func insert(m [11]*list.List, e int) {
+func insert(m [size]*list.List, e int) {
 	bucket := h5(e)
 	m[bucket].PushBack(e)
 }
 
-func delete(m [11]*list.List, e int) {
+func delete(m [size]*list.List, e int) {
 	bucket := h5(e)
 	for n := m[bucket].Back(); n != nil; n = n.Prev() {
 		//fmt.Printf("%d ? %d\n", e, n.Value)
@@ -35,7 +37,7 @@ func delete(m [11]*list.List, e int) {
 }
 
 func main() {
-	var m [11]*list.List
+	var m [size]*list.List
 	for index, _ := range m {
 		m[index] = list.New()
 	}
