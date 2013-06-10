@@ -43,7 +43,7 @@ func (h *HashTable) insert(e int, retries int) error {
 		index = h2
 	}
 
-	if relevant[index] == 0 {
+	if relevant[index] == -1 {
 		relevant[index] = e
 		return nil
 	} else {
@@ -60,10 +60,10 @@ func (h *HashTable) insert(e int, retries int) error {
 func (h *HashTable) Remove(e int) {
 	h1 := h.h1(e)
 	h2 := h.h2(e)
-	if h.one[h1] != 0 {
-		h.one[h1] = 0
-	} else if h.two[h2] != 0 {
-		h.two[h2] = 0
+	if h.one[h1] != -1 {
+		h.one[h1] = -1
+	} else if h.two[h2] != -1 {
+		h.two[h2] = -1
 	}
 }
 
@@ -87,7 +87,13 @@ func NewHashTable(a1 []int, k1 int, p1 int, n1 int, a2 []int, k2 int, p2 int, n2
 	h.h1 = get_hash_fn(a1, k1, p1, n1)
 	h.h2 = get_hash_fn(a2, k2, p2, n2)
 	h.one = make([]int, n1)
+	for i, _ := range(h.one) {
+		h.one[i] = -1
+	}
 	h.two = make([]int, n2)
+	for i, _ := range(h.two) {
+		h.two[i] = -1
+	}
 	h.first = false
 	return h
 }
