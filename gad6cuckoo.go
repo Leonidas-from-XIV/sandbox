@@ -58,7 +58,13 @@ func (h *HashTable) insert(e int, retries int) {
 }
 
 func (h *HashTable) Remove(e int) {
-	panic("Not implemented")
+	h1 := h.h1(e)
+	h2 := h.h2(e)
+	if h.one[h1] != 0 {
+		h.one[h1] = 0
+	} else if h.two[h2] != 0 {
+		h.two[h2] = 0
+	}
 }
 
 func (h *HashTable) String() string {
