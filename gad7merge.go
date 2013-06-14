@@ -11,16 +11,15 @@ func revmerge(a []int, b []int) []int {
 		// as this is revmerge, it needs to be reversed
 		reverse(b)
 		return b
-	} else if len(b) == 0 {
+	}
+	if len(b) == 0 {
 		reverse(a)
 		return a
-	} else {
-		if a[0] <= b[0] {
-			return append(revmerge(a[1:], b), a[0])
-		} else {
-			return append(revmerge(a, b[1:]), b[0])
-		}
 	}
+	if a[0] <= b[0] {
+		return append(revmerge(a[1:], b), a[0])
+	}
+	return append(revmerge(a, b[1:]), b[0])
 }
 
 func reverse(res []int) {
@@ -45,11 +44,12 @@ func mergesort(input []int) []int {
 		return in
 	}
 	if len(in) == 2 {
-		if in[0] < in[1] {
-			return in
-		} else {
+		if in[0] > in[1] {
+			// invert first with second
 			return []int{in[1], in[0]}
 		}
+		// sorted already
+		return in
 	}
 	half := len(in) / 2
 	left := in[:half]
