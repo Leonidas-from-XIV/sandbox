@@ -43,14 +43,6 @@ func mergesort(input []int) []int {
 	if len(in) <= 1 {
 		return in
 	}
-	if len(in) == 2 {
-		if in[0] > in[1] {
-			// invert first with second
-			return []int{in[1], in[0]}
-		}
-		// sorted already
-		return in
-	}
 	half := len(in) / 2
 	left := in[:half]
 	right := in[half:]
