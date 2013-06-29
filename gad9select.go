@@ -22,8 +22,8 @@ func quickselect(ele []int, k int) int {
 
 	if k <= len(smaller) {
 		return quickselect(smaller, k)
-	} else if k > len(ele) - len(larger) {
-		return quickselect(larger, k - (len(ele) - len(larger)))
+	} else if k > len(ele)-len(larger) {
+		return quickselect(larger, k-(len(ele)-len(larger)))
 	} else {
 		return pivot
 	}
