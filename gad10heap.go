@@ -64,14 +64,26 @@ func (b *BinaryHeap) String() string {
 }
 
 func (b *BinaryHeap) DeleteMin() int {
+	return b.removeHV(0)
+}
+
+func (b *BinaryHeap) removeHV(h int) int {
 	H := b.elements
 	n := len(H)
-	e := b.Min()
-	H[0] = H[n-1]
-	// shrink slice by one element
+	// the element to be removed
+	e := H[h]
+	// overwrite it with the last element
+	H[h] = H[n-1]
+	// shrink slice by one element, thus deleting the last
 	b.elements = H[:n-1]
-	b.bubble_down(0)
+	// trickle down the element that was moved
+	b.bubble_down(h)
+	// return previous value
 	return e
+}
+
+func (b *BinaryHeap) RemoveH(h int) {
+	b.removeHV(h)
 }
 
 func (b *BinaryHeap) Min() int {
