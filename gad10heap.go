@@ -56,13 +56,32 @@ func (b *BinaryHeap) String() string {
 	return fmt.Sprint(b.elements)
 }
 
+func (b *BinaryHeap) DeleteMin() int {
+	H := b.elements
+	n := len(H)
+	e := H[0]
+	H[0] = H[n-1]
+	// shrink slice by one element
+	H = H[:n-1]
+	b.bubble_down(0)
+	return e
+}
+
+func (b *BinaryHeap) Min() int {
+	return b.elements[0]
+}
+
 func main() {
 	a := []int{12, 9, 8, 7, 6, 4, 3, 2}
 	b := []int{-24, 16, -302, -17, -56, 8, -1, 22, 54, 92, -70, 33, 61}
 	c := []int{1, 1, 1, 1, 1, 1, 1, 1}
 	test_heap := new(BinaryHeap)
 	test_heap.Build(a)
-	fmt.Println("test_heap.build(a), should be [2 6 3 7 12 4 8 9], is ", test_heap)
+	fmt.Println("test_heap.Build(a), should be [2 6 3 7 12 4 8 9], is ", test_heap)
+	test_heap.Insert(1)
+	fmt.Println("test_heap.Insert(1), should be [1 2 3 6 12 4 8 9 7], is ", test_heap)
+	test_heap.DeleteMin()
+	fmt.Println("test_heap.DeleteMin(), should be [2 6 3 7 12 4 8 9], is ", test_heap)
 	fmt.Println(b)
 	fmt.Println(c)
 }
