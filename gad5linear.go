@@ -29,7 +29,8 @@ func findBucket(m [size]int, e int) int {
 	// ideal bucket
 	bucket := h5(e)
 	// skip until bucket is free
-	for ; m[bucket] != 0 && m[bucket] != e; bucket = (bucket + 1) % 11 {
+	for m[bucket] != 0 && m[bucket] != e {
+		bucket = (bucket + 1) % 11
 	}
 	// return bucket number that was found
 	return bucket
