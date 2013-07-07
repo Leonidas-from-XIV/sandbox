@@ -92,6 +92,10 @@ func main() {
 	fmt.Println("test_heap.DeleteMin(), should be [2 6 3 7 12 4 8 9], is ", test_heap)
 	test_heap.DecreaseKeyH(4, 5)
 	fmt.Println("test_heap.DecreaseKeyH(4, 5), should be [2 5 3 7 6 4 8 9], is ", test_heap)
-	fmt.Println(b)
-	fmt.Println(c)
+	test_heap2 := new(BinaryHeap)
+	test_heap2.Build(b)
+	fmt.Println("test_heap2 with negative keys: ", test_heap2)
+	test_heap3 := new(BinaryHeap)
+	test_heap3.Build(c)
+	fmt.Println("test_heap3 with same keys: ", test_heap3)
 }
