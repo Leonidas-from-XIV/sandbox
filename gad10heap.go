@@ -8,13 +8,14 @@ type BinaryHeap struct {
 	elements []int
 }
 
-func (b *BinaryHeap) bubble_up(i int) {
+func (b *BinaryHeap) bubble_up(i int) int {
 	H := b.elements
 	for i > 0 && H[(i - 1) / 2] > H[i] {
 		//println(H[(i-1) / 2], ">", H[i])
 		H[i], H[(i - 1) / 2] = H[(i - 1) / 2], H[i]
 		i = (i - 1) / 2
 	}
+	return i
 }
 
 func (b *BinaryHeap) bubble_down(i int) {
@@ -49,8 +50,13 @@ func (b *BinaryHeap) Build(entries []int) {
 }
 
 func (b *BinaryHeap) Insert(v int) {
+	b.InsertH(v)
+}
+
+func (b *BinaryHeap) InsertH(v int) int {
 	b.elements = append(b.elements, v)
 	b.bubble_up(len(b.elements) - 1)
+	return 0
 }
 
 func (b *BinaryHeap) String() string {
