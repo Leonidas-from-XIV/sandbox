@@ -31,18 +31,18 @@
       (memorized n))))
 
 (defmacro defmemo [name args & body]
-  `(defn ~name [n#]
+  `(defn ~name ~args
     ; the call cache which stores results
     (let [cache# (ref {})]
       ; yes, this shadows the outer ~name definition, but it's fine
       (letfn [(~name ~args
-                (if (contains? @cache# (first ~args)) (@cache# (first ~args))
+                (if-let [[k# v#] (find @cache# ~args)] v#
                   (let [res# ~@body]
                     (dosync
-                      (alter cache# #(assoc % (first ~args) res#)))
+                      (alter cache# #(assoc % ~args res#)))
                     (println @cache#)
                     res#)))]
-        (~name n#)))))
+        (~name ~@args)))))
 
 
 (defmemo macrofib [n]
@@ -56,3 +56,16 @@
 (println ((memorize fibonacci) 12))
 (println (memofib 12))
 (println (macrofib 12))
+
+(defn ackermann [m n]
+  (cond (zero? m) (inc n)
+        (zero? n) (ackermann (dec m) 1)
+        :else (ackermann (dec m) (ackermann m (dec n)))))
+
+(defmemo macroack [m n]
+  (cond (zero? m) (inc n)
+        (zero? n) (macroack (dec m) 1)
+        :else (macroack (dec m) (macroack m (dec n)))))
+
+(println (ackermann 3 4))
+(println (macroack 3 4))
