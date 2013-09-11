@@ -8,7 +8,7 @@
 (defn memorize [f]
   (let [cache (ref {})]
     (fn [n]
-      (if (contains? @cache n) (@cache n)
+      (if-let [[k v] (find @cache n)] v
         (let [res (apply f [n])]
           (dosync
             (ref-set cache (conj {n res} @cache)))
@@ -19,7 +19,7 @@
 (defn memofib [n]
   (let [cache (ref {})]
     (letfn [(memorized [m]
-              (if (contains? @cache m) (@cache m)
+              (if-let [[k v] (find @cache m)] v
                 (let [res (cond
                             (= m 0) 0
                             (= m 1) 1
@@ -67,5 +67,5 @@
         (zero? n) (macroack (dec m) 1)
         :else (macroack (dec m) (macroack m (dec n)))))
 
-(println (ackermann 3 4))
-(println (macroack 3 4))
+;(println (ackermann 3 4))
+;(println (macroack 3 4))
