@@ -6,6 +6,8 @@
 .*\.orig
 *.class
 .*~
+*.hi
+*.o
 scribble\.css
 scribble-common\.js
 gad5linear
