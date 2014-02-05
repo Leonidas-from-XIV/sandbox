@@ -11,7 +11,10 @@ module Main where
 	processLine :: String -> String
 	processLine l = 
 		let params = map (\x -> read x::Int) (wordsWhen (== ',') l)
-		in show $ getBiggerThan (params !! 0) (params !! 1)
+		in case params of
+			[] -> ""
+			(x:n:xs) -> show $ getBiggerThan x n
+			(x:xs) -> ""
 
 	wordsWhen :: (Char -> Bool) -> String -> [String]
 	wordsWhen p s =  case dropWhile p s of
