@@ -1,6 +1,6 @@
 module Main where
 import System.Environment (getArgs)
-import Data.Bits ((.&.), shift)
+import Data.Bits (testBit)
 
 processLine :: String -> String
 processLine l = case map (\x -> (read x::Int)) $ wordsWhen (== ',') l of
@@ -11,14 +11,10 @@ boolToString :: Bool -> String
 boolToString True = "true"
 boolToString False = "false"
 
--- get the n-th bit of the number n
-nthBit :: Int -> Int -> Int
-nthBit n p = shift n (-p) .&. 1
-
 -- check if the p1-th bit is the same as the p2-th bit of number n
 sameBit :: Int -> Int -> Int -> Bool
 sameBit n p1 p2 = bitOfN p1 == bitOfN p2
-	where bitOfN = nthBit n
+	where bitOfN = testBit n
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen p s =  case dropWhile p s of
