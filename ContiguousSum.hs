@@ -11,7 +11,7 @@ tailSeq [a] = [[a]]
 tailSeq (x:xs) = [x]:(map (x:) $ tailSeq xs)
 
 processLine :: String -> String
-processLine l = show $ foldl (\a e -> max a $ sum e) x $ contiguous (x:xs)
+processLine l = show $ maximum $ map sum $ contiguous (x:xs)
 	where (x:xs) = map (\x -> (read x::Int)) $ wordsWhen (== ',') $ filter (/= ' ') l
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
