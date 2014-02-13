@@ -1,6 +1,6 @@
 module Main where
 import System.Environment (getArgs)
-import Data.List (sortBy)
+import Data.List (insertBy)
 import Data.Function (on)
 
 lineCollector :: Int -> [String] -> String -> [String]
@@ -13,7 +13,7 @@ lineCollector n (smallest:rest) candidate
 			smallest:candidate:rest
 		else
 			candidate:smallest:rest
-	| otherwise = tail $ sortBy (compare `on` length) (candidate:smallest:rest)
+	| otherwise = tail $ insertBy (compare `on` length) candidate (smallest:rest)
 
 processLine :: [String] -> [String]
 processLine (n:content) = reverse $ foldl collector [] content
