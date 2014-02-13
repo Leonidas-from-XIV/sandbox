@@ -8,7 +8,7 @@ contiguous (x:xs) = tailSeq (x:xs) ++ contiguous xs
 
 tailSeq :: [Int] -> [[Int]]
 tailSeq [a] = [[a]]
-tailSeq (x:xs) = [x]:(map ((:) x) $ tailSeq xs)
+tailSeq (x:xs) = [x]:(map (x:) $ tailSeq xs)
 
 processLine :: String -> String
 processLine l = show $ foldl (\a e -> max a $ sum e) x $ contiguous (x:xs)
