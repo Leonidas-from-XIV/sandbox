@@ -11,7 +11,7 @@ Unless specified otherwise in the source files:
 
 ![WTFPL](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-2.png)
 
-Copyright © 2008-2013 Marek Kubica <marek@xivilization.net>
+Copyright © 2008-2014 Marek Kubica <marek@xivilization.net>
 
 This work is free. It comes without any warranty, to the extent permitted by
 applicable law. You can redistribute it and/or modify it under the terms of
