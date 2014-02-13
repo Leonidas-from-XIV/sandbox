@@ -6,12 +6,9 @@ contiguous [] = []
 contiguous [a] = [[a]]
 contiguous (x:xs) = tailSeq (x:xs) ++ contiguous xs
 
-frontSeq :: [Int] -> [[Int]]
-frontSeq [x] = [[x]]
-frontSeq (x:xs) = (x:xs):frontSeq xs
-
 tailSeq :: [Int] -> [[Int]]
-tailSeq s = map reverse $ frontSeq $ reverse s
+tailSeq [a] = [[a]]
+tailSeq (x:xs) = [x]:(map ((:) x) $ tailSeq xs)
 
 processLine :: String -> String
 processLine l = show $ foldl (\a e -> max a $ sum e) x $ contiguous (x:xs)
