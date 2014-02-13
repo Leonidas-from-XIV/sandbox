@@ -13,11 +13,10 @@ lineCollector n (smallest:rest) candidate
 			smallest:candidate:rest
 		else
 			candidate:smallest:rest
-	| length candidate > length smallest = candidate:rest
-	| otherwise = smallest:rest
+	| otherwise = tail $ sortBy (compare `on` length) (candidate:smallest:rest)
 
 processLine :: [String] -> [String]
-processLine (n:content) = foldl collector [] content
+processLine (n:content) = reverse $ foldl collector [] content
 	where collector = lineCollector (read n::Int)
 
 main = do
