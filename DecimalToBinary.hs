@@ -1,6 +1,6 @@
 module Main where
 import System.Environment (getArgs)
-import Data.List (unfoldr, intercalate)
+import Data.List (unfoldr)
 import Data.Tuple (swap)
 import Data.Char (intToDigit)
 
@@ -15,7 +15,7 @@ numToBin 0 = [0]
 numToBin n = numToBase 2 n
 
 binToString :: [Int] -> String
-binToString xs = intercalate "" $ map (:[]) $ map intToDigit xs
+binToString xs = map intToDigit xs
 
 processLine :: String -> String
 processLine l = binToString $ numToBin (read l::Int)
