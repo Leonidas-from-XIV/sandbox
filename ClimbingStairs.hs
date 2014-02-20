@@ -1,17 +1,21 @@
 module Main where
 import System.Environment (getArgs)
 
-addPossibility :: [[Int]] -> [[Int]]
-addPossibility acc = acc >>= (\tail -> map (:tail) [1,2])
+nextFib :: (Integer,Integer) -> (Integer,Integer)
+nextFib (old,new) = (new,old+new)
 
-possibilities = iterate addPossibility [[1], [2]]
+allFibonacci = iterate nextFib (1,0)
 
--- man, this is inefficient
-validPossibilities :: Int -> [[Int]]
-validPossibilities n = filter (\e -> sum e == n) $ concat $ take n possibilities
+fib :: Int -> Integer
+fib n = case allFibonacci !! n of
+	(a, b) -> b
+
+steps :: Int -> Integer
+steps 0 = 0
+steps n = fib (n+1)
 
 processLine :: String -> String
-processLine l = show $ length $ validPossibilities n
+processLine l = show $ steps n
 	where n = (read l::Int)
 
 main = do
