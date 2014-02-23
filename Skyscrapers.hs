@@ -2,12 +2,9 @@ module Main where
 import System.Environment (getArgs)
 import Data.Function (on)
 import Data.Char (isDigit)
-import Data.List (sortBy, insertBy, delete, maximumBy)
---import Debug.Trace (trace)
+import Data.List (sortBy, insertBy, delete)
 
-trace _ x = x
-
-data Building = Building {l::Int, r::Int, h::Int} deriving (Show, Eq, Ord)
+data Building = Building {l::Int, r::Int, h::Int} deriving Show
 
 parseTuple :: String -> Building
 parseTuple s = case wordsWhen (== ',') $ takeWhile (/= ')') $ dropWhile (not . isDigit) s of
@@ -24,8 +21,8 @@ begins xs = sortBy (compare `on` l) xs
 ends :: [Building] -> [Building]
 ends xs = sortBy (compare `on` r) xs
 
+insertOrdered :: Int -> [Int] -> [Int]
 insertOrdered = insertBy (compare `on` negate)
-maximumSeq = maximumBy (compare `on` r)
 
 mergeHeights :: [Int] -> [(Int,Int)] -> [Building] -> [Building] -> [(Int,Int)]
 mergeHeights [] res _ _ = res
@@ -34,34 +31,26 @@ mergeHeights _ res (_:_) [] = res
 mergeHeights (c:cs) res [] (e:es)
 	| h e < c = mergeHeights (delete (h e) (c:cs)) res [] es
 	| h e == c = mergeHeights (delete (h e) (c:cs)) ((r e, head cs):res) [] es
-	| otherwise = error "Problem with ends"
+	| otherwise = error "Assertion at merging ends failed"
 mergeHeights (c:cs) res (b:bs) (e:es)
-	| l b <= r e && h b >= c = trace "branch 1" $ mergeHeights (insertOrdered (h b) (c:cs)) (((l b), h b):res) bs (e:es)
-	| l b <= r e = trace "branch 2" $ mergeHeights (insertOrdered (h b) (c:cs)) res bs (e:es)
-	| r e < l b && h e < c = trace "branch 3" $ mergeHeights (delete (h e) (c:cs)) res (b:bs) es
-	| r e < l b && h e == c = trace "branch 4" $ mergeHeights (delete (h e) (c:cs)) ((r e, head cs):res) (b:bs) es
-	| otherwise = error ("Problem with recursion" ++ (show (h e)) ++ " " ++ (show c))
+	| l b <= r e && h b >= c = mergeHeights (insertOrdered (h b) (c:cs)) (((l b), h b):res) bs (e:es)
+	| l b <= r e = mergeHeights (insertOrdered (h b) (c:cs)) res bs (e:es)
+	| r e < l b && h e < c = mergeHeights (delete (h e) (c:cs)) res (b:bs) es
+	| r e < l b && h e == c = mergeHeights (delete (h e) (c:cs)) ((r e, head cs):res) (b:bs) es
+	| otherwise = error ("Assertion at merging bs/es failed: " ++ (show (h e)) ++ " " ++ (show c))
 
-traceCS :: Show a => a -> t -> t
-traceCS cs = trace $ show cs
-
--- down and up again
-removeIdentical :: [(Int, Int)] -> [(Int, Int)]
-removeIdentical [] = []
-removeIdentical [a] = [a]
-removeIdentical ((a,b):(a',b'):xs)
-	| b == b' = removeIdentical ((a,b):xs)
-	| otherwise = (a,b):(removeIdentical ((a',b'):xs))
-
-removeDouble :: [(Int, Int)] -> [(Int, Int)]
-removeDouble [] = []
-removeDouble [a] = [a]
-removeDouble ((a,b):(a',b'):xs)
-	| a == a' = removeDouble ((a',b'):xs)
-	| otherwise = (a,b):(removeDouble ((a',b'):xs))
+removePeaksAndDoubles :: [(Int, Int)] -> [(Int, Int)]
+removePeaksAndDoubles [] = []
+removePeaksAndDoubles [a] = [a]
+removePeaksAndDoubles ((a,b):(a',b'):xs)
+	-- goes to some height and then continues at the same height, pick former
+	| b == b' = removePeaksAndDoubles ((a,b):xs)
+	-- the something ends and starts at the same place, pick latter
+	| a == a' = removePeaksAndDoubles ((a',b'):xs)
+	| otherwise = (a,b):(removePeaksAndDoubles $ (a', b'):xs)
 
 reformat :: [(Int,Int)] -> [Int]
-reformat lat = concat [[a,b] | (a,b) <- removeDouble $ removeIdentical $ reverse lat]
+reformat lat = concat [[a,b] | (a,b) <- removePeaksAndDoubles $ reverse lat]
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen p s =  case dropWhile p s of
