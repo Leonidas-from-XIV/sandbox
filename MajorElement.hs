@@ -1,14 +1,13 @@
 module Main where
 import System.Environment (getArgs)
+import qualified Data.Map as Map
 
-increment :: [(String,Int)] -> String -> ([(String,Int)], Int)
-increment [] a = ([(a, 1)], 1)
-increment ((a,b):xs) a'
-	| a' == a = ((a, (b+1)):xs, (b+1))
-	| otherwise = ((a,b):map, val)
-            where (map, val) = increment xs a'
+increment :: Map.Map String Int -> String -> (Map.Map String Int, Int)
+increment map a = case Map.insertLookupWithKey (\_ a b -> a + b) a 1 map of
+	(Just val, m) -> (m, val + 1)
+	(Nothing, m) -> (m, 0)
 
-process :: Int -> [String] -> [(String,Int)] -> Maybe String
+process :: Int -> [String] -> Map.Map String Int -> Maybe String
 process req [] _ = Nothing
 process req (x:xs) map = if frequency > req then Just x else process req xs map'
 	where (map', frequency) = increment map x
@@ -18,7 +17,7 @@ showProcess Nothing = "None"
 showProcess (Just x) = x
 
 processLine :: String -> String
-processLine l = showProcess $ process req entries []
+processLine l = showProcess $ process req entries Map.empty
 	where req = length entries `quot` 2
 	      entries = wordsWhen (== ',') l
 
