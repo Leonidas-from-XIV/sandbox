@@ -1,18 +1,14 @@
 module Main where
 import System.Environment (getArgs)
-import Data.List (sort)
 
-findDupe :: [Int] -> Int
-findDupe [] = 0
-findDupe [_] = 0
-findDupe (y:x:xs)
-	| x == y = x
-	| otherwise = findDupe (x:xs)
+sumTo :: Int -> Int
+sumTo n = (n^2 + n) `quot` 2
 
 processLine :: String -> String
-processLine l = show $ findDupe $ sort entries
+processLine l = show $ sum entries - sumTo (n-2)
         where entries = read ("[" ++ items ++ "]")::[Int]
-              [_,items] = wordsWhen (== ';') l
+              n = read ns::Int
+              [ns,items] = wordsWhen (== ';') l
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen p s =  case dropWhile p s of
