@@ -19,9 +19,14 @@ showProcess (Just x) = show x
 
 processLine :: String -> String
 processLine l = showProcess $ process req entries []
-	where req = n `quot` 2
-	      n = length entries
-              entries = read ("[" ++ l ++ "]")::[Int]
+	where req = length entries `quot` 2
+	      entries = map (\x -> read x::Int) $ wordsWhen (== ',') l
+
+wordsWhen :: (Char -> Bool) -> String -> [String]
+wordsWhen p s =  case dropWhile p s of
+	"" -> []
+	s' -> w : wordsWhen p s''
+		where (w, s'') = break p s'
 
 main :: IO ()
 main = do
