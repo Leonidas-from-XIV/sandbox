@@ -2,15 +2,21 @@ module Main where
 import System.Environment (getArgs)
 import Data.List (sort)
 
+differences :: [Int] -> [Int]
 differences [] = []
-differences [x] = []
+differences [_] = []
 differences (a:b:xs) = abs (a - b):differences (b:xs)
 
-jolly :: [Int] -> Bool
-jolly [x] = True
-jolly lat = [1..(n-1)] == (sort . differences) lat
-	where n = length lat
+increasing :: [Int] -> Bool
+increasing [] = True
+increasing [_] = True
+increasing (a:b:xs) = (a+1) == b && increasing (b:xs)
 
+jolly :: [Int] -> Bool
+jolly lat = head seq == 1 && increasing seq
+	where seq = (sort . differences) lat
+
+showJolly :: Bool -> String
 showJolly True = "Jolly"
 showJolly False = "Not jolly"
 
