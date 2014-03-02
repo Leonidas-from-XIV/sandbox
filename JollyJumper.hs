@@ -3,14 +3,10 @@ import System.Environment (getArgs)
 import Data.List (sort)
 
 differences :: [Int] -> [Int]
-differences [] = []
-differences [_] = []
-differences (a:b:xs) = abs (a - b):differences (b:xs)
+differences xs = map abs $ zipWith subtract xs (tail xs)
 
 increasing :: [Int] -> Bool
-increasing [] = True
-increasing [_] = True
-increasing (a:b:xs) = (a+1) == b && increasing (b:xs)
+increasing xs = all (== True) $ zipWith (\a b -> a+1 == b) xs (tail xs)
 
 jolly :: [Int] -> Bool
 jolly lat = head seq == 1 && increasing seq
