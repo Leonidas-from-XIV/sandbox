@@ -6,7 +6,7 @@ differences :: [Int] -> [Int]
 differences xs = map abs $ zipWith subtract xs (tail xs)
 
 increasing :: [Int] -> Bool
-increasing xs = all (== True) $ zipWith (\a b -> a+1 == b) xs (tail xs)
+increasing xs = and zipWith (\a b -> a+1 == b) xs (tail xs)
 
 jolly :: [Int] -> Bool
 jolly lat = head seq == 1 && increasing seq
