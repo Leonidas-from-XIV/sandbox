@@ -1,16 +1,16 @@
 module Main where
 import System.Environment (getArgs)
 
-rotations 0 s = [s]
-rotations n (s:sx) = rotated:rotations (n-1) rotated
-	where rotated = sx++[s]
-
-isRotation a b = if b `elem` rotations (n-1) a then "True" else "False"
-	where n = length a
+rotations :: String -> [String]
+rotations s = rotations' (n-1) s
+        where rotations' 0 s = [s]
+              rotations' n (s:sx) = rotated:rotations' (n-1) rotated
+                      where rotated = sx++[s]
+              n = length s
 
 processLine :: String -> String
 processLine l = case wordsWhen (== ',') l of
-	[a,b] -> isRotation a b
+	[a,b] -> if b `elem` rotations a then "True" else "False"
 	otherwise -> "Invalid input"
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
