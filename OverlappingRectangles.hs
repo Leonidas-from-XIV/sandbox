@@ -18,7 +18,8 @@ showBool _ = "False"
 
 processLine :: String -> String
 processLine l = case map (\e -> (read e::Int)) $ wordsWhen (== ',') l of
-	[a,b,c,d,e,f,g,h] -> showBool $ any (contained (Rect e f g h)) $ edges (Rect a b c d)
+	[a,b,c,d,e,f,g,h] -> let (first, second) = (Rect a b c d, Rect e f g h) in
+		showBool $ (any (contained second) $ edges first) || (any (contained first) $ edges second)
 	_ -> "Invalid input"
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
