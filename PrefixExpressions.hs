@@ -1,12 +1,13 @@
 module Main where
 import System.Environment (getArgs)
+import Data.Ratio ((%), Ratio)
 
-eval :: [Double] -> String -> [Double]
+eval :: [Ratio Int] -> [Char] -> [Ratio Int]
 eval (a:b:xs) "+" = (a+b):xs
 eval (a:b:xs) "-" = (a-b):xs
 eval (a:b:xs) "*" = (a*b):xs
 eval (a:b:xs) "/" = (a / b):xs
-eval xs num = (read num::Double):xs
+eval xs num = ((read num::Int) % 1):xs
 
 processLine :: String -> String
 processLine = show . truncate . head . foldl eval [] . reverse . words
