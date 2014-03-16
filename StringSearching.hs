@@ -18,7 +18,7 @@ matchString [Star] _ = True
 matchString [_] [] = False
 matchString (Literal _:_) [] = False
 matchString (Literal g:gs) (x:xs) = x == g && matchString gs xs
-matchString (Star:gs) str = any id $ map (matchString gs) $ tails str
+matchString (Star:gs) str = or $ map (matchString gs) $ tails str
 
 processLine :: String -> String
 processLine l = case wordsWhen (== ',') l of
