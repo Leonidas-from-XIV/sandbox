@@ -14,9 +14,11 @@ fn phi<T: Integer + Clone + ToPrimitive>(n: T) -> T {
 	hits
 }
 
-fn extended_euclid(a: i64, b: i64) -> (i64, i64, i64) {
-	if b == 0 {
-		return (a, 1, 0);
+fn extended_euclid<T: Integer + Neg<T> + Copy>(a: T, b: T) -> (T, T, T) {
+	let zero: T = Zero::zero();
+	let one: T = one();
+	if b == zero {
+		return (a, one, zero);
 	}
 	let (d1, s1, t1) = extended_euclid(b, a % b);
 	let (d, s, t) = (d1, t1, s1 - (a/b) * t1);
