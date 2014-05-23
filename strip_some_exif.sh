@@ -36,7 +36,7 @@ IMAGE_TAGS="\
 	-ExposureProgram -ExposureMode -Lens -ShutterSpeedValue \
 	-DepthOfField -FieldOfView -FocalLength -XResolution -YResolution"
 
-PRESERVE_GPS=false
+PRESERVE_GPS=0
 DRY_RUN=""
 
 while getopts "ghd" opt; do
@@ -46,7 +46,7 @@ while getopts "ghd" opt; do
 			exit 0
 			;;
 		g)
-			PRESERVE_GPS=true
+			PRESERVE_GPS=1
 			;;
 		d)
 			DRY_RUN="echo"
@@ -56,7 +56,7 @@ done
 # delete options found
 shift "$((OPTIND-1))"
 
-if [ $PRESERVE_GPS == "false" ]; then
+if [ $PRESERVE_GPS -ne 1 ]; then
 	GPS_TAGS=""
 fi
 
