@@ -1,4 +1,5 @@
 #!/usr/bin/zsh
+# maximum X/Y resolution of image
 MAX_SIZE=2048
 
 # this must be of proper size
@@ -7,11 +8,11 @@ WATERMARK=watermark.png
 # percentage of alpha that is applied to watermark
 ALPHA_BLEND=100
 
-# how much from the border in X direction
-BORDER_X=30
+# how much from the padding from edge in X direction
+PADDING_X=30
 
-# how much from the border in Y direction
-BORDER_Y=30
+# how much from the padding from edge in Y direction
+PADDING_Y=30
 
 # END OF CONFIG #
 setopt null_glob
@@ -39,10 +40,10 @@ do
 	fi
 
 	convert $inputfile \
-		-scale '2048>' \
+		-scale "$MAX_SIZE"\> \
 		$WATERMARK \
 		-gravity southeast \
-		-geometry +30+30 \
+		-geometry +"$PADDING_X"+"$PADDING_Y" \
 		-compose dissolve \
 		-define compose:args="$ALPHA_BLEND",100 \
 		-composite \
