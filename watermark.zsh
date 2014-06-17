@@ -1,4 +1,5 @@
 #!/usr/bin/zsh
+
 # maximum X/Y resolution of image
 MAX_SIZE=2048
 
@@ -15,6 +16,8 @@ PADDING_X=30
 PADDING_Y=30
 
 # END OF CONFIG #
+
+# we should accept empty globs
 setopt null_glob
 
 force_overwrite=false
@@ -28,15 +31,15 @@ fi
 in_folder="$1"
 out_folder="$2"
 
+# JPG and jpg accepted, everything else can toss right off
 for inputfile in $in_folder/*.jpg $in_folder/*.JPG
 do
 	filename=$(basename "$inputfile")
 	outputfile="$out_folder"/"$filename"
-	if [[ -a "$outputfile" ]]; then
-		if [[ $force_overwrite == false ]]; then
-			echo "File exists, skipping"
-			continue
-		fi
+	# check if that file exists
+	if [[ $force_overwrite == false ]] && [[ -a "$outputfile" ]]; then
+		echo "File exists, skipping"
+		continue
 	fi
 
 	convert $inputfile \
