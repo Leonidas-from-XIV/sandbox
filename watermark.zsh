@@ -7,24 +7,25 @@ MAX_SIZE=2048
 WATERMARK=watermark.png
 
 # percentage of alpha that is applied to watermark
-ALPHA_BLEND=100
+ALPHA_BLEND=60
 
 # how much from the padding from edge in X direction
-PADDING_X=30
+PADDING_X=15
 
 # how much from the padding from edge in Y direction
-PADDING_Y=30
+PADDING_Y=15
 
 # END OF CONFIG #
 
 # we should accept empty globs
 setopt null_glob
 
-force_overwrite=false
+# do not overwrite existing files by default, enables multiple runs
+overwrite=false
 
 zparseopts -D -E -A Args -- f -force
 if (( ${+Args[-f]} )) || (( ${+Args[--force]} )); then
-	force_overwrite=true
+	overwrite=true
 fi
 
 # must be after zparseopts
@@ -37,7 +38,7 @@ do
 	filename=$(basename "$inputfile")
 	outputfile="$out_folder"/"$filename"
 	# check if that file exists
-	if [[ $force_overwrite == false ]] && [[ -a "$outputfile" ]]; then
+	if [[ $overwrite == false ]] && [[ -a "$outputfile" ]]; then
 		echo "File exists, skipping"
 		continue
 	fi
