@@ -10,10 +10,10 @@ WATERMARK=watermark.png
 ALPHA_BLEND=60
 
 # how much from the padding from edge in X direction
-PADDING_X=15
+PADDING_X=20
 
 # how much from the padding from edge in Y direction
-PADDING_Y=15
+PADDING_Y=20
 
 # END OF CONFIG #
 
