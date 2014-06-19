@@ -44,7 +44,7 @@ do
 	fi
 
 	convert $inputfile \
-		-scale "$MAX_SIZE"\> \
+		-resize "${MAX_SIZE}x${MAX_SIZE}" \
 		$WATERMARK \
 		-gravity southeast \
 		-geometry +"$PADDING_X"+"$PADDING_Y" \
