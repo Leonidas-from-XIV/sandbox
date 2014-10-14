@@ -1,27 +1,32 @@
 (* Calculates Euler number
  *
  * Requires Gmp library, compile it with
- * ocamlbuild -package gmp euler.byte
+ * ocamlbuild -pkg gmp euler.byte
  * -or-
- * ocamlbuild -package gmp euler.native
+ * ocamlbuild -pkg gmp euler.native
  *)
 
-let one = Gmp.F.from_int 1
 let prec = 1_000_000
 let max_n = 205_211
-let fmul = Gmp.F.mul_prec_ui ~prec
-let fdiv = Gmp.F.div_prec ~prec
-let fadd = Gmp.F.add_prec ~prec
 let to_string = Gmp.F.to_string_base_digits ~base:10 ~digits:1000
 
-let f () =
-  let x = ref one in
-  let euler = ref one in
-  for n = 1 to max_n do
-    x := fmul !x n;
-    euler := fadd !euler @@ fdiv one !x;
+let euler_fraction n =
+  let open Gmp.Z in
+  let one = from_int 1 in
+  let numerator = ref one in
+  let denominator = ref one in
+  for i = 1 to n do
+    numerator := add_ui (mul_ui !numerator i) 1;
+    denominator := mul_ui !denominator i;
   done;
-  print_endline @@ to_string !euler
+  (!numerator, !denominator)
+
+let f () =
+  let (num, den) = euler_fraction max_n in
+  let znum = Gmp.F.from_z_prec ~prec num in
+  let zden = Gmp.F.from_z_prec ~prec den in
+  let euler = Gmp.F.div_prec ~prec znum zden in
+  print_endline @@ to_string euler
 
 let _ =
   f ()
