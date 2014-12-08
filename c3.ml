@@ -24,7 +24,8 @@ let head_not_in_tails (l : 'a hierarchy list list) =
   List.fold_left find_a_head_that_is_not_in_tails None heads
 
 let remove to_remove l =
-  List.filter (fun e -> e != []) (List.map (List.filter (fun e -> e != to_remove)) l)
+  let rem to_remove = List.filter (fun e -> e != to_remove) in
+  rem [] @@ List.map (rem to_remove) l
 
 exception No_linearization
 
