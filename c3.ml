@@ -1,8 +1,8 @@
 (*
- * ocamlbuild c3.native -use-ocamlfind -package ppx_deriving.show
+ * ocamlbuild c3.native
  *)
 
-type hierarchy = Class of (string * hierarchy list) [@@deriving show]
+type hierarchy = Class of (string * hierarchy list)
 
 let o = Class ("O", [])
 let a = Class ("A", [o])
@@ -15,17 +15,19 @@ let k2 = Class ("K2", [d; b; e])
 let k3 = Class ("K3", [d; a])
 let z = Class ("Z", [k1; k2; k3])
 
-let hds = function
+let head = function
   | [] -> []
   | x -> [List.hd x]
 
-let tls = function
+let tail = function
   | [] -> []
   | x -> [List.tl x]
 
+let concat_map f l = List.concat @@ List.map f l
+
 let head_not_in_tails (l : hierarchy list list) =
-  let heads = List.flatten @@ List.map hds l in
-  let tails = List.flatten @@ List.map tls l in
+  let heads = concat_map head l in
+  let tails = concat_map tail l in
   let find_a_head_that_is_not_in_tails acc v = match acc with
     | Some x -> Some x
     | None -> if List.exists (List.mem v) tails then None else Some v
@@ -39,7 +41,7 @@ let rec merge (l : hierarchy list list) =
   match head_not_in_tails l with
   | Some c -> (match remove c l with
     | [] -> [c]
-    | n -> c :: (merge n))
+    | n -> c :: merge n)
   | None -> failwith "Can't be linearized"
 
 let rec c3 = function
