@@ -1,13 +1,8 @@
 (*
- * ocamlbuild markov.native
+ * ocamlbuild markov.native -package batteries
  *)
 
-module LazyList = BatLazyList
-module IO = BatIO
-module String = BatString
-module List = BatList
-module Map = BatMap
-module Random = BatRandom
+open Batteries
 
 module KK = struct
   type t = string * string
@@ -37,16 +32,26 @@ let add_to_table tbl (k, v) =
     | exception Not_found -> [] in
   KKMap.add k (v::oldval) tbl
 
-let markov_link tbl ((_, k1), k2) =
+let markov_link tbl (k1,k2) =
   match KKMap.find (k1, k2) tbl with
-    | xs -> let next = Random.choice xs in
-      ((k1, k2), next)
+    | xs -> let next = Random.choice (List.enum xs) in
+      (next, (k2, next))
     | exception Not_found -> raise LazyList.No_more_elements
 
 let markov_chain tbl =
-  let linked = markov_link tbl in
-  LazyList.from_loop (("a", "b"), "c") linked
+  let (start_key, _) = Random.choice (KKMap.enum tbl) in
+  LazyList.from_loop start_key (markov_link tbl)
 
-let transitions triplets =
+let prepare_chain triplets =
   let parts = List.map kv triplets in
   List.fold_left add_to_table KKMap.empty parts
+
+let () =
+  words ()
+    |> partition 3 1
+    |> prepare_chain
+    |> markov_chain
+    |> LazyList.take 10
+    |> LazyList.to_list
+    |> String.join " "
+    |> print_endline
