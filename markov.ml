@@ -19,7 +19,8 @@ let words () =
 
 let rec partition n step coll =
   match List.take n coll with
-    | taken when List.length taken == n -> taken::partition n step (List.drop step coll)
+    | taken when List.length taken == n ->
+        taken::partition n step (List.drop step coll)
     | _ -> []
 
 let kv = function
@@ -47,11 +48,17 @@ let prepare_chain triplets =
   List.fold_left add_to_table KKMap.empty parts
 
 let () =
+  let number = ref 25 in
+  let speclist = [
+    ("-n", Arg.Int (fun x -> number := x), "Number of words to generate")
+    ] in
+  Arg.parse speclist print_endline "Markov chain generator";
+
   words ()
     |> partition 3 1
     |> prepare_chain
     |> markov_chain
-    |> LazyList.take 10
+    |> LazyList.take !number
     |> LazyList.to_list
     |> String.join " "
     |> print_endline
