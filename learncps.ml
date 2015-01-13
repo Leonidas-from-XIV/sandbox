@@ -55,11 +55,9 @@ let intercalate e lat =
 let sum lat =
   List.fold_left (+) 0 lat
 
-let accumulate n k =
-  let rec accumulate' n k = match n with
-    | 0 -> (fun x -> k x)
-    | n -> accumulate' (n - 1) (fun x -> k (n::x)) in
-  accumulate' n k []
+let rec accumulate n k = match n with
+  | 0 -> k [0]
+  | n -> accumulate (n-1) (fun x -> k (n::x))
 
 (* accumulate 42 sum *)
 
