@@ -52,6 +52,17 @@ let intercalate e lat =
     | x::xs -> intercalate' xs (fun a -> k (x::e::a)) in
   intercalate' lat (fun x -> x)
 
+let sum lat =
+  List.fold_left (+) 0 lat
+
+let accumulate n k =
+  let rec accumulate' n k = match n with
+    | 0 -> (fun x -> k x)
+    | n -> accumulate' (n - 1) (fun x -> k (n::x)) in
+  accumulate' n k []
+
+(* accumulate 42 sum *)
+
 let () =
   let is_capitalized s =
     s |> String.lowercase <> s
