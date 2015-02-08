@@ -2,16 +2,13 @@ function createClass(...)
 	-- store the varargs in some odd thing
 	local parents = {...}
 	local c = {}
-	setmetatable(c, {
-		__index = function (t, k)
-			for _, parent in pairs(parents) do
-				local v = parent[k]
-				if v then return v end
-			end
-			return nil
+	c.__index = function (t, k)
+		for _, parent in pairs(parents) do
+			local v = parent[k]
+			if v then return v end
 		end
-	})
-	c.__index = c
+		return nil
+	end
 	function c:new(o)
 		local o = o or {}
 		setmetatable(o, c)
