@@ -4,21 +4,19 @@
 
 open Core.Std
 
-
-let find_path name paths =
-  List.find_map paths (fun path ->
-    let p = path ^ "/" ^ name in
-    match Sys.file_exists p with
-    | `Yes -> Some p
-    | _ -> None)
+let find_paths name paths =
+  List.map paths (fun p -> p ^ "/" ^ name) |>
+  List.filter ~f:(fun path ->
+    match Sys.file_exists path with
+    | `Yes -> true
+    | _ -> false)
 
 let main () =
   let exe_name = Sys.argv.(1) in
-  let paths = match Sys.getenv "PATH" with
-  | Some paths -> String.split paths ~on:':'
-  | None -> [] in
-  match find_path exe_name paths with
-  | Some p -> print_endline p
-  | None -> ()
+  (match Sys.getenv "PATH" with
+    | Some paths -> String.split paths ~on:':'
+    | None -> [])
+  |> find_paths exe_name
+  |> List.iter ~f:print_endline
 
 let () = main ()
