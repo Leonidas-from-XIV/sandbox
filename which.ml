@@ -12,18 +12,21 @@ let find_paths name paths =
     | _ -> false)
 
 let main () =
-  let spec =
-    let open Command.Spec in
+  let spec = Command.Spec.(
     empty
-    +> anon ("command" %: string) in
+    +> flag "-a" no_arg ~doc:"Foo"
+    +> anon ("command" %: string)) in
   Command.basic
     ~summary:"Locate command"
     spec
-    (fun exe_name () ->
+    (fun all exe_name () ->
       (match Sys.getenv "PATH" with
       | Some paths -> String.split paths ~on:':'
       | None -> [])
       |> find_paths exe_name
+      |> (function
+        | x::_ when not all -> [x]
+        | x -> x)
       |> List.iter ~f:print_endline)
   |> Command.run
 
