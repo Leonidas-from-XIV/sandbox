@@ -1,0 +1,42 @@
+%!PS-Adobe-3.0
+%%Title: (Issuu logo recreation)
+%%Creator: (Marek Kubica <marek@xivilization.net>)
+%%Pages: 1
+%%EndComments
+%%Page 1 1
+
+/OrangeColor [ 239 82 39 ] def
+/WhiteColor [ 255 255 255 ] def
+
+/OutlineColor { OrangeColor { 255 div } forall } def
+/InlineColor { WhiteColor { 255 div } forall } def
+
+/Circles [ [ 70 InlineColor ] [ 50 OutlineColor ] [ 25 InlineColor ] ] def
+
+% ( radius colorr colorg colorb ) --
+/drawcircle {
+  newpath
+  setrgbcolor
+  400 200 moveto
+  400 200
+  3 2 roll
+  0 360 arc
+  closepath
+  fill
+  stroke
+} def
+
+/main {
+  newpath
+  OutlineColor setrgbcolor
+  300 300 moveto
+  100 0 rlineto
+  400 200 100 90 180 arcn
+  closepath
+  fill
+  stroke
+
+  Circles { aload pop drawcircle } forall
+} def
+
+main
